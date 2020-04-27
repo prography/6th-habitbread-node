@@ -14,7 +14,9 @@
     ],
     // 원하는 lint 규칙 정하기
     "rules": {
-        "prettier/prettier": "error",
+        "prettier/prettier": ["error", {
+            "endOfLine": "auto"
+        }],
         "block-scoped-var": "error",
         "eqeqeq": "error",
         "no-var": "error",
