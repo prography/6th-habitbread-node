@@ -1,0 +1,67 @@
+{
+    // 서드 파티 플러그인들 (eslint-plugin- 생략 가능)
+    "plugins": [
+        "node",
+        "prettier",
+        "jest"
+    ],
+    // 추가한 플러그인에서 적용시킬 규칙을 설정함
+    "extends": [
+        "eslint:recommended",
+        "plugin:node/recommended",
+        "prettier",
+        "plugin:jest/recommended"
+    ],
+    // 원하는 lint 규칙 정하기
+    "rules": {
+        "prettier/prettier": "error",
+        "block-scoped-var": "error",
+        "eqeqeq": "error",
+        "no-var": "error",
+        "prefer-const": "error",
+        "eol-last": "error",
+        "prefer-arrow-callback": "error",
+        "no-trailing-spaces": "error",
+        "quotes": [
+            "warn",
+            "single",
+            {
+                "avoidEscape": true
+            }
+        ]
+    },
+    // 우선 순위를 가지도록 overrides
+    "overrides": [
+        {
+            // 특정 그룹 파일에 lint를 적용하겠다라는 의미
+            "files": [
+                "**/*.ts",
+                "**/*.tsx"
+            ],
+            "parser": "@typescript-eslint/parser",
+            "extends": [
+                "plugin:@typescript-eslint/recommended"
+            ],
+            "rules": {
+                "@typescript-eslint/no-non-null-assertion": "off",
+                "@typescript-eslint/no-use-before-define": "off",
+                "@typescript-eslint/no-warning-comments": "off",
+                "@typescript-eslint/no-empty-function": "off",
+                "@typescript-eslint/explicit-function-return-type": "off",
+                "@typescript-eslint/camelcase": "off",
+                "node/no-missing-import": "off",
+                "node/no-empty-function": "off",
+                "node/no-unsupported-features/es-syntax": "off",
+                "node/no-missing-require": "off",
+                "node/shebang": "off",
+                "no-dupe-class-members": "off",
+                "require-atomic-updates": "off"
+            },
+            // 자바스크립트 언어의 옵션을 지정할 수 있음
+            "parserOptions": {
+                "ecmaVersion": 2018,
+                "sourceType": "module"
+            }
+        }
+    ]
+}
