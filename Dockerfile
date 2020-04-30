@@ -1,7 +1,7 @@
-FROM node:12-alpine
+FROM node:12-slim
 
-# Add package.json before rest of repo for caching
 # install node modules
+# Add package.json before rest of repo for caching
 WORKDIR /usr/src/app
 COPY package.json /usr/src/app/package.json
 # 프로덕션을 위한 코드를 빌드하는 경우
@@ -9,7 +9,6 @@ COPY package.json /usr/src/app/package.json
 RUN npm install
 
 # install application
-COPY . /usr/src/app
-# ENV NODE_ENV=production
-EXPOSE 3000
-CMD npm start
+# COPY . /usr/src/app
+# CMD npm start
+EXPOSE 80 3000
