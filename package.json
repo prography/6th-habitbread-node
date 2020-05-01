@@ -4,7 +4,7 @@
   "description": "프로그라피 6기 - 'USO'앱을 개발하는 4팀의 TypeScript와 Express를 이용한 Node.js 백엔드 서버",
   "main": "index.js",
   "scripts": {
-    "start": "npx tsc && NODE_ENV=prod node dist",
+    "start": "npx tsc && node dist",
     "test": "jest",
     "dev": "nodemon --watch src/ --exec NODE_ENV=dev ts-node src/index.ts"
   },
@@ -17,13 +17,15 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "reflect-metadata": "^0.1.13",
-    "routing-controllers": "^0.8.1"
+    "routing-controllers": "^0.8.1",
+    "uuid": "^8.0.0"
   },
   "devDependencies": {
     "@prisma/cli": "^2.0.0-beta.3",
     "@types/express": "^4.17.6",
     "@types/jest": "^25.2.1",
     "@types/supertest": "^2.0.8",
+    "@types/uuid": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
