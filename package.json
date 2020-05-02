@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && node dist",
-    "test": "jest",
+    "test": "NODE_ENV=test jest",
     "dev": "nodemon --watch src/ --exec NODE_ENV=dev ts-node src/index.ts"
   },
   "author": "",
