@@ -4,7 +4,7 @@ generator client {
 
 datasource mysql {
   provider = "mysql"
-  url      = env("DB_URL")
+  url = "***"
 }
 
 model Character {
@@ -18,16 +18,28 @@ model Character {
 }
 
 model CommitHistory {
-  createdAt   DateTime  @default(now()) @map("created_at")
-  habitId     Int       @map("habit_id")
-  historyId   Int       @default(autoincrement()) @id @map("history_id")
-  userId      Int       @map("user_id")
-  habits      Habit     @relation(fields: [habitId], references: [habitId])
-  users       User      @relation(fields: [userId], references: [userId])
+  createdAt DateTime @default(now()) @map("created_at")
+  habitId   Int      @map("habit_id")
+  historyId Int      @default(autoincrement()) @id @map("history_id")
+  userId    Int     @map("user_id")
+  habits     Habit   @relation(fields: [habitId], references: [habitId])
+  users      User    @relation(fields: [userId], references: [userId])
 
   @@index([habitId], name: "fk_Habit_History_Habit1_idx")
   @@index([userId], name: "fk_Habit_History_User1_idx")
   @@map("commit_history")
+}
+
+model Habit {
+  category        String
+  description     String?
+  habitId         Int         @default(autoincrement()) @id @map("habit_id")
+  isScheduled     Int         @map("is_scheduled")
+  title           String
+  commitHistory   CommitHistory[]
+  userHabit       UserHabit[]
+
+  @@map("habits")
 }
 
 model Ranking {
@@ -49,18 +61,6 @@ model Scheduler {
   @@map("scheduler")
 }
 
-model Habit {
-  category        String
-  description     String?
-  habitId         Int         @default(autoincrement()) @id @map("habit_id")
-  title           String
-  user            User        @relation(fields: [userId], references: [userId])
-  userId          Int         @map("user_id")
-
-  @@index([userId], name: "fk_Habit_User1_idx")
-  @@map("habits")
-}
-
 model User {
   appleId       String?     @map("apple_id")
   createdAt     DateTime?   @map("created_at")
@@ -72,7 +72,19 @@ model User {
   userId        Int         @default(autoincrement()) @id @map("user_id")
   characters    Character[]
   commitHistory CommitHistory[]
-  Habit         Habit[]
+  userHabit     UserHabit[]
 
   @@map("users")
+}
+
+model UserHabit {
+  habitId   Int   @map("habit_id")
+  userId    Int   @map("user_id")
+  habits    Habit @relation(fields: [habitId], references: [habitId])
+  users     User  @relation(fields: [userId], references: [userId])
+
+  @@id([userId, habitId])
+  @@index([habitId], name: "fk_User_Habit_Habit1_idx")
+  @@index([userId], name: "fk_User_Habit_User1_idx")
+  @@map("user_habit")
 }

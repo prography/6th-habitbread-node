@@ -4,7 +4,7 @@ generator client {
 
 datasource mysql {
   provider = "mysql"
-  url      = env("DB_URL")
+  url = "***"
 }
 
 model Character {
@@ -57,7 +57,6 @@ model Habit {
   user            User        @relation(fields: [userId], references: [userId])
   userId          Int         @map("user_id")
 
-  @@index([userId], name: "fk_Habit_User1_idx")
   @@map("habits")
 }
 
