@@ -1,4 +1,4 @@
-FROM node:12-slim
+FROM node:12
 
 # install node modules
 # Add package.json before rest of repo for caching
@@ -11,4 +11,4 @@ RUN npm install
 # install application
 COPY . /usr/src/app
 # CMD npm start
-EXPOSE 80 3000
+EXPOSE 80 3000 3306

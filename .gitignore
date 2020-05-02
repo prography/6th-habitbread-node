@@ -1,6 +1,7 @@
 node_modules
 dist
-db
+db/data
+prisma/.env
 *.prod.yml
 .env.*
 !.env.example

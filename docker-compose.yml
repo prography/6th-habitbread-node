@@ -1,18 +1,23 @@
 version: '3.7'
 services: 
-  mysql-database:
-    container_name: mysql-database
-    image: mysql:5.7
-    ports:
-      - '3306:3306'
-    environment:
-      MYSQL_ROOT_PASSWORD: 'admin'
-      MYSQL_DATABASE: 'prography-test'
-      MYSQL_USER: 'admin'
-      MYSQL_PASSWORD: 'admin'
-    restart: on-failure
-    volumes: 
-      - ./db/data:/var/lib/mysql
+  # mysql-database:
+  #   container_name: mysql-database
+  #   image: mysql:5.7
+  #   ports:
+  #     - '3306:3306'
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: prography-test
+  #     MYSQL_USER: admin
+  #     MYSQL_PASSWORD: admin
+  #   expose: 
+  #     - '3306'
+  #   restart: on-failure
+  #   volumes: 
+  #     - './db/data:/var/lib/mysql'
+  #   networks:
+  #     backend:
+  #       ipv4_address: 172.16.5.2
     
   node-server:
     container_name: node-server
@@ -20,9 +25,19 @@ services:
     ports: 
       - '3000:3000'
     environment: 
-      NODE_ENV: 'dev'
+      NODE_ENV: dev
     volumes:
       - '.:/usr/src/app'
-    depends_on: 
-      - mysql-database
-    command: 'npm run dev'
+    # depends_on: 
+    #   - mysql-database
+    command: npm run dev
+    networks:
+      backend:
+        ipv4_address: 172.16.5.3
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.5.0/16
