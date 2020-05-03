@@ -6,7 +6,11 @@
   "scripts": {
     "start": "npx tsc && node dist",
     "test": "NODE_ENV=test jest --maxWorkers=10 --forceExit",
-    "dev": "nodemon --watch src/ --exec NODE_ENV=dev ts-node src/index.ts"
+    "dev": "nodemon --watch src/ --exec NODE_ENV=dev ts-node src/index.ts",
+    "prisma:echo" : "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
+    "prisma:generate": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma generate",
+    "prisma:up": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate up --experimental",
+    "prisma:down": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate down --experimental"
   },
   "author": "",
   "license": "ISC",
