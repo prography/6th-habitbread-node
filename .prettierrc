@@ -4,5 +4,6 @@
   "trailingComma": "es5",
   "arrowParens": "avoid",
   "useTabs": false,
-  "semi": true
+  "semi": true,
+  "printWidth": 120
 }

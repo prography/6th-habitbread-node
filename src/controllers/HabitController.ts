@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { Body, Get, JsonController, Param, Post } from 'routing-controllers';
-import { Habit } from '../validations/Habit';
+import { Body, Get, JsonController, Params, Post, Put } from 'routing-controllers';
+import { AddHabit, Id, UpdateHabit, UserId } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
@@ -14,7 +14,7 @@ export class UserController extends BaseController {
 
   // 습관 등록하기
   @Post('/')
-  public async createHabit(@Body({ validate: true }) habit: Habit) {
+  public async createHabit(@Body({ validate: true }) habit: AddHabit) {
     return await this.prisma.habit.create({
       data: {
         title: habit.title,
@@ -29,24 +29,37 @@ export class UserController extends BaseController {
 
   // 전체 습관 조회하기
   @Get('/:userId')
-  public async findHabits(@Param('userId') userId: number) {
+  public async findHabits(@Params({ validate: true }) id: UserId) {
     return await this.prisma.habit.findMany({
-      where: { userId },
+      where: { userId: id.userId },
     });
   }
 
   // habitId로 습관 조회하기
   @Get('/:userId/:habitId')
-  public async findOneHabit(
-    @Param('userId') userId: number,
-    @Param('habitId') habitId: number
-  ) {
+  public async findHabit(@Params({ validate: true }) id: Id) {
     return await this.prisma.user
       .findOne({
-        where: { userId },
+        where: { userId: id.userId },
       })
       .Habit({
-        where: { habitId },
+        where: { habitId: id.habitId },
       });
+  }
+
+  // habitId로 습관 수정하기
+  @Put('/:userId/:habitId')
+  public async updateHabit(@Params({ validate: true }) id: Id, @Body({ validate: true }) habit: UpdateHabit) {
+    return await this.prisma.habit.update({
+      where: {
+        userId: id.userId,
+        habitId: id.habitId,
+      },
+      data: {
+        title: habit.title,
+        category: habit.category,
+        description: habit.description,
+      },
+    });
   }
 }

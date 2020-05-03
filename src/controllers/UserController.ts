@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Body, Get, JsonController, Post } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
-import { User } from '../validations/User';
+import { User } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
 
