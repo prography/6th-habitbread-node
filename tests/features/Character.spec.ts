@@ -1,38 +1,18 @@
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
-import { Character } from '../../src/validations/Character';
+import { Character } from '../../src/validations/CharacterValidation'; // src의 ts 자동 import 안됨
+import { User } from '../../src/validations/UserValidation';
+import { assertCharacter, createCharacter } from '../Utils/CharacterUtil';
+import { createUser } from '../Utils/UserUtil';
 
-const assertItem = (item: any) => {
-  const expectKeys = ['characterId', 'userId', 'exp'];
-  Object.keys(item).forEach(key => {
-    const idx = expectKeys.indexOf(key);
-    if (idx > -1) {
-      expectKeys.splice(idx, 1);
-    }
-  });
-  expect(expectKeys.length).toBe(0);
-};
-
-const createCharacter = async (prisma: PrismaClient, character: Character, id: number) => {
-  await prisma.character.create({
-    data: {
-      characterId: id,
-      exp: character.exp,
-      users: {
-        create: {
-          name: '이우원',
-          email: 'test@gmail.com',
-        },
-      },
-    },
-  });
-};
+dotenv.config({ path: `${__dirname}/../../.env.test` });
 
 describe('Test Character', () => {
   const client = supertest(app);
   const prisma = new PrismaClient();
-  const character = [new Character(1), new Character(2)];
+  // const character = [new Character(1), new Character(2)];
 
   beforeEach(async done => {
     await prisma.character.deleteMany({});
@@ -40,42 +20,72 @@ describe('Test Character', () => {
     done();
   });
 
-  test('Get - /character/:userId', async done => {
-    // *특정 id를 가지는 user를 생성해야함
-    await createCharacter(prisma, character[0], 1);
-    try {
-      const res = await client.get('/character/1');
-      expect(res.status).toBe(200);
-      assertItem(res.body);
-      done();
-    } catch (error) {
-      console.log(error);
-      done();
-    }
+  test('Get - /character', async () => {
+    const user1 = await createUser(prisma, new User('이우원', 'wwlee94@naver.com'));
+    const user2 = await createUser(prisma, new User('김건훈', 'rlarjsgns@naver.com'));
+    await createCharacter(prisma, new Character(user1.userId), 1);
+    await createCharacter(prisma, new Character(user2.userId), 2);
+
+    const res = await client.get('/character');
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(2);
   });
 
-  test('Post - /character', async done => {
+  test('Get - /character/:userId', async () => {
+    const user = await createUser(prisma, new User('이우원', 'wwlee94@naver.com'));
+    await createCharacter(prisma, new Character(user.userId), 1);
+
+    const res = await client.get(`/character/${user.userId}`);
+    expect(res.status).toBe(200);
+    assertCharacter(res.body);
+  });
+
+  test('Post - /character', async () => {
+    const user = await createUser(prisma, new User('이우원', 'test@gmail.com'));
+
     const data = {
-      userId: 1,
+      userId: user.userId,
     };
-    // *특정 id를 가지는 user를 생성해야함
     const res = await client.post('/character').send(data);
     expect(res.status).toBe(200);
-    done();
+    expect(res.body.userId).toBe(user.userId);
+    assertCharacter(res.body);
   });
 
   test('Post - /character/calculate', async () => {
+    const user = await createUser(prisma, new User('이우원', 'wwlee94@naver.com'));
+    await createCharacter(prisma, new Character(user.userId), 1);
+
     const data = {
-      usrId: 1,
-      value: 100,
+      userId: user.userId,
+      value: 10000,
     };
     const res = await client.post('/character/calculate').send(data);
     expect(res.status).toBe(200);
+    assertCharacter(res.body);
+    expect(res.body.exp).toBe(10000);
+  });
+
+  test('Delete - /character', async () => {
+    const user1 = await createUser(prisma, new User('이우원', 'wwlee94@naver.com'));
+    const user2 = await createUser(prisma, new User('김건훈', 'rlarjsgns@naver.com'));
+    const character = await createCharacter(prisma, new Character(user1.userId), 1);
+    await createCharacter(prisma, new Character(user2.userId), 2);
+
+    const data = {
+      characterId: character.characterId,
+    };
+    const res1 = await client.delete('/character').send(data);
+    expect(res1.status).toBe(200);
+    assertCharacter(res1.body);
+    const res2 = await client.get('/character');
+    expect(res2.status).toBe(200);
+    expect(res2.body.length).toBe(1);
   });
 
   afterAll(async done => {
     // Closing the DB connection allows Jest to exit successfully.
-    prisma.disconnect();
+    await prisma.disconnect();
     done();
   });
 });

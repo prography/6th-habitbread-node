@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && node dist",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test jest --maxWorkers=10 --forceExit",
     "dev": "nodemon --watch src/ --exec NODE_ENV=dev ts-node src/index.ts"
   },
   "author": "",
@@ -15,6 +15,7 @@
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.1",
     "dotenv": "^8.2.0",
+    "dotenv-cli": "^3.1.0",
     "express": "^4.17.1",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.8.1",

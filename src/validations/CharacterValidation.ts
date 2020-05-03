@@ -13,3 +13,19 @@ export class Character {
     this.userId = userId;
   }
 }
+
+export class Calculate {
+  @IsNotEmpty()
+  @IsInt()
+  userId!: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  value!: number;
+}
+
+export class CharacterID {
+  @IsNotEmpty()
+  @IsInt()
+  characterId!: number;
+}

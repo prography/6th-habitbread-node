@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { Body, BodyParam, Get, HttpError, JsonController, Param, Post } from 'routing-controllers';
-import { Character } from '../validations/Character';
+import { Body, Delete, Get, HttpError, JsonController, Params, Post } from 'routing-controllers';
+import { Calculate, Character, CharacterID } from '../validations/CharacterValidation';
+import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/character')
@@ -12,11 +13,17 @@ export class CharacterController extends BaseController {
     this.prisma = new PrismaClient();
   }
 
+  // 모든 캐릭터 조회 API
+  @Get()
+  public async index() {
+    return await this.prisma.character.findMany();
+  }
+
   // 특정 사용자의 캐릭터 조회 API
   @Get('/:userId')
-  public async index(@Param('userId') userId: number) {
+  public async findCharacter(@Params({ validate: true }) id: UserID) {
     return await this.prisma.character.findOne({
-      where: { userId },
+      where: { userId: id.userId },
     });
   }
 
@@ -38,17 +45,27 @@ export class CharacterController extends BaseController {
 
   // 캐릭터 경험치 계산 API
   @Post('/calculate')
-  public async calculateExp(@BodyParam('userId') userId: number, @BodyParam('value') value: number) {
+  public async calculateExp(@Body({ validate: true }) calculate: Calculate) {
     const character = await this.prisma.character.findOne({
-      where: { userId },
+      where: { userId: calculate.userId },
     });
     if (!character) throw new HttpError(404, '조회된 캐릭터가 없습니다.');
 
-    const exp: number = character.exp + value;
+    const exp: number = character.exp + calculate.value;
     return await this.prisma.character.update({
-      where: { userId: userId },
+      where: { userId: calculate.userId },
       data: {
-        exp: exp,
+        exp,
+      },
+    });
+  }
+
+  // 특정 캐릭터 삭제 API
+  @Delete()
+  public async deleteCharacter(@Body({ validate: true }) id: CharacterID) {
+    return await this.prisma.character.delete({
+      where: {
+        characterId: id.characterId,
       },
     });
   }
