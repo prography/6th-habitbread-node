@@ -4,7 +4,7 @@ import { Calculate, Character, CharacterID } from '../validations/CharacterValid
 import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 
-@JsonController('/character')
+@JsonController('/characters')
 export class CharacterController extends BaseController {
   private prisma: PrismaClient;
 
