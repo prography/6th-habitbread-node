@@ -1,6 +1,6 @@
 import { IsEmail, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
-export class User {
+export class AddUser {
   @IsNotEmpty()
   @IsString()
   name!: string;
