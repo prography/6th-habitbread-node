@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { Body, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
+import { Response } from 'express';
+import { Body, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
+import { NoContent, NotFoundError } from '../exceptions/Exception';
 import { Habit, ID } from '../validations/HabitValidation';
 import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
@@ -15,13 +17,26 @@ export class UserController extends BaseController {
 
   // 습관 등록하기
   @Post('/')
-  public async createHabit(@Params({ validate: true }) id: UserID, @Body({ validate: true }) habit: Habit) {
+  public async createHabit(
+    @Params({ validate: true }) id: UserID,
+    @Body({ validate: true }) habit: Habit,
+    @Res() res: Response
+  ) {
     try {
+      const user = await this.prisma.user.findOne({
+        where: { userId: id.userId },
+      });
+
+      if (user === null) {
+        // 사용자가 없는 경우
+        throw new NotFoundError(`${id.userId}는 없는 사용자입니다.`);
+      }
+      // 정상적인 쿼리인 경우
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
-          category: habit.category,
           description: habit.description,
+          category: habit.category,
           user: {
             connect: { userId: id.userId },
           },
@@ -36,41 +51,64 @@ export class UserController extends BaseController {
 
       return newHabit;
     } catch (err) {
-      throw new HttpError(500, err);
+      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      throw new HttpError(err);
     }
   }
 
   // 전체 습관 조회하기
   @Get('/')
-  public async findHabits(@Params({ validate: true }) id: UserID) {
-    let user;
+  public async findHabits(@Params({ validate: true }) id: UserID, @Res() res: Response) {
     try {
-      user = await this.prisma.user
-        .findOne({
-          where: { userId: id.userId },
-        })
-        .Habit();
+      const user = await this.prisma.user.findOne({
+        where: { userId: id.userId },
+        select: {
+          userId: true,
+          Habit: true,
+        },
+      });
+      if (user === null) {
+        // 사용자가 없는 경우
+        throw new NotFoundError(`${id.userId}는 없는 사용자입니다.`);
+      } else if (user.Habit.length === 0) {
+        // 사용자는 있지만 만든 습관이 없는 경우
+        throw new NoContent('');
+      } else {
+        // 정상적인 쿼리인 경우
+        return user;
+      }
     } catch (err) {
-      console.log(err);
-      throw new HttpError(500, err);
+      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      throw new HttpError(err);
     }
-    if (user.length === 0) {
-      throw new HttpError(404, `${id.userId}는 없는 사용자입니다.`);
-    }
-
-    return user;
   }
 
   // habitId로 습관 조회하기
   @Get('/:habitId')
-  public async findHabit(@Params({ validate: true }) id: ID) {
-    return await this.prisma.user
-      .findOne({
-        where: { userId: id.userId },
-      })
-      .Habit({
-        where: { habitId: id.habitId },
-      });
+  public async findHabit(@Params({ validate: true }) id: ID, @Res() res: Response) {
+    try {
+      const habit = await this.prisma.user
+        .findOne({
+          where: { userId: id.userId },
+        })
+        .Habit({
+          where: { habitId: id.habitId },
+        });
+
+      if (habit === null) {
+        // 사용자가 없는 경우
+        throw new NotFoundError(`${id.userId}에 해당하는 사용자는 없습니다.`);
+      } else if (habit.length === 0) {
+        // 습관이 없는 경우
+        throw new NotFoundError(`${id.habitId}에 해당하는 습관은 없습니다.`);
+      } else {
+        // 정상적인 쿼리인 경우
+        return habit;
+      }
+    } catch (err) {
+      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      throw new HttpError(err);
+    }
   }
 
   // habitId로 습관 수정하기
@@ -104,6 +142,8 @@ export class UserController extends BaseController {
         where: { habitId: id.habitId },
       });
   }
-
-  // @Delete('/')
+  /*
+  // habitId로 습관 삭제하기
+  @Delete('/:habitId')
+  public async deleteHabit();*/
 }
