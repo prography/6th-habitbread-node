@@ -1,6 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class AddHabit {
+export class Habit {
   @IsString()
   @IsNotEmpty()
   title!: string;
@@ -15,32 +15,9 @@ export class AddHabit {
   @IsBoolean()
   @IsNotEmpty()
   isScheduled!: boolean;
-
-  @IsNumber()
-  @IsNotEmpty()
-  userId!: number;
 }
 
-export class UpdateHabit {
-  @IsString()
-  title!: string;
-
-  @IsString()
-  description!: string;
-
-  @IsString()
-  category!: string;
-
-  @IsBoolean()
-  isScheduled!: boolean;
-}
-
-export class UserId {
-  @IsNumber()
-  userId!: number;
-}
-
-export class Id {
+export class ID {
   @IsNumber()
   habitId!: number;
 
