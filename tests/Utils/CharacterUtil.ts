@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Character } from '../../src/validations/CharacterValidation';
+import { AddCharacter } from '../../src/validations/CharacterValidation';
 
 export const assertCharacter = (item: any) => {
   const expectKeys = ['characterId', 'userId', 'exp'];
@@ -12,7 +12,7 @@ export const assertCharacter = (item: any) => {
   expect(expectKeys.length).toBe(0);
 };
 
-export const createCharacter = async (prisma: PrismaClient, character: Character, id: number) => {
+export const createCharacter = async (prisma: PrismaClient, character: AddCharacter, id: number) => {
   const new_character = await prisma.character.create({
     data: {
       characterId: id,

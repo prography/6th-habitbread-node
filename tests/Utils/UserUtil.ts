@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { User } from '../../src/validations/UserValidation';
+import { AddUser } from '../../src/validations/UserValidation';
 
-export const createUser = async (prisma: PrismaClient, user: User) => {
+export const createUser = async (prisma: PrismaClient, user: AddUser) => {
   const new_user = await prisma.user.create({
     data: {
       name: user.name,
