@@ -13,6 +13,7 @@ model Character {
   exp           Int   @default(0)
 
   users         User  @relation(fields: [userId], references: [userId])
+  
   @@index([userId], name: "fk_Character_User1_idx")
   @@map("characters")
 }
@@ -25,6 +26,7 @@ model CommitHistory {
 
   habits      Habit     @relation(fields: [habitId], references: [habitId])
   users       User      @relation(fields: [userId], references: [userId])
+
   @@index([habitId], name: "fk_Habit_History_Habit1_idx")
   @@index([userId], name: "fk_Habit_History_User1_idx")
   @@map("commit_history")
@@ -34,6 +36,7 @@ model Ranking {
   rankingId   Int             @id      @map("ranking_id")
   userName    String          @map("user_name")
   exp         Int
+
   @@map("ranking")
 }
 
@@ -44,6 +47,7 @@ model Scheduler {
   habitTitle    String          @map("habit_title")
   habitAlarmAt  DateTime        @map("habit_alarm_at")
   habitType     Int             @map("habit_type")
+
   @@map("scheduler")
 }
 
@@ -55,6 +59,7 @@ model Habit {
   category        String
 
   user            User        @relation(fields: [userId], references: [userId])
+
   @@index([userId], name: "fk_Habit_User1_idx")
   @@map("habits")
 }
@@ -66,11 +71,12 @@ model User {
   imageUrl      String?     @map("image_url")
   googleId      String?     @map("google_id")
   appleId       String?     @map("apple_id")
-  createdAt     DateTime?   @map("created_at") @default(now())
-  updatedAt     DateTime?   @map("updated_at") @updatedAt
+  createdAt     DateTime?   @map("created_at")
+  updatedAt     DateTime?   @map("updated_at")
 
   characters    Character[]
   commitHistory CommitHistory[]
   Habit         Habit[]
+
   @@map("users")
 }
