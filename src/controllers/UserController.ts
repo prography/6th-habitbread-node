@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Body, Get, JsonController, Post } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
-import { User } from '../validations/User';
+import { AddUser } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
 
@@ -26,7 +26,7 @@ export class UserController extends BaseController {
   }
 
   @Post('/users')
-  public async createUser(@Body({ validate: true }) user: User) {
+  public async createUser(@Body({ validate: true }) user: AddUser) {
     return await this.prisma.user.create({
       data: {
         name: user.name,

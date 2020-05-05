@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && node dist",
-    "test": "jest",
-    "dev": "nodemon --watch src/ --exec NODE_ENV=dev ts-node src/index.ts"
+    "test": "jest --maxWorkers=10 --forceExit",
+    "dev": "nodemon --watch src/ --exec npx cross-env NODE_ENV=dev ts-node src/index.ts",
+    "prisma:echo": "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
+    "prisma:generate": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma generate",
+    "prisma:up": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate up --experimental",
+    "prisma:down": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate down --experimental"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +18,9 @@
     "@prisma/client": "^2.0.0-beta.3",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.1",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
+    "dotenv-cli": "^3.1.0",
     "express": "^4.17.1",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.8.1",
