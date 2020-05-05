@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Character, PrismaClient, User } from '@prisma/client';
 import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
@@ -14,17 +14,20 @@ describe('Test Character', () => {
   const client = supertest(app);
   const prisma = new PrismaClient();
 
+  let user: User;
+  let character: Character;
+
   beforeEach(async done => {
     await prisma.character.deleteMany({});
+    await prisma.habit.deleteMany({});
     await prisma.user.deleteMany({});
+    user = await createUser(prisma, new AddUser('이우원', 'wwlee94@naver.com'));
+    character = await createCharacter(prisma, new AddCharacter(user.userId), 1);
     done();
   });
 
   // 특정 사용자의 캐릭터 조회 테스트
   test('Get - /users/:userId/characters', async () => {
-    const user = await createUser(prisma, new AddUser('이우원', 'wwlee94@naver.com'));
-    await createCharacter(prisma, new AddCharacter(user.userId), 1);
-
     const res = await client.get(`/users/${user.userId}/characters`);
     expect(res.status).toBe(200);
     assertCharacter(res.body);
@@ -32,19 +35,16 @@ describe('Test Character', () => {
 
   // 캐릭터 생성 테스트
   test('Post - /users/:userId/characters', async () => {
-    const user = await createUser(prisma, new AddUser('이우원', 'test@gmail.com'));
+    const postUser = await createUser(prisma, new AddUser('김건훈', 'rlarjsgns@gmail.com'));
 
-    const res = await client.post(`/users/${user.userId}/characters`);
+    const res = await client.post(`/users/${postUser.userId}/characters`);
     expect(res.status).toBe(201);
-    expect(res.body.userId).toBe(user.userId);
+    expect(res.body.userId).toBe(postUser.userId);
     assertCharacter(res.body);
   });
 
   // 캐릭터 경험치 계산 테스트
   test('Patch - /character/calculate', async () => {
-    const user = await createUser(prisma, new AddUser('이우원', 'wwlee94@naver.com'));
-    await createCharacter(prisma, new AddCharacter(user.userId), 1);
-
     const data = {
       value: 10000,
     };
@@ -56,9 +56,6 @@ describe('Test Character', () => {
 
   // 캐릭터 삭제 테스트
   test('Delete - /character', async () => {
-    const user = await createUser(prisma, new AddUser('이우원', 'wwlee94@naver.com'));
-    const character = await createCharacter(prisma, new AddCharacter(user.userId), 1);
-
     const data = {
       characterId: character.characterId,
     };

@@ -23,14 +23,14 @@ export class CharacterController extends BaseController {
 
   // 특정 사용자의 특정 캐릭터 조회 API
   @Get()
-  public async findCharacter(@Params({ validate: true }) UID: UserID, @Res() res: Response) {
+  public async findCharacter(@Params({ validate: true }) id: UserID, @Res() res: Response) {
     try {
       // 이런식으로 명시 해주어야 하나?
       // const character: Character[] = await this.prisma.character.find...;
       const character = await this.prisma.character.findOne({
-        where: { userId: UID.userId },
+        where: { userId: id.userId },
       });
-      if (!character) throw new NotFoundError('요청한 사용자의 캐릭터를 찾을 수 없습니다.');
+      if (!character) throw new NotFoundError('캐릭터를 찾을 수 없습니다.');
       return character;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
@@ -41,16 +41,16 @@ export class CharacterController extends BaseController {
   // 캐릭터 생성 API
   @Post()
   @HttpCode(201)
-  public async createCharacter(@Params({ validate: true }) UID: UserID, @Res() res: Response) {
+  public async createCharacter(@Params({ validate: true }) id: UserID, @Res() res: Response) {
     try {
       const user = await this.prisma.user.findOne({
-        where: { userId: UID.userId },
+        where: { userId: id.userId },
         select: {
           characters: true,
         },
       });
-      if (!user) throw new NotFoundError('요청한 사용자를 찾을 수 없습니다.');
-      if (user.characters.length !== 0) throw new BadRequestError('해당 사용자는 이미 캐릭터를 가지고 있습니다.'); // 1:1 관계
+      if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      if (user.characters.length !== 0) throw new BadRequestError('이미 캐릭터를 가지고 있습니다.'); // 1:1 관계
 
       return await this.prisma.character.create({
         data: {
@@ -59,7 +59,7 @@ export class CharacterController extends BaseController {
           exp: 0,
           // user로 변경해야함
           users: {
-            connect: { userId: UID.userId },
+            connect: { userId: id.userId },
           },
         },
       });
@@ -72,23 +72,23 @@ export class CharacterController extends BaseController {
   // 캐릭터 경험치 계산 API
   @Patch('/calculate')
   public async calculateExp(
-    @Params({ validate: true }) UID: UserID,
+    @Params({ validate: true }) id: UserID,
     @Body({ validate: true }) calculate: CalculateCharacter,
     @Res() res: Response
   ) {
     try {
       const user = await this.prisma.user.findOne({
-        where: { userId: UID.userId },
+        where: { userId: id.userId },
         select: {
           characters: true,
         },
       });
-      if (!user) throw new NotFoundError('요청한 사용자를 찾을 수 없습니다.');
-      if (user.characters.length === 0) throw new NotFoundError('요청한 사용자의 캐릭터를 찾을 수 없습니다.'); // 1:1
+      if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.'); // 1:1
 
       const exp: number = user.characters[0].exp + calculate.value;
       return await this.prisma.character.update({
-        where: { userId: UID.userId },
+        where: { userId: id.userId },
         data: {
           exp,
         },
@@ -101,23 +101,23 @@ export class CharacterController extends BaseController {
 
   // 특정 캐릭터 삭제 API
   @Delete()
-  public async deleteCharacter(@Params({ validate: true }) UID: UserID, @Res() res: Response) {
+  public async deleteCharacter(@Params({ validate: true }) id: UserID, @Res() res: Response) {
     try {
       const user = await this.prisma.user.findOne({
-        where: { userId: UID.userId },
+        where: { userId: id.userId },
         select: {
           characters: true,
         },
       });
-      if (!user) throw new NotFoundError('요청한 사용자를 찾을 수 없습니다.');
-      if (user.characters.length === 0) throw new NotFoundError('요청한 사용자의 캐릭터를 찾을 수 없습니다.'); // 1:1
+      if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.'); // 1:1
 
       await this.prisma.character.delete({
         where: {
           characterId: user.characters[0].characterId,
         },
       });
-      return res.status(200).send({ message: '요청한 사용자의 캐릭터를 성공적으로 삭제했습니다.' });
+      return res.status(200).send({ message: 'success' });
     } catch (err) {
       throw new InternalServerError(err);
     }
