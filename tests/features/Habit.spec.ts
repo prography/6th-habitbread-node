@@ -12,7 +12,7 @@ describe('testHabit', () => {
 
   let habitId: number, userId: number;
 
-  beforeAll(async done => {
+  beforeEach(async done => {
     await prisma.character.deleteMany({});
     await prisma.habit.deleteMany({});
     await prisma.user.deleteMany({});
@@ -23,6 +23,14 @@ describe('testHabit', () => {
       },
     });
     userId = user.userId;
+    for (let i = 0; i < 3; i += 1) {
+      const payload = Payload.originalPayloads[i];
+
+      const res = await testClient.post(`/users/${userId}/habits`).send(payload);
+      if (i === 0) {
+        habitId = res.body.habitId;
+      }
+    }
     done();
   });
 
@@ -95,7 +103,7 @@ describe('testHabit', () => {
     const res = await testClient.delete(`/users/${userId}/habits/${habitId}`);
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
-      message: `${habitId}에 해당하는 습관이 삭제되었습니다.`,
+      message: 'success',
     });
   });
 
