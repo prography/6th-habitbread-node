@@ -1,5 +1,11 @@
 import { IsEmail, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
+export class UserID {
+  @IsNotEmpty()
+  @IsInt()
+  userId!: number;
+}
+
 export class AddUser {
   @IsNotEmpty()
   @IsString()
@@ -14,10 +20,4 @@ export class AddUser {
     this.name = name;
     this.email = email;
   }
-}
-
-export class UserID {
-  @IsNotEmpty()
-  @IsInt()
-  userId!: number;
 }

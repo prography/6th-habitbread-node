@@ -1,5 +1,11 @@
 import { IsInt, IsNotEmpty } from 'class-validator';
 
+export class CharacterID {
+  @IsNotEmpty()
+  @IsInt()
+  characterId!: number;
+}
+
 export class AddCharacter {
   @IsNotEmpty()
   @IsInt()
@@ -17,15 +23,5 @@ export class AddCharacter {
 export class CalculateCharacter {
   @IsNotEmpty()
   @IsInt()
-  userId!: number;
-
-  @IsNotEmpty()
-  @IsInt()
   value!: number;
-}
-
-export class CharacterID {
-  @IsNotEmpty()
-  @IsInt()
-  characterId!: number;
 }
