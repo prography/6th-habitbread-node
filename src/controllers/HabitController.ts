@@ -103,7 +103,7 @@ export class UserController extends BaseController {
         throw new NotFoundError(`${id.habitId}에 해당하는 습관은 없습니다.`);
       } else {
         // 정상적인 쿼리인 경우
-        return habit;
+        return habit[0];
       }
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
