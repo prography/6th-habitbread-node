@@ -2,7 +2,9 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
-import { Payload } from '../utils/payloads';
+import { AddUser } from '../../src/validations/UserValidation';
+import { Payload } from '../utils/HabtiPayloads';
+import { createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
 
@@ -16,12 +18,7 @@ describe('testHabit', () => {
     await prisma.character.deleteMany({});
     await prisma.habit.deleteMany({});
     await prisma.user.deleteMany({});
-    const user = await prisma.user.create({
-      data: {
-        name: '김건훈',
-        email: 'dnatuna123@gmail.com',
-      },
-    });
+    const user = await createUser(prisma, new AddUser('김건훈', 'dnatuna123@gmail.com'));
     userId = user.userId;
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];

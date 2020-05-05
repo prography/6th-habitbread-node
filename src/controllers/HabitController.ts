@@ -27,11 +27,8 @@ export class UserController extends BaseController {
         where: { userId: id.userId },
       });
 
-      if (user === null) {
-        // 사용자가 없는 경우
-        throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      }
-      // 정상적인 쿼리인 경우
+      if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
@@ -63,20 +60,12 @@ export class UserController extends BaseController {
       const user = await this.prisma.user.findOne({
         where: { userId: id.userId },
         select: {
-          userId: true,
           Habit: true,
         },
       });
-      if (user === null) {
-        // 사용자가 없는 경우
-        throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      } else if (user.Habit.length === 0) {
-        // 사용자는 있지만 만든 습관이 없는 경우
-        throw new NoContent('');
-      } else {
-        // 정상적인 쿼리인 경우
-        return user;
-      }
+      if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      else if (user.Habit.length === 0) throw new NoContent('');
+      return user;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
       throw new HttpError(err);
@@ -95,16 +84,9 @@ export class UserController extends BaseController {
           where: { habitId: id.habitId },
         });
 
-      if (habit === null) {
-        // 사용자가 없는 경우
-        throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      } else if (habit.length === 0) {
-        // 습관이 없는 경우
-        throw new NotFoundError('습관을 찾을 수 없습니다.');
-      } else {
-        // 정상적인 쿼리인 경우
-        return habit[0];
-      }
+      if (habit === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      else if (habit.length === 0) throw new NotFoundError('습관을 찾을 수 없습니다.');
+      return habit[0];
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
       throw new HttpError(err);
@@ -127,14 +109,8 @@ export class UserController extends BaseController {
           where: { habitId: id.habitId },
         });
 
-      if (findHabit === null) {
-        // 사용자가 없는 경우
-        throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      } else if (findHabit.length === 0) {
-        // 습관이 없는 경우
-        throw new NotFoundError('습관을 찾을 수 없습니다.');
-      }
-      // 정상적인 쿼리인 경우
+      if (findHabit === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      else if (findHabit.length === 0) throw new NotFoundError('습관을 찾을 수 없습니다.');
       return await this.prisma.habit.update({
         where: { habitId: id.habitId },
         data: {
@@ -164,14 +140,8 @@ export class UserController extends BaseController {
           where: { habitId: id.habitId },
         });
 
-      if (findHabit === null) {
-        // 사용자가 없는 경우
-        throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      } else if (findHabit.length === 0) {
-        // 습관이 없는 경우
-        throw new NotFoundError('습관을 찾을 수 없습니다.');
-      }
-      // 정상적인 쿼리인 경우
+      if (findHabit === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      else if (findHabit.length === 0) throw new NotFoundError('습관을 찾을 수 없습니다.');
       await this.prisma.habit.delete({
         where: {
           habitId: id.habitId,

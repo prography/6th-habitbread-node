@@ -1,7 +1,3 @@
-import dotenv from 'dotenv';
-
-dotenv.config({ path: `${__dirname}/../../.env.test` });
-
 export class Payload {
   public static originalPayloads = [
     {
@@ -26,7 +22,6 @@ export class Payload {
 
   public static checkOriginalPayloads = (userId: number, habitId: number) => {
     return {
-      userId,
       Habit: [
         {
           category: 'test',
