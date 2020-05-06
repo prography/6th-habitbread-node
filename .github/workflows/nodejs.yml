@@ -19,17 +19,13 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
 
-    strategy:
-      max-parallel: 2
-      matrix:
-        node-version: [10.x, 12.x]
-
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    
+    - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '12.x'
 
     - name: Install Dependencies
       run: |
@@ -39,7 +35,7 @@ jobs:
     - name: Create .env file
       run: | 
         echo "PORT = 3001" >> .env.test
-        echo "DB_URL = ${{secrets.DB_URL_TEST}}" >> .env.test
+        echo "DB_URL = ${{ secrets.DB_URL_TEST }}" >> .env.test
 
     - name: Prisma generate and migrate up
       run: ENV=test npm run prisma:generate
