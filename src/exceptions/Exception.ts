@@ -1,5 +1,7 @@
 import { HttpError } from 'routing-controllers';
 
+const reg = new RegExp('(/.*.js)');
+
 // 200번대 -> 에러가 아님 메시지만 !
 export class NoContent extends HttpError {
   public message: string;
@@ -40,6 +42,7 @@ export class InternalServerError extends HttpError {
     super(500);
     Object.setPrototypeOf(this, InternalServerError.prototype);
     this.name = this.constructor.name;
-    this.message = msg;
+    this.message = msg.replace(reg, '*');
+    this.stack = undefined;
   }
 }

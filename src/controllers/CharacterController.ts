@@ -32,7 +32,7 @@ export class CharacterController extends BaseController {
       return character;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
-      throw new InternalServerError(err);
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -61,7 +61,7 @@ export class CharacterController extends BaseController {
       });
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
-      throw new InternalServerError(err);
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -91,7 +91,7 @@ export class CharacterController extends BaseController {
       });
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
-      throw new InternalServerError(err);
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -115,7 +115,7 @@ export class CharacterController extends BaseController {
       });
       return res.status(200).send({ message: 'success' });
     } catch (err) {
-      throw new InternalServerError(err);
+      throw new InternalServerError(err.message);
     }
   }
 }
