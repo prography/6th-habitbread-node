@@ -29,6 +29,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Create .env file
+      run: |
+        echo "PORT = 3001" >> .env.test
+        echo "DB_URL = ${{secrets.DB_URL_TEST}}" >> .env.test 
     - name: Install Dependencies
       run: |
         npm ci
