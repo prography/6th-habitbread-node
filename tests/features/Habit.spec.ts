@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
 import { AddUser } from '../../src/validations/UserValidation';
-import { Payload } from '../utils/HabtiPayload';
+import { Payload } from '../utils/HabitPayload';
 import { createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
