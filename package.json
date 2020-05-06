@@ -4,13 +4,13 @@
   "description": "프로그라피 6기 - 'USO'앱을 개발하는 4팀의 TypeScript와 Express를 이용한 Node.js 백엔드 서버",
   "main": "index.js",
   "scripts": {
-    "start": "npx tsc && node dist",
+    "start": "tsc && node dist",
     "test": "jest --maxWorkers=10 --forceExit",
-    "dev": "nodemon --watch src/ --exec npx cross-env NODE_ENV=dev ts-node src/index.ts",
+    "dev": "nodemon --watch src/ --exec cross-env NODE_ENV=dev ts-node src/index.ts",
     "prisma:echo": "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
-    "prisma:generate": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma generate",
-    "prisma:up": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate up --experimental",
-    "prisma:down": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate down --experimental"
+    "prisma:generate": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma generate",
+    "prisma:up": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate up --experimental",
+    "prisma:down": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate down --experimental"
   },
   "author": "",
   "license": "ISC",
