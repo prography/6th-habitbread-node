@@ -14,17 +14,19 @@ export class UserController extends BaseController {
     this.prisma = new PrismaClient();
   }
 
-  // prod 환경 Nginx 테스팅
+  // 임시: prod 환경 Nginx 테스팅
   @Get('/')
   public index() {
     return `Hello TypeScript & Express :)\n ${id}`;
   }
 
+  // 사용자 전체 검색 API
   @Get('/users')
   public async user() {
-    return await this.prisma.user.findMany(); // 전체 검색
+    return await this.prisma.user.findMany();
   }
 
+  // 사용자 추가 API
   @Post('/users')
   public async createUser(@Body({ validate: true }) user: AddUser) {
     return await this.prisma.user.create({

@@ -12,8 +12,13 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm install
-            - run: npm test
-      - run: node --version
+      - run: 
+          name: Run Test 
+          command: |
+            node --version
+            ENV=test npm run prisma:generate
+            ENV=test npm run prisma:up
+            npm test
   # The machine executor supports Docker Layer Caching which is useful when you are building Docker images during your job or Workflow.
   deploy-stage:
     machine:
@@ -44,14 +49,16 @@ workflows:
               branches:
                 only:
                   - /feature-.*/
-    server-deploy:
-      jobs:
-        - build-and-test
-        - deploy-stage:
-            requires:
-              - build-and-test
-            filters:
-              branches:
-                only: 
+                  - develop
                   - master
+    # server-deploy:
+    #   jobs:
+    #     - build-and-test
+    #     - deploy-stage:
+    #         requires:
+    #           - build-and-test
+    #         filters:
+    #           branches:
+    #             only: 
+    #               - master
                   # - develop
