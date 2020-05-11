@@ -1,10 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Ranking } from '@prisma/client';
 import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
 import { AddRanking } from '../../src/validations/RankingValidation';
 import { RankingPayload } from '../utils/RankingPayload';
-import { createRanking } from '../utils/RankingUtil';
+import { assertRanking, createRanking } from '../utils/RankingUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
 
@@ -24,9 +24,9 @@ describe('Test Character', () => {
   test('Get - /ranking', async () => {
     const res = await client.get('/ranking');
     expect(res.status).toBe(200);
-    // res.body.forEach((ranking: Ranking) => {
-    //   assertRanking(ranking);
-    // });
+    res.body.forEach((ranking: Ranking) => {
+      assertRanking(ranking);
+    });
   });
 
   afterAll(async done => {

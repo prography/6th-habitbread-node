@@ -13,11 +13,6 @@ export class RankingController extends BaseController {
     this.prisma = new PrismaClient();
   }
 
-  @Get('/test')
-  public test() {
-    return 'Hello';
-  }
-
   // 캐릭터 경험치 랭킹 조회
   @Get()
   public async index(@Res() res: Response) {

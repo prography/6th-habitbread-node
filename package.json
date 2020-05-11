@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && node dist",
     "test": "jest ./tests/features/index.spec.ts --maxWorkers=10 --forceExit",
-    "dev": "nodemon --watch src/ --exec cross-env NODE_ENV=dev ts-node src/index.ts",
+    "dev": "npm run prisma:up && npm run prisma:generate && nodemon",
     "prisma:echo": "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
     "prisma:generate": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma generate",
     "prisma:up": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate up --experimental",
@@ -14,6 +14,16 @@
   },
   "author": "",
   "license": "ISC",
+  "nodemonConfig": {
+    "watch": [
+      "src/*"
+    ],
+    "ext": "ts",
+    "ignore": [
+      "**/*.spec.ts"
+    ],
+    "exec": "cross-env NODE_ENV=dev ts-node src/index.ts"
+  },
   "dependencies": {
     "@prisma/client": "^2.0.0-beta.3",
     "class-transformer": "^0.2.3",
