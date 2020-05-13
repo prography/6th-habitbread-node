@@ -1,7 +1,8 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
+
 module.exports = {
-  testTimeout: 10000,
+  testTimeout: 20000,
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -89,7 +90,6 @@ module.exports = {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  // 추가 - ts에서 jest를 사용하기 위한 모듈
   preset: 'ts-jest',
 
   // Run tests from one or more projects
@@ -114,7 +114,6 @@ module.exports = {
   // rootDir: null,
 
   // A list of paths to directories that Jest should use to search for files in
-  // 추가
   roots: ['<rootDir>/tests'],
 
   // Allows you to use a custom runner instead of Jest's default test runner
@@ -148,7 +147,7 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/'],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
-  testRegex: [/\.(spec)\.ts$/],
+  testRegex: ['.(spec).ts$'],
 
   // This option allows the use of a custom results processor
   // testResultsProcessor: null,
