@@ -25,8 +25,6 @@ export class CharacterController extends BaseController {
   @Get()
   public async findCharacter(@Params({ validate: true }) id: UserID, @Res() res: Response) {
     try {
-      // 이런식으로 명시 해주어야 하나?
-      // const character: Character[] = await this.prisma.character.find...;
       const character = await this.prisma.character.findOne({
         where: { userId: id.userId },
       });
@@ -50,14 +48,12 @@ export class CharacterController extends BaseController {
         },
       });
       if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      if (user.characters.length !== 0) throw new BadRequestError('이미 캐릭터를 가지고 있습니다.'); // 1:1 관계
+      if (user.characters.length !== 0) throw new BadRequestError('이미 캐릭터를 가지고 있습니다.');
 
       return await this.prisma.character.create({
         data: {
-          // @default(autoincrement()) 해야함
           characterId: getRandomInt(1, 100000),
           exp: 0,
-          // user로 변경해야함
           users: {
             connect: { userId: id.userId },
           },
@@ -84,7 +80,7 @@ export class CharacterController extends BaseController {
         },
       });
       if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.'); // 1:1
+      if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.');
 
       const exp: number = user.characters[0].exp + calculate.value;
       return await this.prisma.character.update({
@@ -110,7 +106,7 @@ export class CharacterController extends BaseController {
         },
       });
       if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.'); // 1:1
+      if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.');
 
       await this.prisma.character.delete({
         where: {
@@ -128,5 +124,5 @@ export class CharacterController extends BaseController {
 function getRandomInt(min: number, max: number) {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함
+  return Math.floor(Math.random() * (max - min)) + min;
 }
