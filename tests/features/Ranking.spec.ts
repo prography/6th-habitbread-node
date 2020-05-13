@@ -8,7 +8,7 @@ import { assertRanking, createRanking } from '../utils/RankingUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
 
-describe('Test Character', () => {
+describe('Test Ranking', () => {
   const client = supertest(app);
   const prisma = new PrismaClient();
 
