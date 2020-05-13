@@ -8,9 +8,9 @@
     "test": "jest ./tests/features/index.spec.ts --forceExit",
     "dev": "nodemon --watch src/ --exec npx cross-env NODE_ENV=dev ts-node src/index.ts",
     "prisma:echo": "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
-    "prisma:generate": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma generate",
-    "prisma:up": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate up --experimental",
-    "prisma:down": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma migrate down --experimental"
+    "prisma:generate": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma generate",
+    "prisma:up": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate up --experimental",
+    "prisma:down": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate down --experimental"
   },
   "author": "",
   "license": "ISC",
