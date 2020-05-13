@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && node dist",
-    "test": "jest --maxWorkers=10 --forceExit",
+    "test": "jest ./tests/features/index.spec.ts --forceExit",
     "dev": "nodemon --watch src/ --exec npx cross-env NODE_ENV=dev ts-node src/index.ts",
     "prisma:echo": "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
     "prisma:generate": "npm run prisma:echo && npx dotenv -e .env.$ENV -- prisma generate",
