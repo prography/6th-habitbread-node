@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && node dist",
     "test": "jest ./tests/features/index.spec.ts --maxWorkers=10 --forceExit",
-    "dev": "npm run prisma:up && npm run prisma:generate && nodemon",
+    "dev": "nodemon",
     "prisma:echo": "echo #Using Prisma Environment File '=>' .env.$ENV ':)'",
     "prisma:generate": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma generate",
     "prisma:up": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate up --experimental",
