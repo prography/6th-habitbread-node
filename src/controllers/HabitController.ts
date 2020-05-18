@@ -7,7 +7,7 @@ import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/users/:userId/habits')
-export class UserController extends BaseController {
+export class HabitController extends BaseController {
   private prisma: PrismaClient;
 
   constructor() {
