@@ -31,15 +31,19 @@ export class AuthHelper {
     };
     const signOptions: SignOptions = {
       algorithm: 'HS384',
-      expiresIn: '15m',
+      expiresIn: '1m',
     };
     const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET || '', signOptions);
     return token;
   }
 
   public static async extractUserFromToken(token: string) {
-    const data = jsonwebtoken.verify(
-      token, process.env.PASSWORD_SECRET || '', { algorithms: ['HS384'] }) as AuthPayload;
-    return data.userId;
+    try{
+      const data = jsonwebtoken.verify(
+        token, process.env.PASSWORD_SECRET || '', { algorithms: ['HS384'] }) as AuthPayload;
+      return data.userId;
+    } catch (err){
+      return err;
+    }
   }
 }

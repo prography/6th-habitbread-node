@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { CurrentUser, Get, JsonController, Params } from 'routing-controllers';
+import { Response } from 'express';
+import { CurrentUser, Get, HttpError, JsonController, Params, Res } from 'routing-controllers';
+import { AuthError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
@@ -25,9 +27,19 @@ export class TokenTestController extends BaseController {
     @Get('/check')
     public  async checkToken(
         @Params({ validate: true }) id: UserID,
-        @CurrentUser({ required: true }) token: string
+        @CurrentUser({ required: true }) token: any,
+        @Res() res: Response
     ){
-        console.log(token);
-        return token;
+        try{
+            if(token === Error){
+                console.log(123);
+                throw new AuthError(token);
+            }
+            console.log("123");
+            return token;
+        }catch(err) {
+            if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+            throw new InternalServerError(err);
+        }
     }
 }

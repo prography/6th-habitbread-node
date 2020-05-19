@@ -1,3 +1,4 @@
+import { JsonWebTokenError, NotBeforeError, TokenExpiredError } from 'jsonwebtoken';
 import { HttpError } from 'routing-controllers';
 
 // 200번대 -> 에러가 아님 메시지만 !
@@ -30,6 +31,30 @@ export class NotFoundError extends HttpError {
     Object.setPrototypeOf(this, NotFoundError.prototype);
     this.name = this.constructor.name;
     this.message = msg;
+  }
+}
+
+export class AuthError extends HttpError {
+  public err!: Error;
+  constructor(err: Error) {
+    if(err instanceof TokenExpiredError){
+      super(401);
+      Object.setPrototypeOf(this, NotFoundError.prototype);
+      this.name = this.constructor.name;
+      this.message = err.message;
+    }
+    if(err instanceof JsonWebTokenError){
+      super(401);
+      Object.setPrototypeOf(this, NotFoundError.prototype);
+      this.name = this.constructor.name;
+      this.message = err.message;
+    }
+    if(err instanceof NotBeforeError){
+      super(401);
+      Object.setPrototypeOf(this, NotFoundError.prototype);
+      this.name = this.constructor.name;
+      this.message = err.message;
+    }
   }
 }
 
