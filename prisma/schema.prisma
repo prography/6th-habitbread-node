@@ -8,24 +8,24 @@ datasource mysql {
 }
 
 model Character {
-  characterId   Int   @id
-  userId        Int   @map("user_id")
-  exp           Int   @default(0)
-
-  users         User  @relation(fields: [userId], references: [userId])
+  characterId   Int       @id
+  userId        Int       @map("user_id")
+  exp           Int       @default(0)
+  
+  users         User      @relation(fields: [userId], references: [userId])
   
   @@index([userId], name: "fk_Character_User1_idx")
   @@map("characters")
 }
 
 model CommitHistory {
-  historyId   Int       @default(autoincrement()) @id @map("history_id")
-  userId      Int       @map("user_id")
-  habitId     Int       @map("habit_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  historyId     Int       @default(autoincrement()) @id @map("history_id")
+  userId        Int       @map("user_id")
+  habitId       Int       @map("habit_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
 
-  habits      Habit     @relation(fields: [habitId], references: [habitId])
-  users       User      @relation(fields: [userId], references: [userId])
+  habits        Habit     @relation(fields: [habitId], references: [habitId])
+  users         User      @relation(fields: [userId], references: [userId])
 
   @@index([habitId], name: "fk_Habit_History_Habit1_idx")
   @@index([userId], name: "fk_Habit_History_User1_idx")
@@ -33,46 +33,46 @@ model CommitHistory {
 }
 
 model Ranking {
-  rankingId   Int             @id      @map("ranking_id")
-  userName    String          @map("user_name")
-  exp         Int
+  rankingId     Int       @id      @map("ranking_id")
+  userName      String    @map("user_name")
+  exp           Int
 
   @@map("ranking")
 }
 
 model Scheduler {
-  scheduleId    Int             @id @map("schedule_id")
-  userId        String          @map("user_id")
-  habitId       String          @map("habit_id")
-  habitTitle    String          @map("habit_title")
-  habitAlarmAt  DateTime        @map("habit_alarm_at")
-  habitType     Int             @map("habit_type")
+  scheduleId    Int       @id @map("schedule_id")
+  userId        String    @map("user_id")
+  habitId       String    @map("habit_id")
+  habitTitle    String    @map("habit_title")
+  habitAlarmAt  DateTime  @map("habit_alarm_at")
+  habitType     Int       @map("habit_type")
 
   @@map("scheduler")
 }
 
 model Habit {
-  habitId         Int         @default(autoincrement()) @id @map("habit_id")
-  userId          Int         @map("user_id")
-  title           String
-  description     String?
-  category        String
+  habitId       Int       @default(autoincrement()) @id @map("habit_id")
+  userId        Int       @map("user_id")
+  title         String
+  description   String?
+  category      String
 
-  user            User        @relation(fields: [userId], references: [userId])
+  user          User      @relation(fields: [userId], references: [userId])
 
   @@index([userId], name: "fk_Habit_User1_idx")
   @@map("habits")
 }
 
 model User {
-  userId        Int         @default(autoincrement()) @id @map("user_id")
+  userId        Int       @default(autoincrement()) @id @map("user_id")
   name          String
   email         String      
-  imageUrl      String?     @map("image_url")
-  googleId      String?     @map("google_id")
-  appleId       String?     @map("apple_id")
-  createdAt     DateTime?   @map("created_at")
-  updatedAt     DateTime?   @map("updated_at")
+  imageUrl      String?   @map("image_url")
+  googleId      String?   @map("google_id")
+  appleId       String?   @map("apple_id")
+  createdAt     DateTime? @map("created_at")
+  updatedAt     DateTime? @map("updated_at")
 
   characters    Character[]
   commitHistory CommitHistory[]
