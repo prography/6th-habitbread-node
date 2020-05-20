@@ -5,6 +5,7 @@ import { UserID } from '../validations/UserValidation';
 
 export interface AuthPayload {
   userId: number;
+  userName: string,
 }
 
 export class AuthHelper {
@@ -28,10 +29,10 @@ export class AuthHelper {
   public static makeAccessToken(id: UserID): string {
     const payload = {
       userId: id.userId,
+      userName: "testToken"
     };
     const signOptions: SignOptions = {
       algorithm: 'HS384',
-      expiresIn: '1m',
     };
     const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET || '', signOptions);
     return token;
@@ -41,7 +42,7 @@ export class AuthHelper {
     try{
       const data = jsonwebtoken.verify(
         token, process.env.PASSWORD_SECRET || '', { algorithms: ['HS384'] }) as AuthPayload;
-      return data.userId;
+      return data;
     } catch (err){
       return err;
     }

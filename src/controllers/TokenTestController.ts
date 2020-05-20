@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { Response } from 'express';
+import jsonwebtoken from 'jsonwebtoken';
 import { CurrentUser, Get, HttpError, JsonController, Params, Res } from 'routing-controllers';
 import { AuthError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
@@ -20,23 +21,29 @@ export class TokenTestController extends BaseController {
         @Params({ validate: true }) id: UserID,
     ){
         const token = AuthHelper.makeAccessToken(id);
-        console.log(token);
-        return token;
+        console.log(
+            jsonwebtoken.verify(
+                token, process.env.PASSWORD_SECRET || '', { algorithms: ['HS384'] }
+            )
+        );
+        return { "AccessToken" : token  };
     }
 
     @Get('/check')
     public  async checkToken(
         @Params({ validate: true }) id: UserID,
-        @CurrentUser({ required: true }) token: any,
+        @CurrentUser({ required: true }) tokenPayload: any,
         @Res() res: Response
     ){
         try{
-            if(token === Error){
+            if(tokenPayload === Error){
                 console.log(123);
-                throw new AuthError(token);
+                throw new AuthError(tokenPayload);
             }
-            console.log("123");
-            return token;
+            return {
+                "userId" : tokenPayload.userId,
+                "userName": tokenPayload.userName
+            };
         }catch(err) {
             if (err instanceof HttpError) return res.status(err.httpCode).send(err);
             throw new InternalServerError(err);
