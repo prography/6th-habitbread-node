@@ -36,6 +36,7 @@ jobs:
       run: | 
         echo "PORT = 3001" >> .env.test
         echo "DB_URL = ${{ secrets.DB_URL_TEST }}" >> .env.test
+        echo "PASSWORD_SECRET=zlekfl123!!" >> .env.test
 
     - name: Prisma generate and migrate up
       run: ENV=test npm run prisma:generate
