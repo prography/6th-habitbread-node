@@ -6,6 +6,7 @@ const app = express();
 
 useExpressServer(app, {
   controllers: [`${__dirname}/controllers/**`],
+  validation: false,
   currentUserChecker: AuthHelper.currentUserChecker,
 });
 

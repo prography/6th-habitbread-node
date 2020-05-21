@@ -3,6 +3,7 @@ import jsonwebtoken, { SignOptions } from 'jsonwebtoken';
 import { Action } from 'routing-controllers';
 import { UserID } from '../validations/UserValidation';
 
+
 export interface AuthPayload {
   userId: number;
   userName: string,
@@ -21,7 +22,8 @@ export class AuthHelper {
 
   public static async currentUserChecker(action: Action) {
     const bearerToken: string = action.request.headers.authorization;
-    if (AuthHelper.isBearerToken(bearerToken) === null) { return false; }
+    if(bearerToken === undefined) return null;
+    if (AuthHelper.isBearerToken(bearerToken) === false) return false;
     const token = bearerToken.split('Bearer ')[1];
     return AuthHelper.extractUserFromToken(token);
   }
