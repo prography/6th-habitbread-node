@@ -2,7 +2,6 @@
 node_modules
 dist
 db/data
-greenlock.d
 
 # Docker Production Files
 *.prod.yml
@@ -10,3 +9,7 @@ greenlock.d
 # ENV Files
 .env.*
 !.env.example
+
+# Grennlock Files
+greenlock.d
+.greenlockrc
