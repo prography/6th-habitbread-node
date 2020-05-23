@@ -1,3 +1,4 @@
+import { JsonWebTokenError, NotBeforeError, TokenExpiredError } from 'jsonwebtoken';
 import { HttpError } from 'routing-controllers';
 
 const reg = new RegExp('(/.*.js)');
@@ -34,6 +35,33 @@ export class NotFoundError extends HttpError {
     this.name = this.constructor.name;
     this.message = msg;
     this.stack = undefined;
+  }
+}
+
+export class AuthError extends HttpError {
+  public err: any;
+  constructor(err: any) {
+    if(err instanceof TokenExpiredError){
+      super(401);
+      Object.setPrototypeOf(this, AuthError.prototype);
+      this.name = err.name;
+      this.message = err.message;
+      this.stack = undefined;
+    }
+    if(err instanceof JsonWebTokenError){
+      super(401);
+      Object.setPrototypeOf(this, AuthError.prototype);
+      this.name = err.name;
+      this.message = err.message;
+      this.stack = undefined;
+    }
+    if(err instanceof NotBeforeError){
+      super(401);
+      Object.setPrototypeOf(this, AuthError.prototype);
+      this.name = err.name;
+      this.message = err.message;
+      this.stack = undefined;
+    }
   }
 }
 
