@@ -32,7 +32,7 @@ export class CharacterController extends BaseController {
       const character = await this.prisma.character.findOne({
         where: { userId: id.userId },
       });
-      if (!character) throw new NotFoundError('캐릭터를 찾을 수 없습니다.');
+      if (character === null) throw new NotFoundError('캐릭터를 찾을 수 없습니다.');
       return character;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
@@ -54,7 +54,7 @@ export class CharacterController extends BaseController {
           characters: true,
         },
       });
-      if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
       if (user.characters.length !== 0) throw new BadRequestError('이미 캐릭터를 가지고 있습니다.');
 
       return await this.prisma.character.create({
@@ -88,7 +88,7 @@ export class CharacterController extends BaseController {
           characters: true,
         },
       });
-      if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
       if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.');
 
       const exp: number = user.characters[0].exp + calculate.value;
@@ -117,7 +117,7 @@ export class CharacterController extends BaseController {
           characters: true,
         },
       });
-      if (!user) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
       if (user.characters.length === 0) throw new NotFoundError('사용자의 캐릭터를 찾을 수 없습니다.');
 
       await this.prisma.character.delete({

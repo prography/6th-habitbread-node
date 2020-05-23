@@ -22,7 +22,7 @@ export class RankingController extends BaseController {
           exp: 'desc',
         },
       });
-      if (!character) throw new NoContent('');
+      if (character === null) throw new NoContent('');
       return character;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
