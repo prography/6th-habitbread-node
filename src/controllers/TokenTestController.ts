@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { CurrentUser, Get, HttpError, JsonController, Params, Res } from 'routing-controllers';
 import { AuthError, BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
@@ -41,7 +42,7 @@ export class TokenTestController extends BaseController {
             if(errors.length > 0) throw new BadRequestError(errors);
             if(tokenPayload === null) throw new BadRequestError('AccesToken이 없습니다.');
             if(tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
-            if(tokenPayload instanceof Error) throw new AuthError(tokenPayload);
+            if(tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError) throw new AuthError(tokenPayload);
             return {
                 "userId" : tokenPayload.userId,
                 "userName": tokenPayload.userName
