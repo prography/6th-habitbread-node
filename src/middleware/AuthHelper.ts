@@ -3,10 +3,12 @@ import jsonwebtoken, { SignOptions } from 'jsonwebtoken';
 import { Action } from 'routing-controllers';
 import { UserID } from '../validations/UserValidation';
 
+const signOptions: SignOptions = {
+  algorithm: 'HS384',
+};
 
 export interface AuthPayload {
   userId: number;
-  userName: string,
 }
 
 export class AuthHelper {
@@ -30,21 +32,16 @@ export class AuthHelper {
 
   public static makeAccessToken(id: UserID): string {
     const payload = {
-      userId: id.userId,
-      userName: "testToken"
+      userId: id.userId
     };
-    const signOptions: SignOptions = {
-      algorithm: 'HS384',
-    };
-    const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET || '', signOptions);
+    const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET!, signOptions);
     return token;
   }
 
   public static async extractUserFromToken(token: string) {
     try{
-      const data = jsonwebtoken.verify(
-        token, process.env.PASSWORD_SECRET || '', { algorithms: ['HS384'] }) as AuthPayload;
-      return data;
+      const data = jsonwebtoken.verify(token, process.env.PASSWORD_SECRET!, signOptions) as AuthPayload;
+      return data.userId;
     } catch (err){
       return err;
     }

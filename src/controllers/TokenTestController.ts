@@ -44,8 +44,7 @@ export class TokenTestController extends BaseController {
             if(tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
             if(tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError) throw new AuthError(tokenPayload);
             return {
-                "userId" : tokenPayload.userId,
-                "userName": tokenPayload.userName
+                "userId" : tokenPayload,
             };
         }catch(err) {
             if (err instanceof HttpError) return res.status(err.httpCode).send(err);

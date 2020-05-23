@@ -37,8 +37,7 @@ describe('testHabit', () => {
                                 .set('Authorization', `Bearer ${token.body.AccessToken}`);
     expect(res.status).toBe(200);
     expect(Object.keys(res.body)).toEqual(expect.arrayContaining([
-        'userId',
-        'userName'
+        'userId'
     ]));
   });
 
