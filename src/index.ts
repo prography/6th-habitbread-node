@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
-import greenlock from 'greenlock-express';
 import app from './app';
 
 const initGreenlock = () => {
-  greenlock
+  require('greenlock-express')
     .init({
       packageRoot: '{__dirname}/..',
       configDir: './greenlock.d',
