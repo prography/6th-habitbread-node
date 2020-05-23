@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import app from './app';
+import scheduler from './schedulers/RankScheduler';
 
 const initGreenlock = () => {
   require('greenlock-express')
@@ -25,5 +26,6 @@ if (ENV === 'prod') {
   dotenv.config({ path: `${__dirname}/../.env.dev` });
   app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on ${port} at ${ENV} :)`);
+    scheduler.RankingUpdateJob();    
   });
 }

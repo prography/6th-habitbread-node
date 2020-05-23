@@ -1,14 +1,20 @@
 FROM node:12
 
+ARG APP_PATH=/usr/src/app
+
 # install node modules
 # Add package.json before rest of repo for caching
-WORKDIR /usr/src/app
-COPY package.json /usr/src/app/package.json
-# 프로덕션을 위한 코드를 빌드하는 경우
+WORKDIR ${APP_PATH}
+COPY package.json ${APP_PATH}/package.json
+
+# For Deploy production codes
 # RUN npm ci --only=production
 RUN npm install
 
 # install application
-COPY . /usr/src/app
-# CMD npm start
-EXPOSE 80 3000 3306
+COPY . ${APP_PATH}
+
+EXPOSE 80 3000
+
+# docker-compose CMD more priority than this
+CMD [ "npm", "start" ]

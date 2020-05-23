@@ -1,13 +1,14 @@
 import { PrismaClient } from '@prisma/client';
+import { validate } from 'class-validator';
 import { Response } from 'express';
 import { Body, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
-import { NoContent, NotFoundError } from '../exceptions/Exception';
+import { BadRequestError, NoContent, NotFoundError } from '../exceptions/Exception';
 import { Habit, ID } from '../validations/HabitValidation';
 import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/users/:userId/habits')
-export class UserController extends BaseController {
+export class HabitController extends BaseController {
   private prisma: PrismaClient;
 
   constructor() {
@@ -18,11 +19,17 @@ export class UserController extends BaseController {
   // 습관 등록하기
   @Post('/')
   public async createHabit(
-    @Params({ validate: true }) id: UserID,
-    @Body({ validate: true }) habit: Habit,
+    @Params() id: UserID,
+    @Body() habit: Habit,
     @Res() res: Response
   ) {
     try {
+      const paramErrors = await validate(id);
+      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+
+      const bodyErrors = await validate(id);
+      if(bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+
       const user = await this.prisma.user.findOne({
         where: { userId: id.userId },
       });
@@ -55,8 +62,11 @@ export class UserController extends BaseController {
 
   // 전체 습관 조회하기
   @Get('/')
-  public async findHabits(@Params({ validate: true }) id: UserID, @Res() res: Response) {
+  public async findHabits(@Params() id: UserID, @Res() res: Response) {
     try {
+      const paramErrors = await validate(id);
+      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+
       const user = await this.prisma.user.findOne({
         where: { userId: id.userId },
         select: {
@@ -74,8 +84,11 @@ export class UserController extends BaseController {
 
   // habitId로 습관 조회하기
   @Get('/:habitId')
-  public async findHabit(@Params({ validate: true }) id: ID, @Res() res: Response) {
+  public async findHabit(@Params() id: ID, @Res() res: Response) {
     try {
+      const paramErrors = await validate(id);
+      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+
       const habit = await this.prisma.user
         .findOne({
           where: { userId: id.userId },
@@ -96,11 +109,17 @@ export class UserController extends BaseController {
   // habitId로 습관 수정하기
   @Put('/:habitId')
   public async updateHabit(
-    @Params({ validate: true }) id: ID,
-    @Body({ validate: true }) habit: Habit,
+    @Params() id: ID,
+    @Body() habit: Habit,
     @Res() res: Response
   ) {
     try {
+      const paramErrors = await validate(id);
+      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+
+      const bodyErrors = await validate(id);
+      if(bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+
       const findHabit = await this.prisma.user
         .findOne({
           where: { userId: id.userId },
@@ -130,8 +149,11 @@ export class UserController extends BaseController {
 
   // habitId로 습관 삭제하기
   @Delete('/:habitId')
-  public async deleteHabit(@Params({ validate: true }) id: ID, @Res() res: Response) {
+  public async deleteHabit(@Params() id: ID, @Res() res: Response) {
     try {
+      const paramErrors = await validate(id);
+      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      
       const findHabit = await this.prisma.user
         .findOne({
           where: { userId: id.userId },
