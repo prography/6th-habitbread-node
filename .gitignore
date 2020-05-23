@@ -1,6 +1,15 @@
+# Ignore Files
 node_modules
 dist
 db/data
+
+# Docker Production Files
 *.prod.yml
+
+# ENV Files
 .env.*
 !.env.example
+
+# Grennlock Files
+greenlock.d
+.greenlockrc
