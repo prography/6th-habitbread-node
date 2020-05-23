@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import app from './app';
+import scheduler from './schedulers/RankScheduler';
 
 const ENV: string = process.env.NODE_ENV || 'dev';
 if (ENV === 'prod') {
@@ -13,4 +14,5 @@ if (ENV === 'prod') {
 const port: number = Number(process.env.PORT) || 3000;
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on ${port} at ${ENV} :)`);
+  scheduler.RankingUpdateJob();
 });

@@ -44,7 +44,7 @@ describe('Test Character', () => {
   });
 
   // 캐릭터 경험치 계산 테스트
-  test('Patch - /character/calculate', async () => {
+  test('Patch - /users/:userId/characters/calculate', async () => {
     const data = {
       value: 10000,
     };
@@ -55,7 +55,7 @@ describe('Test Character', () => {
   });
 
   // 캐릭터 삭제 테스트
-  test('Delete - /character', async () => {
+  test('Delete - /users/:userId/characters', async () => {
     const data = {
       characterId: character.characterId,
     };
