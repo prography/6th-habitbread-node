@@ -25,20 +25,17 @@ describe('testHabit', () => {
   test('createToken', async () => {
     const res = await testClient.get(`/users/${user.userId}/token/create`);
     expect(res.status).toBe(200);
-    expect(Object.keys(res.body)).toEqual(expect.arrayContaining([
-        'AccessToken',
-    ]));
+    expect(Object.keys(res.body)).toEqual(expect.arrayContaining(['AccessToken']));
   });
 
   // GET checkToken
   test('checkToken', async () => {
     const token = await testClient.get(`/users/${user.userId}/token/create`);
-    const res = await testClient.get(`/users/${user.userId}/token/check`)
-                                .set('Authorization', `Bearer ${token.body.AccessToken}`);
+    const res = await testClient
+      .get(`/users/${user.userId}/token/check`)
+      .set('Authorization', `Bearer ${token.body.AccessToken}`);
     expect(res.status).toBe(200);
-    expect(Object.keys(res.body)).toEqual(expect.arrayContaining([
-        'userId'
-    ]));
+    expect(Object.keys(res.body)).toEqual(expect.arrayContaining(['userId']));
   });
 
   afterAll(async done => {

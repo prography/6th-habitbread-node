@@ -24,7 +24,7 @@ export class AuthHelper {
 
   public static async currentUserChecker(action: Action) {
     const bearerToken: string = action.request.headers.authorization;
-    if(bearerToken === undefined) return null;
+    if (bearerToken === undefined) return null;
     if (AuthHelper.isBearerToken(bearerToken) === false) return false;
     const token = bearerToken.split('Bearer ')[1];
     return AuthHelper.extractUserFromToken(token);
@@ -32,17 +32,17 @@ export class AuthHelper {
 
   public static makeAccessToken(id: UserID): string {
     const payload = {
-      userId: id.userId
+      userId: id.userId,
     };
     const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET!, signOptions);
     return token;
   }
 
   public static async extractUserFromToken(token: string) {
-    try{
+    try {
       const data = jsonwebtoken.verify(token, process.env.PASSWORD_SECRET!, signOptions) as AuthPayload;
       return data.userId;
-    } catch (err){
+    } catch (err) {
       return err;
     }
   }

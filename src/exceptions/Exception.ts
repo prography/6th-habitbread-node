@@ -41,22 +41,20 @@ export class NotFoundError extends HttpError {
 export class AuthError extends HttpError {
   public err: any;
   constructor(err: any) {
-    if(err instanceof TokenExpiredError){
-      super(401);
+    super(401);
+    if (err instanceof TokenExpiredError) {
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;
       this.stack = undefined;
     }
-    if(err instanceof JsonWebTokenError){
-      super(401);
+    if (err instanceof JsonWebTokenError) {
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;
       this.stack = undefined;
     }
-    if(err instanceof NotBeforeError){
-      super(401);
+    if (err instanceof NotBeforeError) {
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;

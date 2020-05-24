@@ -18,17 +18,13 @@ export class HabitController extends BaseController {
 
   // 습관 등록하기
   @Post('/')
-  public async createHabit(
-    @Params() id: UserID,
-    @Body() habit: Habit,
-    @Res() res: Response
-  ) {
+  public async createHabit(@Params() id: UserID, @Body() habit: Habit, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
-      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
       const bodyErrors = await validate(id);
-      if(bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+      if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
       const user = await this.prisma.user.findOne({
         where: { userId: id.userId },
@@ -65,7 +61,7 @@ export class HabitController extends BaseController {
   public async findHabits(@Params() id: UserID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
-      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
       const user = await this.prisma.user.findOne({
         where: { userId: id.userId },
@@ -87,7 +83,7 @@ export class HabitController extends BaseController {
   public async findHabit(@Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
-      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
       const habit = await this.prisma.user
         .findOne({
@@ -108,17 +104,13 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 수정하기
   @Put('/:habitId')
-  public async updateHabit(
-    @Params() id: ID,
-    @Body() habit: Habit,
-    @Res() res: Response
-  ) {
+  public async updateHabit(@Params() id: ID, @Body() habit: Habit, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
-      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
       const bodyErrors = await validate(id);
-      if(bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+      if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
       const findHabit = await this.prisma.user
         .findOne({
@@ -152,8 +144,8 @@ export class HabitController extends BaseController {
   public async deleteHabit(@Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
-      if(paramErrors.length > 0) throw new BadRequestError(paramErrors);
-      
+      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+
       const findHabit = await this.prisma.user
         .findOne({
           where: { userId: id.userId },
