@@ -20,28 +20,38 @@ export class OAuthControllers extends BaseController {
 
   @Get('/google/login')
   public async GoogleOAuth(@Res() res: Response) {
-    const scopes = ['https://www.googleapis.com/auth/plus.me'];
+    const scopes = [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+    ];
     const url = this.oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: scopes,
     });
     res.redirect(url);
+    return res.end();
   }
 
   @Get('/google/callback')
-  public async GoogleCallback(@QueryParam('code') code: object) {
-    console.log(code);
-    const { tokens } = await this.oauth2Client.getToken(code.code);
-    this.oauth2Client.credentials = tokens;
-
-    this.oauth2Client.on('tokens', data => {
-      if (data.refresh_token) {
-        console.log(data.refresh_token);
-      }
-      console.log(data.access_token);
+  public async GoogleCallback(@QueryParam('code') code: string, @Res() res: Response) {
+    console.log(`code: ${code}`);
+    const { tokens } = await this.oauth2Client.getToken(code);
+    console.log('getToken OK');
+    this.oauth2Client.setCredentials(tokens);
+    google.options({ auth: this.oauth2Client });
+    console.log('setCredentials OK');
+    const people = google.people({
+      version: 'v1',
+      auth: this.oauth2Client,
+    });
+    console.log('people OK');
+    const me = await people.people.get({
+      resourceName: 'people/me',
+      personFields: 'emailAddresses,names,photos',
     });
 
-    const me = await google.plus('v1').people.get({ userId: 'me' });
+    console.log('Get DATA OK');
     console.log(me.data);
+    return res.end();
   }
 }
