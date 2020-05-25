@@ -10,6 +10,9 @@ db/data
 .env.*
 !.env.example
 
+# Apple Private Key
+config/apple-auth
+
 # Grennlock Files
-greenlock.d
+config/greenlock.d
 .greenlockrc

@@ -5,8 +5,8 @@ import scheduler from './schedulers/RankScheduler';
 const initGreenlock = () => {
   require('greenlock-express')
     .init({
-      packageRoot: '{__dirname}/..',
-      configDir: './greenlock.d',
+      packageRoot: `${__dirname}/..`,
+      configDir: './config/greenlock.d',
       // contact for security and critical bug notices
       maintainerEmail: 'wwlee94@naver.com',
       // whether or not to run at cloudscale
@@ -26,6 +26,6 @@ if (ENV === 'prod') {
   dotenv.config({ path: `${__dirname}/../.env.dev` });
   app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on ${port} at ${ENV} :)`);
-    scheduler.RankingUpdateJob();    
+    scheduler.RankingUpdateJob();
   });
 }
