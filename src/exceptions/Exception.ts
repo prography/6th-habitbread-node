@@ -27,6 +27,17 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class UnauthorizedError extends HttpError {
+  public message: any;
+  constructor(msg: any) {
+    super(401);
+    Object.setPrototypeOf(this, UnauthorizedError.prototype);
+    this.name = this.constructor.name;
+    this.message = msg;
+    this.stack = undefined;
+  }
+}
+
 export class NotFoundError extends HttpError {
   public message: any;
   constructor(msg: any) {
@@ -41,21 +52,21 @@ export class NotFoundError extends HttpError {
 export class AuthError extends HttpError {
   public err: any;
   constructor(err: any) {
-    if(err instanceof TokenExpiredError){
+    if (err instanceof TokenExpiredError) {
       super(401);
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;
       this.stack = undefined;
     }
-    if(err instanceof JsonWebTokenError){
+    if (err instanceof JsonWebTokenError) {
       super(401);
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;
       this.stack = undefined;
     }
-    if(err instanceof NotBeforeError){
+    if (err instanceof NotBeforeError) {
       super(401);
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
