@@ -30,9 +30,9 @@ export class AuthHelper {
     return AuthHelper.extractUserFromToken(token);
   }
 
-  public static makeAccessToken(id: UserID): string {
+  public static makeAccessToken(id: UserID['userId']): string {
     const payload = {
-      userId: id.userId,
+      userId: id,
     };
     const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET!, signOptions);
     return token;

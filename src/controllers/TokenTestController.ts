@@ -18,7 +18,7 @@ export class TokenTestController extends BaseController {
   }
 
   @Get('/create')
-  public async createToken(@Params() id: UserID, @Res() res: Response) {
+  public async createToken(@Params() id: UserID['userId'], @Res() res: Response) {
     try {
       const errors = await validate(id);
       if (errors.length > 0) throw new BadRequestError(errors);

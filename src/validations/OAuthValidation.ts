@@ -1,13 +1,9 @@
-import { IsNumber } from 'class-validator';
-
-export class GoogleCallback {
-  code!: string;
-}
-
-export class ID {
-  @IsNumber()
-  habitId!: number;
-
-  @IsNumber()
-  userId!: number;
+export class GoogleParse {
+  public static parseResponse = (data: any) => {
+    return {
+      name: data.names.length ? data.names[0].displayName : '습관이',
+      email: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
+      imageUrl: data.photos.length ? data.photos[0].url : null,
+    };
+  };
 }

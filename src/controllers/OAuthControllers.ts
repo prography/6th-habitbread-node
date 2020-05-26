@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { Response } from 'express';
 import { google } from 'googleapis';
-import { Get, JsonController, QueryParam, Res } from 'routing-controllers';
+import { Get, HttpError, JsonController, QueryParam, Res } from 'routing-controllers';
+import { InternalServerError } from '../exceptions/Exception';
+import { AuthHelper } from '../middleware/AuthHelper';
+import { GoogleParse } from '../validations/OAuthValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/oauth')
@@ -34,24 +37,30 @@ export class OAuthControllers extends BaseController {
 
   @Get('/google/callback')
   public async GoogleCallback(@QueryParam('code') code: string, @Res() res: Response) {
-    console.log(`code: ${code}`);
-    const { tokens } = await this.oauth2Client.getToken(code);
-    console.log('getToken OK');
-    this.oauth2Client.setCredentials(tokens);
-    google.options({ auth: this.oauth2Client });
-    console.log('setCredentials OK');
-    const people = google.people({
-      version: 'v1',
-      auth: this.oauth2Client,
-    });
-    console.log('people OK');
-    const me = await people.people.get({
-      resourceName: 'people/me',
-      personFields: 'emailAddresses,names,photos',
-    });
+    try {
+      const { tokens } = await this.oauth2Client.getToken(code);
+      this.oauth2Client.setCredentials(tokens);
+      google.options({ auth: this.oauth2Client });
 
-    console.log('Get DATA OK');
-    console.log(me.data);
-    return res.end();
+      const people = google.people({
+        version: 'v1',
+        auth: this.oauth2Client,
+      });
+      const me = await people.people.get({
+        resourceName: 'people/me',
+        personFields: 'emailAddresses,names,photos',
+      });
+
+      const { name, email, imageUrl } = GoogleParse.parseResponse(me.data);
+      const createUser = await this.prisma.user.create({
+        data: { name, email, imageUrl },
+      });
+
+      const token = AuthHelper.makeAccessToken(createUser.userId);
+      return token;
+    } catch (err) {
+      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      throw new InternalServerError(err.message);
+    }
   }
 }
