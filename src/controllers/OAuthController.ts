@@ -50,8 +50,24 @@ export class OAuthController extends BaseController {
       if (idToken.email) user.email = idToken.email;
       if (body.user) {
         const { name } = JSON.parse(body.user);
-        user.name = name;
+        user.name = `${name.lastName} ${name.firstName}`;
       }
+
+      // 필요 없는 작업? -> 미들웨어에서 currentUser 쓰면 OK?
+      // const findUser = await this.prisma.user.findMany({
+      //   where: {
+      //     email: user.email,
+      //   },
+      // });
+      // if (findUser.length > 0) throw new BadRequestError('이미 회원 가입이 되어있는 이메일입니다.');
+
+      const createUser = await this.prisma.user.create({
+        data: {
+          name: user.name || '빵이',
+          email: user.email,
+        },
+      });
+      console.log(createUser);
 
       return user;
     } catch (err) {
