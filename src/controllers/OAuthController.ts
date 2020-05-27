@@ -42,8 +42,7 @@ export class OAuthController extends BaseController {
       const response: AppleAuthAccessToken = await auth.accessToken(body.code);
 
       const idToken = jwt.decode(response.id_token);
-      if (idToken === null || typeof idToken === 'string')
-        throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
+      if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
       const user: any = {};
       user.id = idToken.sub;
@@ -59,7 +58,7 @@ export class OAuthController extends BaseController {
       //     email: user.email,
       //   },
       // });
-      // if (findUser.length > 0) throw new BadRequestError('이미 회원 가입이 되어있는 이메일입니다.');
+      // if (findUser.length > 0) // 토큰 발급 로직
 
       const createUser = await this.prisma.user.create({
         data: {
