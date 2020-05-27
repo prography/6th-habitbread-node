@@ -1,13 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { validate } from 'class-validator';
-import { Response } from 'express';
-import { Body, Delete, Get, HttpCode, HttpError, JsonController, Params, Patch, Post, Res } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Patch, Post } from 'routing-controllers';
 import { BadRequestError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import { CalculateCharacter } from '../validations/CharacterValidation';
-import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 
-@JsonController('/users/:userId/characters')
+@JsonController('/characters')
 export class CharacterController extends BaseController {
   private prisma: PrismaClient;
 
@@ -24,18 +22,15 @@ export class CharacterController extends BaseController {
 
   // 특정 사용자의 특정 캐릭터 조회 API
   @Get()
-  public async findCharacter(@Params() id: UserID, @Res() res: Response) {
+  public async findCharacter(@CurrentUser() currentUser: any) {
     try {
-      const errors = await validate(id);
-      if (errors.length > 0) throw new BadRequestError(errors);
-
       const character = await this.prisma.character.findOne({
-        where: { userId: id.userId },
+        where: { userId: currentUser },
       });
       if (character === null) throw new NotFoundError('캐릭터를 찾을 수 없습니다.');
       return character;
     } catch (err) {
-      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }
@@ -43,13 +38,10 @@ export class CharacterController extends BaseController {
   // 캐릭터 생성 API
   @Post()
   @HttpCode(201)
-  public async createCharacter(@Params() id: UserID, @Res() res: Response) {
+  public async createCharacter(@CurrentUser() currentUser: any) {
     try {
-      const errors = await validate(id);
-      if (errors.length > 0) throw new BadRequestError(errors);
-
       const user = await this.prisma.user.findOne({
-        where: { userId: id.userId },
+        where: { userId: currentUser },
         select: {
           characters: true,
         },
@@ -62,28 +54,25 @@ export class CharacterController extends BaseController {
           characterId: getRandomInt(1, 100000),
           exp: 0,
           users: {
-            connect: { userId: id.userId },
+            connect: { userId: currentUser },
           },
         },
       });
     } catch (err) {
-      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }
 
   // 캐릭터 경험치 계산 API
   @Patch('/calculate')
-  public async calculateExp(@Params() id: UserID, @Body() calculate: CalculateCharacter, @Res() res: Response) {
+  public async calculateExp(@CurrentUser() currentUser: any, @Body() calculate: CalculateCharacter) {
     try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
-
       const bodyErrors = await validate(calculate);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
       const user = await this.prisma.user.findOne({
-        where: { userId: id.userId },
+        where: { userId: currentUser },
         select: {
           characters: true,
         },
@@ -93,26 +82,23 @@ export class CharacterController extends BaseController {
 
       const exp: number = user.characters[0].exp + calculate.value;
       return await this.prisma.character.update({
-        where: { userId: id.userId },
+        where: { userId: currentUser },
         data: {
           exp,
         },
       });
     } catch (err) {
-      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }
 
   // 특정 캐릭터 삭제 API
   @Delete()
-  public async deleteCharacter(@Params() id: UserID, @Res() res: Response) {
+  public async deleteCharacter(@CurrentUser() currentUser: any) {
     try {
-      const errors = await validate(id);
-      if (errors.length > 0) throw new BadRequestError(errors);
-
       const user = await this.prisma.user.findOne({
-        where: { userId: id.userId },
+        where: { userId: currentUser },
         select: {
           characters: true,
         },
@@ -125,9 +111,9 @@ export class CharacterController extends BaseController {
           characterId: user.characters[0].characterId,
         },
       });
-      return res.status(200).send({ message: 'success' });
+      return { message: 'Delete Character Success' };
     } catch (err) {
-      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }

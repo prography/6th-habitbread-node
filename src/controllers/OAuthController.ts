@@ -72,7 +72,7 @@ export class OAuthController extends BaseController {
       return user;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
-      throw new InternalServerError(err.message);
+      throw new InternalServerError(err.message || err);
     }
   }
 
@@ -87,7 +87,7 @@ export class OAuthController extends BaseController {
       return accessToken;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
-      throw new InternalServerError(err.message);
+      throw new InternalServerError(err.message || err);
     }
   }
 }
