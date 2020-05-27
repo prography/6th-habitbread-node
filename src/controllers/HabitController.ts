@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
-import { Body, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
-import { BadRequestError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
+import { AuthError, BadRequestError, NoContent, NotFoundError } from '../exceptions/Exception';
 import { Habit, ID } from '../validations/HabitValidation';
-import { UserID } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 
-@JsonController('/users/:userId/habits')
+@JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
 
@@ -18,16 +18,18 @@ export class HabitController extends BaseController {
 
   // 습관 등록하기
   @Post('/')
-  public async createHabit(@Params() id: UserID, @Body() habit: Habit, @Res() res: Response) {
+  public async createHabit(@CurrentUser() tokenPayload: any, @Body() habit: Habit, @Res() res: Response) {
     try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (tokenPayload === null) throw new BadRequestError('AccesToken이 없습니다.');
+      if (tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
+      if (tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError)
+        throw new AuthError(tokenPayload);
 
-      const bodyErrors = await validate(id);
+      const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
       const user = await this.prisma.user.findOne({
-        where: { userId: id.userId },
+        where: { userId: tokenPayload },
       });
 
       if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
@@ -38,7 +40,7 @@ export class HabitController extends BaseController {
           description: habit.description,
           category: habit.category,
           user: {
-            connect: { userId: id.userId },
+            connect: { userId: tokenPayload },
           },
         },
       });
@@ -58,13 +60,15 @@ export class HabitController extends BaseController {
 
   // 전체 습관 조회하기
   @Get('/')
-  public async findHabits(@Params() id: UserID, @Res() res: Response) {
+  public async findHabits(@CurrentUser() tokenPayload: any, @Res() res: Response) {
     try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (tokenPayload === null) throw new BadRequestError('AccesToken이 없습니다.');
+      if (tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
+      if (tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError)
+        throw new AuthError(tokenPayload);
 
       const user = await this.prisma.user.findOne({
-        where: { userId: id.userId },
+        where: { userId: tokenPayload },
         select: {
           Habit: true,
         },
@@ -80,14 +84,18 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 조회하기
   @Get('/:habitId')
-  public async findHabit(@Params() id: ID, @Res() res: Response) {
+  public async findHabit(@CurrentUser() tokenPayload: any, @Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (tokenPayload === null) throw new BadRequestError('AccesToken이 없습니다.');
+      if (tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
+      if (tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError)
+        throw new AuthError(tokenPayload);
 
       const habit = await this.prisma.user
         .findOne({
-          where: { userId: id.userId },
+          where: { userId: tokenPayload },
         })
         .Habit({
           where: { habitId: id.habitId },
@@ -104,17 +112,25 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 수정하기
   @Put('/:habitId')
-  public async updateHabit(@Params() id: ID, @Body() habit: Habit, @Res() res: Response) {
+  public async updateHabit(
+    @CurrentUser() tokenPayload: any,
+    @Params() id: ID,
+    @Body() habit: Habit,
+    @Res() res: Response
+  ) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
-
-      const bodyErrors = await validate(id);
+      if (tokenPayload === null) throw new BadRequestError('AccesToken이 없습니다.');
+      if (tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
+      if (tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError)
+        throw new AuthError(tokenPayload);
+      const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
       const findHabit = await this.prisma.user
         .findOne({
-          where: { userId: id.userId },
+          where: { userId: tokenPayload },
         })
         .Habit({
           where: { habitId: id.habitId },
@@ -129,7 +145,7 @@ export class HabitController extends BaseController {
           description: habit.description,
           category: habit.category,
           user: {
-            connect: { userId: id.userId },
+            connect: { userId: tokenPayload },
           },
         },
       });
@@ -141,14 +157,18 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 삭제하기
   @Delete('/:habitId')
-  public async deleteHabit(@Params() id: ID, @Res() res: Response) {
+  public async deleteHabit(@CurrentUser() tokenPayload: any, @Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      if (tokenPayload === null) throw new BadRequestError('AccesToken이 없습니다.');
+      if (tokenPayload === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
+      if (tokenPayload instanceof TokenExpiredError || tokenPayload instanceof JsonWebTokenError)
+        throw new AuthError(tokenPayload);
 
       const findHabit = await this.prisma.user
         .findOne({
-          where: { userId: id.userId },
+          where: { userId: tokenPayload },
         })
         .Habit({
           where: { habitId: id.habitId },

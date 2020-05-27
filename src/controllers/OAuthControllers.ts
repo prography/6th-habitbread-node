@@ -4,7 +4,6 @@ import { google } from 'googleapis';
 import { Get, HttpError, JsonController, QueryParam, Res } from 'routing-controllers';
 import { InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
-import { GoogleParse } from '../validations/OAuthValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/oauth')
@@ -15,6 +14,13 @@ export class OAuthControllers extends BaseController {
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.GOOGLE_REDIRECT_URL
   );
+  private parseResponse = (data: any) => {
+    return {
+      name: data.names.length ? data.names[0].displayName : '습관이',
+      email: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
+      imageUrl: data.photos.length ? data.photos[0].url : null,
+    };
+  };
 
   constructor() {
     super();
@@ -51,7 +57,7 @@ export class OAuthControllers extends BaseController {
         personFields: 'emailAddresses,names,photos',
       });
 
-      const { name, email, imageUrl } = GoogleParse.parseResponse(me.data);
+      const { name, email, imageUrl } = this.parseResponse(me.data);
       const createUser = await this.prisma.user.create({
         data: { name, email, imageUrl },
       });
