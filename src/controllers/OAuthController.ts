@@ -30,7 +30,7 @@ export class OAuthController extends BaseController {
 
   // Apple 서버로부터 callback 받는 라우터
   @Post('/apple/callback')
-  public async appleOAuthCallback(@Body() body: Record<string, string>, @Res() res: Response) {
+  public async appleOAuthCallback(@Body() body: Record<string, string>) {
     try {
       const response: AppleAuthAccessToken = await auth.accessToken(body.code);
 
@@ -39,32 +39,30 @@ export class OAuthController extends BaseController {
 
       const oauthKey = idToken.sub;
       const email = idToken.email;
-      let userName;
+      let name = '습관이';
       if (body.user) {
-        const { name } = JSON.parse(body.user);
-        userName = `${name.lastName} ${name.firstName}`;
+        const {
+          name: { lastName, firstName },
+        } = JSON.parse(body.user);
+        name = `${lastName} ${firstName}`;
       }
 
       let user = await this.prisma.user.findOne({
         where: {
-          oauthKey: oauthKey,
+          oauthKey,
         },
       });
 
       if (user === null) {
         user = await this.prisma.user.create({
-          data: {
-            oauthKey: oauthKey,
-            email: email,
-            name: userName || '습관이',
-          },
+          data: { oauthKey, email, name },
         });
       }
 
       const token = AuthHelper.makeAccessToken(user.userId);
-      return token;
+      return { AccessToken: token };
     } catch (err) {
-      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message || err);
     }
   }
