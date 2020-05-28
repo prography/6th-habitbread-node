@@ -5,6 +5,7 @@ import fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import { Body, BodyParam, Get, HttpError, JsonController, Post, Res, UseBefore } from 'routing-controllers';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
+import { AuthHelper } from '../middleware/AuthHelper';
 import { BaseController } from './BaseController';
 
 const config = JSON.parse(fs.readFileSync('./config/apple-auth/config.json').toString()) as AppleAuthConfig;
@@ -44,31 +45,33 @@ export class OAuthController extends BaseController {
       const idToken = jwt.decode(response.id_token);
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
-      const user: any = {};
-      user.id = idToken.sub;
-      if (idToken.email) user.email = idToken.email;
+      const oauthKey = idToken.sub;
+      const email = idToken.email;
+      let userName;
       if (body.user) {
         const { name } = JSON.parse(body.user);
-        user.name = `${name.lastName} ${name.firstName}`;
+        userName = `${name.lastName} ${name.firstName}`;
       }
 
-      // 필요 없는 작업? -> 미들웨어에서 currentUser 쓰면 OK?
-      // const findUser = await this.prisma.user.findMany({
-      //   where: {
-      //     email: user.email,
-      //   },
-      // });
-      // if (findUser.length > 0) // 토큰 발급 로직
-
-      const createUser = await this.prisma.user.create({
-        data: {
-          name: user.name || '빵이',
-          email: user.email,
+      let user;
+      user = await this.prisma.user.findOne({
+        where: {
+          oauthKey: oauthKey,
         },
       });
-      console.log(createUser);
 
-      return user;
+      if (user === null) {
+        user = await this.prisma.user.create({
+          data: {
+            oauthKey: oauthKey,
+            email: email,
+            name: userName || '습관이',
+          },
+        });
+      }
+
+      const token = AuthHelper.makeAccessToken(user.userId);
+      return token;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
       throw new InternalServerError(err.message || err);
