@@ -27,6 +27,17 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class UnauthorizedError extends HttpError {
+  public message: any;
+  constructor(msg: any) {
+    super(401);
+    Object.setPrototypeOf(this, UnauthorizedError.prototype);
+    this.name = this.constructor.name;
+    this.message = msg;
+    this.stack = undefined;
+  }
+}
+
 export class NotFoundError extends HttpError {
   public message: any;
   constructor(msg: any) {
