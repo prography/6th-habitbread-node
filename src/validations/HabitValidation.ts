@@ -20,7 +20,4 @@ export class Habit {
 export class ID {
   @IsNumber()
   habitId!: number;
-
-  @IsNumber()
-  userId!: number;
 }

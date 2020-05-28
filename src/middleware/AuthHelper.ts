@@ -38,7 +38,7 @@ export class AuthHelper {
     return token;
   }
 
-  public static async extractUserFromToken(token: string) {
+  public static extractUserFromToken(token: string) {
     try {
       const data = jsonwebtoken.verify(token, process.env.PASSWORD_SECRET!, signOptions) as AuthPayload;
       return data.userId;

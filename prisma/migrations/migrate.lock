@@ -2,3 +2,5 @@
 # INSTEAD EXECUTE `prisma migrate fix`
 # Prisma Migrate lockfile v1
 # Read more about conflict resolution here: TODO
+
+20200528105346-20-05-28--db_modeling_refactor

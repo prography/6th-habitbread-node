@@ -7,6 +7,7 @@ export const createUser = async (prisma: PrismaClient, user: AddUser) => {
     data: {
       name: user.name,
       email: user.email,
+      oauthKey: user.email,
     },
   });
   return newUser;
