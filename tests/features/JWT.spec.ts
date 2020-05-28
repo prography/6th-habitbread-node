@@ -14,7 +14,7 @@ describe('testHabit', () => {
   let user: User;
 
   beforeEach(async done => {
-    await prisma.character.deleteMany({});
+    await prisma.item.deleteMany({});
     await prisma.habit.deleteMany({});
     await prisma.user.deleteMany({});
     user = await createUser(prisma, new AddUser('김건훈', 'dnatuna123@gmail.com'));

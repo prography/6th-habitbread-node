@@ -22,7 +22,7 @@ export class Payload {
 
   public static checkOriginalPayloads = (userId: number, habitId: number) => {
     return {
-      Habit: [
+      habits: [
         {
           category: 'test',
           description: '이건 description1입니다.',

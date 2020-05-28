@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
+import { AuthHelper } from '../../src/middleware/AuthHelper';
 import { AddUser } from '../../src/validations/UserValidation';
 import { Payload } from '../utils/HabitPayload';
 import { createUser } from '../utils/UserUtil';
@@ -12,18 +13,18 @@ describe('testHabit', () => {
   const testClient = supertest(app);
   const prisma = new PrismaClient();
 
-  let habitId: number, userId: number;
+  let habitId: number, token: string;
 
   beforeEach(async done => {
-    await prisma.character.deleteMany({});
+    await prisma.commitHistory.deleteMany({});
     await prisma.habit.deleteMany({});
     await prisma.user.deleteMany({});
     const user = await createUser(prisma, new AddUser('김건훈', 'dnatuna123@gmail.com'));
-    userId = user.userId;
+    token = AuthHelper.makeAccessToken(user.userId);
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];
 
-      const res = await testClient.post(`/users/${userId}/habits`).send(payload);
+      const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
         habitId = res.body.habitId;
       }
@@ -36,7 +37,7 @@ describe('testHabit', () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];
 
-      const res = await testClient.post(`/users/${userId}/habits`).send(payload);
+      const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
         habitId = res.body.habitId;
       }
@@ -46,16 +47,16 @@ describe('testHabit', () => {
         description: payload.description,
         habitId: habitId + i,
         title: payload.title,
-        userId: userId,
+        userId: AuthHelper.extractUserFromToken(token),
       });
     }
   });
 
   // GET getHabits
   test('getHabits', async () => {
-    const res = await testClient.get(`/users/${userId}/habits`);
+    const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.checkOriginalPayloads(userId, habitId));
+    expect(res.body).toMatchObject(Payload.checkOriginalPayloads(AuthHelper.extractUserFromToken(token), habitId));
   });
 
   // GET getHabit
@@ -63,14 +64,14 @@ describe('testHabit', () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];
 
-      const res = await testClient.get(`/users/${userId}/habits/${habitId + i}`);
+      const res = await testClient.get(`/habits/${habitId + i}`).set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
         category: payload.category,
         description: payload.description,
         habitId: habitId + i,
         title: payload.title,
-        userId: userId,
+        userId: AuthHelper.extractUserFromToken(token),
       });
     }
   });
@@ -80,7 +81,10 @@ describe('testHabit', () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];
 
-      const res = await testClient.put(`/users/${userId}/habits/${habitId + i}`).send(payload);
+      const res = await testClient
+        .put(`/habits/${habitId + i}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload);
       if (i === 0) {
         habitId = res.body.habitId;
       }
@@ -90,14 +94,14 @@ describe('testHabit', () => {
         description: payload.description,
         habitId: habitId + i,
         title: payload.title,
-        userId: userId,
+        userId: AuthHelper.extractUserFromToken(token),
       });
     }
   });
 
   // DELETE deleteHabit
   test('deleteHabit', async () => {
-    const res = await testClient.delete(`/users/${userId}/habits/${habitId}`);
+    const res = await testClient.delete(`/habits/${habitId}`).set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
       message: 'success',

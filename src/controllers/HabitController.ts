@@ -70,11 +70,11 @@ export class HabitController extends BaseController {
       const user = await this.prisma.user.findOne({
         where: { userId: tokenPayload },
         select: {
-          Habit: true,
+          habits: true,
         },
       });
       if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      else if (user.Habit.length === 0) throw new NoContent('');
+      else if (user.habits.length === 0) throw new NoContent('');
       return user;
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
@@ -97,7 +97,7 @@ export class HabitController extends BaseController {
         .findOne({
           where: { userId: tokenPayload },
         })
-        .Habit({
+        .habits({
           where: { habitId: id.habitId },
         });
 
@@ -132,7 +132,7 @@ export class HabitController extends BaseController {
         .findOne({
           where: { userId: tokenPayload },
         })
-        .Habit({
+        .habits({
           where: { habitId: id.habitId },
         });
 
@@ -170,7 +170,7 @@ export class HabitController extends BaseController {
         .findOne({
           where: { userId: tokenPayload },
         })
-        .Habit({
+        .habits({
           where: { habitId: id.habitId },
         });
 

@@ -40,6 +40,7 @@ export class UserController extends BaseController {
         data: {
           name: user.name,
           email: user.email,
+          oauthKey: user.email,
         },
       });
 

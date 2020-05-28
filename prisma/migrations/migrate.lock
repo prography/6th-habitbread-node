@@ -3,8 +3,4 @@
 # Prisma Migrate lockfile v1
 # Read more about conflict resolution here: TODO
 
-20200502054700-add-user---name--email
-20200502165817-20-05-07--fix-schema---table-name-convention
-20200502172005-20-05-02--fix_field_name_convention
-20200502183854-20-05-07--chang_habit_user_relation-db
-20200502184102-20-05-07--change_habit_user_relation-db
+20200528105346-20-05-28--db_modeling_refactor

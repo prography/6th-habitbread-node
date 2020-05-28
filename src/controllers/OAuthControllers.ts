@@ -58,12 +58,16 @@ export class OAuthControllers extends BaseController {
       });
 
       const { name, email, imageUrl } = this.parseResponse(me.data);
-      const createUser = await this.prisma.user.create({
-        data: { name, email, imageUrl },
+      let user = await this.prisma.user.findOne({
+        where: { oauthKey: email },
       });
-
-      const token = AuthHelper.makeAccessToken(createUser.userId);
-      return token;
+      if (user === null) {
+        user = await this.prisma.user.create({
+          data: { name, email, imageUrl, oauthKey: email },
+        });
+      }
+      const token = AuthHelper.makeAccessToken(user.userId);
+      return { AccessToken: token };
     } catch (err) {
       if (err instanceof HttpError) return res.status(err.httpCode).send(err);
       throw new InternalServerError(err.message);
