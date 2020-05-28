@@ -7,42 +7,19 @@ datasource mysql {
   url      = env("DB_URL")
 }
 
-model Character {
-  characterId   Int       @id
-  userId        Int       @map("user_id")
-  exp           Int       @default(0)
-  
-  users         User      @relation(fields: [userId], references: [userId])
-  
-  @@index([userId], name: "fk_Character_User1_idx")
-  @@map("characters")
-}
-
-model CommitHistory {
-  historyId     Int       @default(autoincrement()) @id @map("history_id")
-  userId        Int       @map("user_id")
-  habitId       Int       @map("habit_id")
-  createdAt     DateTime  @default(now()) @map("created_at")
-
-  habits        Habit     @relation(fields: [habitId], references: [habitId])
-  users         User      @relation(fields: [userId], references: [userId])
-
-  @@index([habitId], name: "fk_Habit_History_Habit1_idx")
-  @@index([userId], name: "fk_Habit_History_User1_idx")
-  @@map("commit_history")
-}
-
 model Ranking {
   rankingId     Int       @id      @map("ranking_id")
+  userId        Int    @map("user_id")
   userName      String    @map("user_name")
   exp           Int
+  persent       Int
 
   @@map("ranking")
 }
 
 model Scheduler {
   scheduleId    Int       @id @map("schedule_id")
-  userId        String    @map("user_id")
+  userId        Int    @map("user_id")
   habitId       String    @map("habit_id")
   habitTitle    String    @map("habit_title")
   habitAlarmAt  DateTime  @map("habit_alarm_at")
@@ -53,30 +30,61 @@ model Scheduler {
 
 model Habit {
   habitId       Int       @default(autoincrement()) @id @map("habit_id")
-  userId        Int       @map("user_id")
+  userId        Int    @map("user_id")
   title         String
   description   String?
   category      String
 
+  commitHistory CommitHistory[]
   user          User      @relation(fields: [userId], references: [userId])
 
   @@index([userId], name: "fk_Habit_User1_idx")
   @@map("habits")
 }
 
-model User {
-  userId        Int       @default(autoincrement()) @id @map("user_id")
-  name          String
-  email         String      
-  imageUrl      String?   @map("image_url")
-  googleId      String?   @map("google_id")
-  appleId       String?   @map("apple_id")
-  createdAt     DateTime? @map("created_at")
-  updatedAt     DateTime? @map("updated_at")
+model CommitHistory {
+  createdAt     DateTime  @default(now()) @map("created_at") @id
+  habitId       Int       @map("habit_id")
 
-  characters    Character[]
-  commitHistory CommitHistory[]
-  Habit         Habit[]
+  habits        Habit     @relation(fields: [habitId], references: [habitId])
+
+  @@index([habitId], name: "fk_Habit_History_Habit1_idx")
+  @@map("commit_history")
+}
+
+
+model User {
+  userId        Int    @default(autoincrement()) @id @map("user_id")
+  name          String
+  email         String    @unique
+  exp           Int       @default(0)
+  imageUrl      String?   @map("image_url")
+  createdAt     DateTime? @map("created_at") @default(now())
+  updatedAt     DateTime? @map("updated_at") @updatedAt
+  oauthKey      String    @map("oauth_key") @unique
+
+  items         Item[]
+  habits        Habit[]
 
   @@map("users")
+}
+
+model UserItem {
+  itemId      Int       @map("item_id")
+  userId      Int    @map("user_id")
+  item        Item      @relation(fields: [itemId], references: [itemId])
+  user        User      @relation(fields: [userId], references: [userId])
+  createdAt   DateTime  @default(now())
+
+  @@id([itemId, userId])
+  @@map("user_item")
+}
+
+model Item {
+  itemId        Int       @default(autoincrement()) @id @map("item_id")
+  name          String
+  description   String
+  level         Int
+  
+  @@map("items")
 }
