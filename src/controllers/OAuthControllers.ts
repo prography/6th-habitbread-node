@@ -42,8 +42,10 @@ export class OAuthControllers extends BaseController {
   }
 
   @Get('/google/callback')
-  public async GoogleCallback(@QueryParam('code') code: string, @Res() res: Response) {
+  public async GoogleCallback(@QueryParam('code') code: string) {
     try {
+      if (code === null) throw new InternalServerError('알 수 없는 Error 발생');
+
       const { tokens } = await this.oauth2Client.getToken(code);
       this.oauth2Client.setCredentials(tokens);
       google.options({ auth: this.oauth2Client });
@@ -67,9 +69,9 @@ export class OAuthControllers extends BaseController {
         });
       }
       const token = AuthHelper.makeAccessToken(user.userId);
-      return { AccessToken: token };
+      return { accessToken: token };
     } catch (err) {
-      if (err instanceof HttpError) return res.status(err.httpCode).send(err);
+      if (err instanceof HttpError) return err;
       throw new InternalServerError(err.message);
     }
   }

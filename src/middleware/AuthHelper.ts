@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken';
 import { Action } from 'routing-controllers';
-import { UserID } from '../validations/UserValidation';
+import { AuthError, BadRequestError } from '../exceptions/Exception';
 
 const signOptions: SignOptions = {
   algorithm: 'HS384',
@@ -24,13 +24,13 @@ export class AuthHelper {
 
   public static async currentUserChecker(action: Action) {
     const bearerToken: string = action.request.headers.authorization;
-    if (bearerToken === undefined) return null;
-    if (AuthHelper.isBearerToken(bearerToken) === false) return false;
+    if (bearerToken === undefined) throw new BadRequestError('AccessToken이 없습니다.');
+    if (AuthHelper.isBearerToken(bearerToken) === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
     const token = bearerToken.split('Bearer ')[1];
     return AuthHelper.extractUserFromToken(token);
   }
 
-  public static makeAccessToken(id: UserID['userId']): string {
+  public static makeAccessToken(id: number): string {
     const payload = {
       userId: id,
     };
@@ -43,7 +43,7 @@ export class AuthHelper {
       const data = jsonwebtoken.verify(token, process.env.PASSWORD_SECRET!, signOptions) as AuthPayload;
       return data.userId;
     } catch (err) {
-      return err;
+      throw new AuthError(err);
     }
   }
 }
