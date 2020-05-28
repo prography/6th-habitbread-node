@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken';
 import { Action } from 'routing-controllers';
+import ENV from '../configs/index';
 import { AuthError, BadRequestError } from '../exceptions/Exception';
 
 const signOptions: SignOptions = {
@@ -34,13 +35,13 @@ export class AuthHelper {
     const payload = {
       userId,
     };
-    const token = jsonwebtoken.sign(payload, process.env.PASSWORD_SECRET!, signOptions);
+    const token = jsonwebtoken.sign(payload, ENV.PASSWORD_SECRET!, signOptions);
     return token;
   }
 
   public static extractUserFromToken(token: string) {
     try {
-      const data = jsonwebtoken.verify(token, process.env.PASSWORD_SECRET!, signOptions) as AuthPayload;
+      const data = jsonwebtoken.verify(token, ENV.PASSWORD_SECRET!, signOptions) as AuthPayload;
       return data.userId;
     } catch (err) {
       throw new AuthError(err);

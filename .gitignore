@@ -7,12 +7,13 @@ db/data
 *.prod.yml
 
 # ENV Files
+.env
 .env.*
 !.env.example
 
 # Apple Private Key
-config/apple-auth
+src/configs/apple-auth
 
 # Grennlock Files
-config/greenlock.d
+src/configs/greenlock.d
 .greenlockrc

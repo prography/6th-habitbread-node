@@ -1,12 +1,12 @@
-import dotenv from 'dotenv';
-import app from './app';
 // import scheduler from './schedulers/RankScheduler';
+import app from './app';
+import ENV from './configs/index';
 
 const initGreenlock = () => {
   require('greenlock-express')
     .init({
       packageRoot: `${__dirname}/..`,
-      configDir: './config/greenlock.d',
+      configDir: './src/configs/greenlock.d',
       // contact for security and critical bug notices
       maintainerEmail: 'wwlee94@naver.com',
       // whether or not to run at cloudscale
@@ -16,16 +16,13 @@ const initGreenlock = () => {
     .serve(app);
 };
 
-const port: number = Number(process.env.PORT) || 3000;
-const ENV: string = process.env.NODE_ENV || 'dev';
-
-if (ENV === 'prod') {
-  dotenv.config({ path: `${__dirname}/../.env.prod` });
+if (ENV.NODE_ENV === 'prod') {
   initGreenlock();
-} else if (ENV === 'dev') {
-  dotenv.config({ path: `${__dirname}/../.env.dev` });
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running on ${port} at ${ENV} :)`);
+} else if (ENV.NODE_ENV === 'dev') {
+  app.listen(ENV.PORT, '0.0.0.0', () => {
+    console.log(`Server running on ${ENV.PORT} at ${ENV.NODE_ENV} :)`);
     // scheduler.RankingUpdateJob();
   });
 }
+
+console.log(ENV);
