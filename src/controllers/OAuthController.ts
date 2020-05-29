@@ -10,9 +10,8 @@ import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { BaseController } from './BaseController';
 
-const config = ENV.APPLE;
 const authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
-const auth = new AppleAuth(config, authKey, 'text');
+const auth = new AppleAuth(ENV.APPLE, authKey, 'text');
 
 @UseBefore(urlencoded({ extended: true }))
 @JsonController('/oauth')

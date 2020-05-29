@@ -25,7 +25,6 @@ const appleConfig = {
 export default {
   NODE_ENV: process.env.NODE_ENV,
   PORT: Number(process.env.PORT),
-  DB_URL: process.env.DB_URL,
   PASSWORD_SECRET: process.env.PASSWORD_SECRET,
   APPLE: appleConfig,
   GOOGLE: {
