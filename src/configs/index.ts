@@ -6,11 +6,8 @@ dotenv.config();
 
 const NODE_ENV: string = process.env.NODE_ENV || 'dev';
 
-if (NODE_ENV === 'prod') {
-  dotenv.config({ path: `${__dirname}/../../.env.prod` });
-} else if (NODE_ENV === 'dev') {
-  dotenv.config({ path: `${__dirname}/../../.env.dev` });
-}
+if (NODE_ENV === 'prod') dotenv.config({ path: `${__dirname}/../../.env.prod` });
+else if (NODE_ENV === 'dev') dotenv.config({ path: `${__dirname}/../../.env.dev` });
 
 // Apple Config
 const appleConfig = {

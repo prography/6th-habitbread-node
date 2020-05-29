@@ -1,6 +1,6 @@
 // import scheduler from './schedulers/RankScheduler';
 import app from './app';
-import ENV from './configs/index';
+import env from './configs/index';
 
 const initGreenlock = () => {
   require('greenlock-express')
@@ -17,13 +17,13 @@ const initGreenlock = () => {
 };
 
 const listen = () => {
-  app.listen(ENV.PORT, '0.0.0.0', () => {
-    console.log(`Server running on ${ENV.PORT} at ${ENV.NODE_ENV} :)`);
+  app.listen(env.PORT, '0.0.0.0', () => {
+    console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
     // scheduler.RankingUpdateJob();
   });
 };
 
-if (ENV.NODE_ENV === 'prod') initGreenlock();
-else if (ENV.NODE_ENV === 'dev') listen();
+if (env.NODE_ENV === 'prod') initGreenlock();
+else if (env.NODE_ENV === 'dev') listen();
 
-console.log(ENV);
+console.log(env);

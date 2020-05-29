@@ -5,19 +5,19 @@ import fs from 'fs';
 import { google } from 'googleapis';
 import * as jwt from 'jsonwebtoken';
 import { Body, Get, HttpError, JsonController, Post, QueryParam, Res, UseBefore } from 'routing-controllers';
-import ENV from '../configs/index';
+import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { BaseController } from './BaseController';
 
 const authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
-const auth = new AppleAuth(ENV.APPLE, authKey, 'text');
+const auth = new AppleAuth(env.APPLE, authKey, 'text');
 
 @UseBefore(urlencoded({ extended: true }))
 @JsonController('/oauth')
 export class OAuthControllers extends BaseController {
   private prisma: PrismaClient;
-  private oauth2Client = new google.auth.OAuth2(ENV.GOOGLE.CLIENT_ID, ENV.GOOGLE.CLIENT_SECRET, ENV.GOOGLE.REDIRECT_URL);
+  private oauth2Client = new google.auth.OAuth2(env.GOOGLE.CLIENT_ID, env.GOOGLE.CLIENT_SECRET, env.GOOGLE.REDIRECT_URL);
   private parseResponse = (data: any) => {
     return {
       name: data.names.length ? data.names[0].displayName : '습관이',
