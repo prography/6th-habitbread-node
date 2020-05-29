@@ -49,6 +49,7 @@ export class NotFoundError extends HttpError {
   }
 }
 
+// JWT 에러 처리 Class
 export class AuthError extends HttpError {
   public err: any;
   constructor(err: any) {
@@ -58,14 +59,17 @@ export class AuthError extends HttpError {
       this.name = err.name;
       this.message = err.message;
       this.stack = undefined;
-    }
-    if (err instanceof JsonWebTokenError) {
+    } else if (err instanceof JsonWebTokenError) {
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;
       this.stack = undefined;
-    }
-    if (err instanceof NotBeforeError) {
+    } else if (err instanceof NotBeforeError) {
+      Object.setPrototypeOf(this, AuthError.prototype);
+      this.name = err.name;
+      this.message = err.message;
+      this.stack = undefined;
+    } else {
       Object.setPrototypeOf(this, AuthError.prototype);
       this.name = err.name;
       this.message = err.message;

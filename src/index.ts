@@ -2,7 +2,8 @@
 import app from './app';
 import env from './configs/index';
 
-const initGreenlock = () => {
+// Production 환경
+const listenProd = () => {
   require('greenlock-express')
     .init({
       packageRoot: `${__dirname}/..`,
@@ -16,14 +17,15 @@ const initGreenlock = () => {
     .serve(app);
 };
 
-const listen = () => {
+// Develop 환경
+const listenDev = () => {
   app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
     // scheduler.RankingUpdateJob();
   });
 };
 
-if (env.NODE_ENV === 'prod') initGreenlock();
-else if (env.NODE_ENV === 'dev') listen();
+if (env.NODE_ENV === 'prod') listenProd();
+else if (env.NODE_ENV === 'dev') listenDev();
 
 console.log(env);

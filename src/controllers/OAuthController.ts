@@ -72,7 +72,7 @@ export class OAuthControllers extends BaseController {
       const token = AuthHelper.makeAccessToken(user.userId);
       return { accessToken: token };
     } catch (err) {
-      if (err instanceof HttpError) return err;
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }
@@ -87,6 +87,8 @@ export class OAuthControllers extends BaseController {
   @Post('/apple/callback')
   public async appleOAuthCallback(@Body() body: Record<string, string>) {
     try {
+      if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
+
       const response: AppleAuthAccessToken = await auth.accessToken(body.code);
 
       const idToken = jwt.decode(response.id_token);
