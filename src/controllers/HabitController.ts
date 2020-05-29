@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
-import { BadRequestError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { BadRequestError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
 import { Habit, ID } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -46,8 +46,8 @@ export class HabitController extends BaseController {
 
       return newHabit;
     } catch (err) {
-      if (err instanceof HttpError) return err;
-      throw new HttpError(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -65,8 +65,8 @@ export class HabitController extends BaseController {
       else if (user.habits.length === 0) throw new NoContent('');
       return user;
     } catch (err) {
-      if (err instanceof HttpError) return err;
-      throw new HttpError(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -89,8 +89,8 @@ export class HabitController extends BaseController {
       else if (habit.length === 0) throw new NotFoundError('습관을 찾을 수 없습니다.');
       return habit[0];
     } catch (err) {
-      if (err instanceof HttpError) return err;
-      throw new HttpError(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -125,8 +125,8 @@ export class HabitController extends BaseController {
         },
       });
     } catch (err) {
-      if (err instanceof HttpError) return err;
-      throw new HttpError(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
     }
   }
 
@@ -155,8 +155,8 @@ export class HabitController extends BaseController {
 
       return { message: 'success' };
     } catch (err) {
-      if (err instanceof HttpError) return err;
-      throw new HttpError(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
     }
   }
 }

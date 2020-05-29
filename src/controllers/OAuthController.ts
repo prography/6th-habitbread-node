@@ -1,23 +1,23 @@
 import { PrismaClient } from '@prisma/client';
-import AppleAuth, { AppleAuthAccessToken, AppleAuthConfig } from 'apple-auth';
+import AppleAuth, { AppleAuthAccessToken } from 'apple-auth';
 import { Response, urlencoded } from 'express';
 import fs from 'fs';
 import { google } from 'googleapis';
 import * as jwt from 'jsonwebtoken';
 import { Body, Get, HttpError, JsonController, Post, QueryParam, Res, UseBefore } from 'routing-controllers';
+import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { BaseController } from './BaseController';
 
-const config = JSON.parse(fs.readFileSync('./config/apple-auth/config.json').toString()) as AppleAuthConfig;
-const authKey = fs.readFileSync('./config/apple-auth/AuthKey.p8').toString();
-const auth = new AppleAuth(config, authKey, 'text');
+const authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
+const auth = new AppleAuth(env.APPLE, authKey, 'text');
 
 @UseBefore(urlencoded({ extended: true }))
 @JsonController('/oauth')
 export class OAuthControllers extends BaseController {
   private prisma: PrismaClient;
-  private oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, process.env.GOOGLE_REDIRECT_URL);
+  private oauth2Client = new google.auth.OAuth2(env.GOOGLE.CLIENT_ID, env.GOOGLE.CLIENT_SECRET, env.GOOGLE.REDIRECT_URL);
   private parseResponse = (data: any) => {
     return {
       name: data.names.length ? data.names[0].displayName : '습관이',
@@ -72,7 +72,7 @@ export class OAuthControllers extends BaseController {
       const token = AuthHelper.makeAccessToken(user.userId);
       return { accessToken: token };
     } catch (err) {
-      if (err instanceof HttpError) return err;
+      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }
@@ -87,6 +87,8 @@ export class OAuthControllers extends BaseController {
   @Post('/apple/callback')
   public async appleOAuthCallback(@Body() body: Record<string, string>) {
     try {
+      if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
+
       const response: AppleAuthAccessToken = await auth.accessToken(body.code);
 
       const idToken = jwt.decode(response.id_token);
@@ -115,7 +117,7 @@ export class OAuthControllers extends BaseController {
       }
 
       const token = AuthHelper.makeAccessToken(user.userId);
-      return { AccessToken: token };
+      return { accessToken: token };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message || err);
