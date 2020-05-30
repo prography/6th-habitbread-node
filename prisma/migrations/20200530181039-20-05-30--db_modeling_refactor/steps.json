@@ -1,0 +1,143 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateField",
+      "model": "Ranking",
+      "field": "achievement",
+      "type": "Int",
+      "arity": "Required"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Ranking",
+      "field": "persent"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Scheduler",
+      "field": "habitTitle"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Scheduler",
+      "field": "habitAlarmAt"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Scheduler",
+      "field": "habitType"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Scheduler",
+      "field": "habitId",
+      "type": "Int"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Habit",
+      "field": "dayOfWeek",
+      "type": "String",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "dayOfWeek"
+        },
+        "directive": "map"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "dayOfWeek"
+        },
+        "directive": "map"
+      },
+      "argument": "",
+      "value": "\"day_of_week\""
+    },
+    {
+      "tag": "CreateField",
+      "model": "Habit",
+      "field": "continuousCount",
+      "type": "Int",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "continuousCount"
+        },
+        "directive": "map"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "continuousCount"
+        },
+        "directive": "map"
+      },
+      "argument": "",
+      "value": "\"countinuous_count\""
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Habit",
+      "field": "description"
+    },
+    {
+      "tag": "CreateField",
+      "model": "User",
+      "field": "fcmToken",
+      "type": "String",
+      "arity": "Optional"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "User",
+      "field": "email"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "User",
+      "field": "imageUrl"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "User",
+      "field": "name",
+      "arity": "Optional"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "User",
+      "field": "items",
+      "type": "UserItem"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Item",
+      "field": "img",
+      "type": "String",
+      "arity": "Required"
+    }
+  ]
+}
