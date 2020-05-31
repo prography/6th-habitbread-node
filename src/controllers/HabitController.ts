@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { validate } from 'class-validator';
+import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
 import { Habit, ID } from '../validations/HabitValidation';
@@ -12,6 +13,7 @@ export class HabitController extends BaseController {
   constructor() {
     super();
     this.prisma = new PrismaClient();
+    moment.tz.setDefault('Asia/Seoul');
   }
 
   // 습관 등록하기
@@ -24,26 +26,28 @@ export class HabitController extends BaseController {
       const user = await this.prisma.user.findOne({
         where: { userId: currentUser },
       });
-
       if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-
+      console.log(moment(habit.alarmTime, 'YYYY-MM-DDTHH:mm:ssZ').toDate());
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
-          description: habit.description,
           category: habit.category,
+          dayOfWeek: habit.dayOfWeek,
+          alarmTime: moment(habit.alarmTime, 'YYYY-MM-DDTHH:mm:ssZ').toDate(),
+          continuousCount: 0,
           user: {
             connect: { userId: currentUser },
           },
         },
       });
 
-      if (habit.isScheduled === true) {
-        // 추후 스케줄 작업 필요
-      } else {
-        // 추후 스케줄 작업 필요
+      // 스케줄러 등록 부분(추가 수정 필요)
+      if (habit.dayOfWeek === null) {
+        return newHabit;
       }
-
+      await this.prisma.scheduler.create({
+        data: { userId: currentUser, habitId: newHabit.habitId },
+      });
       return newHabit;
     } catch (err) {
       if (err instanceof HttpError) throw err;
@@ -87,7 +91,11 @@ export class HabitController extends BaseController {
 
       if (habit === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
       else if (habit.length === 0) throw new NotFoundError('습관을 찾을 수 없습니다.');
-      return habit[0];
+      const test = {
+        habit: habit[0],
+        time: moment(),
+      };
+      return test;
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
@@ -117,8 +125,10 @@ export class HabitController extends BaseController {
         where: { habitId: id.habitId },
         data: {
           title: habit.title,
-          description: habit.description,
           category: habit.category,
+          dayOfWeek: habit.dayOfWeek,
+          alarmTime: habit.alarmTime,
+          continuousCount: 0,
           user: {
             connect: { userId: currentUser },
           },

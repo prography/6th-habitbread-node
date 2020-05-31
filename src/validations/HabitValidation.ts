@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class Habit {
   @IsString()
@@ -6,15 +6,12 @@ export class Habit {
   title!: string;
 
   @IsString()
-  description!: string;
-
-  @IsString()
   @IsNotEmpty()
   category!: string;
 
-  @IsBoolean()
-  @IsNotEmpty()
-  isScheduled!: boolean;
+  dayOfWeek!: string | null;
+
+  alarmTime!: string | null;
 }
 
 export class ID {

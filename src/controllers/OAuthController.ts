@@ -21,8 +21,7 @@ export class OAuthControllers extends BaseController {
   private parseResponse = (data: any) => {
     return {
       name: data.names.length ? data.names[0].displayName : '습관이',
-      email: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
-      imageUrl: data.photos.length ? data.photos[0].url : null,
+      oauthKey: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
     };
   };
 
@@ -57,16 +56,16 @@ export class OAuthControllers extends BaseController {
       });
       const me = await people.people.get({
         resourceName: 'people/me',
-        personFields: 'emailAddresses,names,photos',
+        personFields: 'emailAddresses,names',
       });
 
-      const { name, email, imageUrl } = this.parseResponse(me.data);
+      const { name, oauthKey } = this.parseResponse(me.data);
       let user = await this.prisma.user.findOne({
-        where: { oauthKey: email },
+        where: { oauthKey },
       });
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { name, email, imageUrl, oauthKey: email },
+          data: { name, oauthKey },
         });
       }
       const token = AuthHelper.makeAccessToken(user.userId);
@@ -112,7 +111,7 @@ export class OAuthControllers extends BaseController {
 
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { oauthKey, email, name },
+          data: { oauthKey, name },
         });
       }
 
