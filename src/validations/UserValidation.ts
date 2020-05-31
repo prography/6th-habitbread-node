@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class AddUser {
   @IsNotEmpty()
@@ -14,4 +14,10 @@ export class AddUser {
     this.name = name;
     this.email = email;
   }
+}
+
+export class CalculateUser {
+  @IsNumber()
+  @IsNotEmpty()
+  exp!: number;
 }

@@ -24,13 +24,9 @@ export class AuthHelper {
     if (AuthHelper.isBearerToken(bearerToken) === false) throw new BadRequestError('Token 형식이 올바르지 않습니다.');
     const token = bearerToken.split('Bearer ')[1];
     const currentUser = AuthHelper.extractUserFromToken(token);
-    const user = await prisma.user.findOne({
-      where: {
-        userId: currentUser,
-      },
-    });
+    const user = await prisma.user.findOne({ where: { userId: currentUser } });
     if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-    return currentUser;
+    return user;
   }
 
   public static makeAccessToken(userId: number): string {
