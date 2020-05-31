@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { validate } from 'class-validator';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
-import { BadRequestError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
 import { Habit, ID } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -27,13 +27,12 @@ export class HabitController extends BaseController {
         where: { userId: currentUser },
       });
       if (user === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
-      console.log(moment(habit.alarmTime, 'YYYY-MM-DDTHH:mm:ssZ').toDate());
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
           category: habit.category,
           dayOfWeek: habit.dayOfWeek,
-          alarmTime: moment(habit.alarmTime, 'YYYY-MM-DDTHH:mm:ssZ').toDate(),
+          alarmTime: moment(habit.alarmTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
           continuousCount: 0,
           user: {
             connect: { userId: currentUser },
@@ -127,7 +126,7 @@ export class HabitController extends BaseController {
           title: habit.title,
           category: habit.category,
           dayOfWeek: habit.dayOfWeek,
-          alarmTime: habit.alarmTime,
+          alarmTime: moment(habit.alarmTime, 'YYYY-MM-DDTHH:mm:ssZ').toDate(),
           continuousCount: 0,
           user: {
             connect: { userId: currentUser },
@@ -164,6 +163,53 @@ export class HabitController extends BaseController {
       });
 
       return { message: 'success' };
+    } catch (err) {
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
+  // habit commit하기
+  @Get('/:habitId/commit')
+  public async commitHabit(@CurrentUser() currentUser: any, @Params() id: ID) {
+    try {
+      const paramErrors = await validate(id);
+      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+
+      const findHabit = await this.prisma.user
+        .findOne({
+          where: { userId: currentUser },
+        })
+        .habits({
+          where: { habitId: id.habitId },
+          include: {
+            commitHistory: {
+              where: {
+                createdAt: {
+                  gte: moment().add(-1, 'days').startOf('days').toDate(),
+                  lte: moment().endOf('days').toDate(),
+                },
+              },
+            },
+          },
+        });
+
+      if (findHabit === null) throw new NotFoundError('사용자를 찾을 수 없습니다.');
+      else if (findHabit.length === 0) throw new NotFoundError('습관을 찾을 수 없습니다.');
+
+      if (findHabit[0].commitHistory.length) {
+        if (findHabit[0].commitHistory.length === 2) throw new ForbiddenError('오늘은 이미 commit 했습니다.');
+        if (moment(findHabit[0].commitHistory[0].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
+          throw new ForbiddenError('오늘은 이미 commit 했습니다.');
+        return await this.prisma.habit.update({
+          where: { habitId: id.habitId },
+          data: { commitHistory: { create: {} }, continuousCount: findHabit[0].continuousCount + 1 },
+        });
+      }
+      return await this.prisma.habit.update({
+        where: { habitId: id.habitId },
+        data: { commitHistory: { create: {} }, continuousCount: 1 },
+      });
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
