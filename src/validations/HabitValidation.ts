@@ -19,5 +19,6 @@ export class Habit {
 
 export class ID {
   @IsNumber()
+  @IsNotEmpty()
   habitId!: number;
 }

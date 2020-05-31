@@ -73,7 +73,7 @@ model UserItem {
   item        Item      @relation(fields: [itemId], references: [itemId])
   user        User      @relation(fields: [userId], references: [userId])
 
-  @@id([itemId, userId])
+  @@id([userId, itemId])
   @@map("user_item")
 }
 
