@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import app from '../../src/app';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
 import { AddUser } from '../../src/validations/UserValidation';
-import { Payload } from '../utils/HabitPayload';
+import { Payload } from '../payloads/Payload';
 import { createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });

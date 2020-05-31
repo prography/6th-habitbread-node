@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import supertest from 'supertest';
 import app from '../../src/app';
 import { AddRanking } from '../../src/validations/RankingValidation';
-import { RankingPayload } from '../utils/RankingPayload';
+import { RankingPayload } from '../payloads/RankingPayload';
 import { assertRanking, createRanking } from '../utils/RankingUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });

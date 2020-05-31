@@ -10,9 +10,6 @@ import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { BaseController } from './BaseController';
 
-const authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
-const auth = new AppleAuth(env.APPLE, authKey, 'text');
-
 @UseBefore(urlencoded({ extended: true }))
 @JsonController('/oauth')
 export class OAuthControllers extends BaseController {
@@ -23,6 +20,8 @@ export class OAuthControllers extends BaseController {
       email: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
     };
   };
+  private authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
+  private auth = new AppleAuth(env.APPLE, this.authKey, 'text');
 
   constructor() {
     super();
@@ -78,7 +77,7 @@ export class OAuthControllers extends BaseController {
   // Test Login
   @Get('/apple')
   public apple(@Res() res: Response) {
-    return res.send(`<a href="${auth.loginURL()}">Sign in with Apple</a>`);
+    return res.send(`<a href="${this.auth.loginURL()}">Sign in with Apple</a>`);
   }
 
   // Apple 서버로부터 callback 받는 라우터
@@ -87,7 +86,7 @@ export class OAuthControllers extends BaseController {
     try {
       if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
 
-      const response: AppleAuthAccessToken = await auth.accessToken(body.code);
+      const response: AppleAuthAccessToken = await this.auth.accessToken(body.code);
 
       const idToken = jwt.decode(response.id_token);
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
