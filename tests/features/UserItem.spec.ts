@@ -58,8 +58,8 @@ describe('Test Character', () => {
   });
 
   // 특정 사용자의 모든 아이템 조회 테스트
-  test('Get - /users/items', async () => {
-    const res = await client.get('/users/items').set('Authorization', `Bearer ${token}`);
+  test('Get - /items', async () => {
+    const res = await client.get('/items').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(3);
     for (const item of res.body) {
@@ -68,32 +68,32 @@ describe('Test Character', () => {
   });
 
   // 특정 사용자의 특정 아이템 조회 테스트
-  test('Get - /users/items/:userItemId', async () => {
-    const res = await client.get(`/users/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
+  test('Get - /items/:userItemId', async () => {
+    const res = await client.get(`/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     assertUserItem(res.body);
   });
 
   // 사용자 아이템 관계 생성 테스트
-  test('Post - /users/items', async () => {
+  test('Post - /items', async () => {
     const itemId = ItemPayloads[ItemPayloads.length - 1].itemId; // 마지막 item payload와 user 연결
     const data = { itemId };
 
-    const res1 = await client.post('/users/items').set('Authorization', `Bearer ${token}`).send(data);
+    const res1 = await client.post('/items').set('Authorization', `Bearer ${token}`).send(data);
     expect(res1.status).toBe(201);
     expect(res1.body.itemId).toBe(data.itemId);
     expect(res1.body.userId).toBe(user.userId);
 
-    const res2 = await client.get(`/users/items/${res1.body.userItemId}`).set('Authorization', `Bearer ${token}`);
+    const res2 = await client.get(`/items/${res1.body.userItemId}`).set('Authorization', `Bearer ${token}`);
     expect(res2.status).toBe(200);
     assertUserItem(res2.body);
   });
 
   // 캐릭터 삭제 테스트
-  test('Delete -  /users/items/:userItemId', async () => {
-    const res1 = await client.delete(`/users/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
+  test('Delete -  /items/:userItemId', async () => {
+    const res1 = await client.delete(`/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
     expect(res1.status).toBe(200);
-    const res2 = await client.get(`/users/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
+    const res2 = await client.get(`/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
     expect(res2.status).toBe(404);
     expect(res2.body.name).toBe(NotFoundError.name);
   });

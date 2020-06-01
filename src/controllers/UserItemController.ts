@@ -6,7 +6,7 @@ import { ItemID } from '../validations/ItemValidation';
 import { UserItemID } from '../validations/UserItemValidation';
 import { BaseController } from './BaseController';
 
-@JsonController('/users/items')
+@JsonController('/items')
 export class UserItemController extends BaseController {
   private prisma: PrismaClient;
 
@@ -87,7 +87,7 @@ export class UserItemController extends BaseController {
 
   // 특정 사용자의 아이템 삭제 API
   @Delete('/:userItemId')
-  public async deleteCharacter(@CurrentUser() currentUser: User, @Params() id: UserItemID) {
+  public async deleteUserItem(@CurrentUser() currentUser: User, @Params() id: UserItemID) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
