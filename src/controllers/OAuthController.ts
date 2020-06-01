@@ -10,9 +10,6 @@ import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { BaseController } from './BaseController';
 
-const authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
-const auth = new AppleAuth(env.APPLE, authKey, 'text');
-
 @UseBefore(urlencoded({ extended: true }))
 @JsonController('/oauth')
 export class OAuthControllers extends BaseController {
@@ -20,11 +17,11 @@ export class OAuthControllers extends BaseController {
   private oauth2Client = new google.auth.OAuth2(env.GOOGLE.CLIENT_ID, env.GOOGLE.CLIENT_SECRET, env.GOOGLE.REDIRECT_URL);
   private parseResponse = (data: any) => {
     return {
-      name: data.names.length ? data.names[0].displayName : '습관이',
       email: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
-      imageUrl: data.photos.length ? data.photos[0].url : null,
     };
   };
+  private authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
+  private auth = new AppleAuth(env.APPLE, this.authKey, 'text');
 
   constructor() {
     super();
@@ -60,13 +57,13 @@ export class OAuthControllers extends BaseController {
         personFields: 'emailAddresses,names,photos',
       });
 
-      const { name, email, imageUrl } = this.parseResponse(me.data);
+      const { email } = this.parseResponse(me.data);
       let user = await this.prisma.user.findOne({
         where: { oauthKey: email },
       });
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { name, email, imageUrl, oauthKey: email },
+          data: { oauthKey: email },
         });
       }
       const token = AuthHelper.makeAccessToken(user.userId);
@@ -80,7 +77,7 @@ export class OAuthControllers extends BaseController {
   // Test Login
   @Get('/apple')
   public apple(@Res() res: Response) {
-    return res.send(`<a href="${auth.loginURL()}">Sign in with Apple</a>`);
+    return res.send(`<a href="${this.auth.loginURL()}">Sign in with Apple</a>`);
   }
 
   // Apple 서버로부터 callback 받는 라우터
@@ -89,20 +86,12 @@ export class OAuthControllers extends BaseController {
     try {
       if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
 
-      const response: AppleAuthAccessToken = await auth.accessToken(body.code);
+      const response: AppleAuthAccessToken = await this.auth.accessToken(body.code);
 
       const idToken = jwt.decode(response.id_token);
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
       const oauthKey = idToken.sub;
-      const email = idToken.email;
-      let name = '습관이';
-      if (body.user) {
-        const {
-          name: { lastName, firstName },
-        } = JSON.parse(body.user);
-        name = `${lastName} ${firstName}`;
-      }
 
       let user = await this.prisma.user.findOne({
         where: {
@@ -112,7 +101,7 @@ export class OAuthControllers extends BaseController {
 
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { oauthKey, email, name },
+          data: { oauthKey },
         });
       }
 
