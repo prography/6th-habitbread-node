@@ -16,6 +16,10 @@ export class Habit {
   alarmTime!: string | null;
 }
 
+export class UpdateHabit {
+  alarmTime!: string | null;
+}
+
 export class ID {
   @IsNumber()
   @IsNotEmpty()

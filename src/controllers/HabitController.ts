@@ -3,7 +3,7 @@ import { validate } from 'class-validator';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
-import { Habit, ID } from '../validations/HabitValidation';
+import { Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
@@ -23,14 +23,13 @@ export class HabitController extends BaseController {
       const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
       if (habit.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
-      const alarmTime = habit.alarmTime === undefined ? null : moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss');
+      const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss') : null;
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
           category: habit.category,
           dayOfWeek: habit.dayOfWeek,
           alarmTime,
-          continuousCount: 0,
           user: {
             connect: { userId: currentUser.userId },
           },
@@ -110,28 +109,23 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 수정하기
   @Put('/:habitId')
-  public async updateHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Body() habit: Habit) {
+  public async updateHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Body() habit: UpdateHabit) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
       const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
-      if (habit.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
 
       const findHabit = await this.prisma.habit.findOne({
         where: { habitId: id.habitId },
       });
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
-        const alarmTime = habit.alarmTime === undefined ? null : moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss');
+        const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss') : null;
         const fixHabit = await this.prisma.habit.update({
           where: { habitId: id.habitId },
           data: {
-            title: habit.title,
-            category: habit.category,
-            dayOfWeek: habit.dayOfWeek,
             alarmTime,
-            continuousCount: 0,
             user: {
               connect: { userId: currentUser.userId },
             },
@@ -172,11 +166,9 @@ export class HabitController extends BaseController {
       });
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
-        await this.prisma.habit.delete({
-          where: {
-            habitId: id.habitId,
-          },
-        });
+        await this.prisma.commitHistory.deleteMany({ where: { habitId: id.habitId } });
+        await this.prisma.scheduler.deleteMany({ where: { habitId: id.habitId } });
+        await this.prisma.habit.delete({ where: { habitId: id.habitId } });
         return { message: 'success' };
       }
       throw new ForbiddenError('잘못된 접근입니다.');
