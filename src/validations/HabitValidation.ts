@@ -9,7 +9,9 @@ export class Habit {
   @IsNotEmpty()
   category!: string;
 
-  dayOfWeek!: string | null;
+  @IsString()
+  @IsNotEmpty()
+  dayOfWeek!: string;
 
   alarmTime!: string | null;
 }
