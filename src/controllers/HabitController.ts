@@ -139,9 +139,11 @@ export class HabitController extends BaseController {
         });
         // 스케줄러 등록 부분(추가 수정 필요)
         if (alarmTime === null) {
-          await this.prisma.scheduler.delete({
-            where: { habitId: fixHabit.habitId },
-          });
+          if (findHabit.alarmTime) {
+            await this.prisma.scheduler.delete({
+              where: { habitId: fixHabit.habitId },
+            });
+          }
           return fixHabit;
         }
         await this.prisma.scheduler.upsert({

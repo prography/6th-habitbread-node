@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
+export class CalculateUser {
+  @IsNumber()
+  @IsNotEmpty()
+  exp!: number;
+}
 
 export class AddUser {
   @IsNotEmpty()
@@ -7,11 +13,10 @@ export class AddUser {
 
   @IsNotEmpty()
   @IsString()
-  @IsEmail()
-  email!: string;
+  oauthKey!: string;
 
-  constructor(name: string, email: string) {
-    this.name = name;
-    this.email = email;
+  constructor(payload: any) {
+    this.name = payload.name;
+    this.oauthKey = payload.oauthKey;
   }
 }

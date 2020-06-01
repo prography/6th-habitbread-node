@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-import { CurrentUser, Delete, Get, HttpError, JsonController } from 'routing-controllers';
+import { PrismaClient, User } from '@prisma/client';
+import { validate } from 'class-validator';
+import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
+import { CalculateUser } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
 
@@ -22,14 +24,26 @@ export class UserController extends BaseController {
 
   // 사용자 정보 검색 API
   @Get('/users')
-  public async getUser(@CurrentUser() currentUser: any) {
+  public async getUser(@CurrentUser() currentUser: User) {
+    delete currentUser.oauthKey;
+    delete currentUser.fcmToken;
+    return currentUser;
+  }
+
+  // 사용자 경험치 계산 API
+  @Patch('/users/calculate')
+  public async calculateExp(@CurrentUser() currentUser: User, @Body() body: CalculateUser) {
     try {
-      const user = await this.prisma.user.findOne({
-        where: {
-          userId: currentUser,
-        },
+      const bodyErrors = await validate(body);
+      if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+
+      const exp: number = currentUser.exp + body.exp;
+      const user = await this.prisma.user.update({
+        where: { userId: currentUser.userId },
+        data: { exp },
       });
-      if (user === null) throw new BadRequestError('사용자를 찾을 수 없습니다.');
+      delete user.oauthKey;
+      delete user.fcmToken;
       return user;
     } catch (err) {
       if (err instanceof HttpError) throw err;
@@ -39,18 +53,11 @@ export class UserController extends BaseController {
 
   // 회원 탈퇴 API
   @Delete('/users')
-  public async deleteUser(@CurrentUser() currentUser: any) {
+  public async deleteUser(@CurrentUser() currentUser: User) {
     try {
-      const user = await this.prisma.user.findOne({
-        where: {
-          userId: currentUser,
-        },
-      });
-      if (user === null) throw new BadRequestError('사용자를 찾을 수 없습니다.');
-
       await this.prisma.user.delete({
         where: {
-          userId: currentUser,
+          userId: currentUser.userId,
         },
       });
       return { message: 'Delete User Success' };

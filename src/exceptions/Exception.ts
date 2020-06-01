@@ -42,7 +42,7 @@ export class ForbiddenError extends HttpError {
   public message: any;
   constructor(msg: any) {
     super(403);
-    Object.setPrototypeOf(this, UnauthorizedError.prototype);
+    Object.setPrototypeOf(this, ForbiddenError.prototype);
     this.name = this.constructor.name;
     this.message = msg;
     this.stack = undefined;
