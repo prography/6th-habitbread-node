@@ -1,9 +1,0 @@
-# IF THERE'S A GIT CONFLICT IN THIS FILE, DON'T SOLVE IT MANUALLY!
-# INSTEAD EXECUTE `prisma migrate fix`
-# Prisma Migrate lockfile v1
-# Read more about conflict resolution here: TODO
-
-20200528105346-20-05-28--db_modeling_refactor
-20200530181039-20-05-30--db_modeling_refactor
-20200531172648-20-05-31--db_modeling_refactor
-20200601173612

@@ -12,7 +12,7 @@ export class HabitController extends BaseController {
 
   constructor() {
     super();
-    this.prisma = new PrismaClient({ log: ['query'] });
+    this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
   }
 
@@ -22,8 +22,8 @@ export class HabitController extends BaseController {
     try {
       const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
-
-      const alarmTime = habit.alarmTime === null ? null : moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss');
+      if (habit.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
+      const alarmTime = habit.alarmTime === undefined ? null : moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss');
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
@@ -38,7 +38,7 @@ export class HabitController extends BaseController {
       });
 
       // 스케줄러 등록 부분(추가 수정 필요)
-      if (habit.alarmTime === null) {
+      if (alarmTime === null) {
         return newHabit;
       }
       await this.prisma.scheduler.create({
@@ -60,6 +60,7 @@ export class HabitController extends BaseController {
         select: {
           habitId: true,
           title: true,
+          dayOfWeek: true,
           commitHistory: {
             where: {
               createdAt: {
@@ -115,19 +116,20 @@ export class HabitController extends BaseController {
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
       const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+      if (habit.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
 
       const findHabit = await this.prisma.habit.findOne({
         where: { habitId: id.habitId },
       });
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
-        const alarmTime = habit.alarmTime === null ? null : moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss');
+        const alarmTime = habit.alarmTime === undefined ? null : moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss');
         const fixHabit = await this.prisma.habit.update({
           where: { habitId: id.habitId },
           data: {
-            title: findHabit.title,
-            category: findHabit.category,
-            dayOfWeek: findHabit.dayOfWeek,
+            title: habit.title,
+            category: habit.category,
+            dayOfWeek: habit.dayOfWeek,
             alarmTime,
             continuousCount: 0,
             user: {
@@ -136,7 +138,7 @@ export class HabitController extends BaseController {
           },
         });
         // 스케줄러 등록 부분(추가 수정 필요)
-        if (habit.alarmTime === null) {
+        if (alarmTime === null) {
           await this.prisma.scheduler.delete({
             where: { habitId: fixHabit.habitId },
           });
