@@ -113,7 +113,6 @@ export class HabitController extends BaseController {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
-      if (id.month > 12 || id.month < 1) throw new BadRequestError('month가 잘못됐습니다.');
       const findHabit = await this.prisma.habit.findOne({
         where: { habitId: id.habitId },
         include: {
@@ -128,7 +127,6 @@ export class HabitController extends BaseController {
                 lte: moment()
                   .add(-(parseInt(moment().format('MM')) - id.month), 'months')
                   .add(-(parseInt(moment().format('YYYY')) - id.year), 'years')
-                  .add()
                   .endOf('months')
                   .toDate(),
               },
@@ -238,9 +236,14 @@ export class HabitController extends BaseController {
       if (findHabitForDay === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
 
       let check = 0;
-      for (let i = 7; i !== 0; --i) {
+      const todayOfTheWeek = this.dayOfTheWeek.get(moment().format('ddd'));
+      for (let i = todayOfTheWeek + 6; i !== todayOfTheWeek; --i) {
         check++;
-        if (findHabitForDay.dayOfWeek[i] === '1') break;
+        if (i > 6) {
+          if (findHabitForDay.dayOfWeek[i - 7] === '1') break;
+        } else {
+          if (findHabitForDay.dayOfWeek[i] === '1') break;
+        }
       }
       const findHabit = await this.prisma.habit.findOne({
         where: { habitId: id.habitId },
@@ -259,7 +262,6 @@ export class HabitController extends BaseController {
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
         if (findHabit.commitHistory.length) {
-          console.log(findHabit.commitHistory.length);
           if (findHabit.commitHistory.length === 2) throw new ForbiddenError('오늘은 이미 commit 했습니다.');
           if (moment(findHabit.commitHistory[0].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
             throw new ForbiddenError('오늘은 이미 commit 했습니다.');

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 
 export class Habit {
   @IsString()
@@ -31,6 +31,8 @@ export class GetHabit {
 
   @IsNumber()
   @IsNotEmpty()
+  @Min(1)
+  @Max(12)
   month!: number;
 }
 
