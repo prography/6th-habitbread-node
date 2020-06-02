@@ -1,4 +1,4 @@
-/*import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import moment from 'moment-timezone';
 import supertest from 'supertest';
@@ -38,7 +38,6 @@ describe('testHabit', () => {
   test('createHabits', async () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];
-
       const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
         habitId = res.body.habitId;
@@ -73,8 +72,8 @@ describe('testHabit', () => {
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
-        habits: {
-          habitId: habitId,
+        habit: {
+          habitId: habitId + i,
           userId: AuthHelper.extractUserFromToken(token),
           title: payload.title,
           category: payload.category,
@@ -128,4 +127,3 @@ describe('testHabit', () => {
     done();
   });
 });
-*/
