@@ -1,5 +1,6 @@
-/*import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import moment from 'moment-timezone';
 import supertest from 'supertest';
 import app from '../../src/app';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
@@ -8,6 +9,7 @@ import { Payload } from '../payloads/Payload';
 import { createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
+moment.tz.setDefault('Aisa/Seoul');
 
 describe('testHabit', () => {
   const testClient = supertest(app);
@@ -22,7 +24,7 @@ describe('testHabit', () => {
     const user = await createUser(prisma, new AddUser({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
     token = AuthHelper.makeAccessToken(user.userId);
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitOriginalPayloads[i];
 
       const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
@@ -35,8 +37,7 @@ describe('testHabit', () => {
   // POST creatHabits
   test('createHabits', async () => {
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
-
+      const payload = Payload.habitOriginalPayloads[i];
       const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
         habitId = res.body.habitId;
@@ -58,22 +59,30 @@ describe('testHabit', () => {
   test('getHabits', async () => {
     const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.checkOriginalPayloads(AuthHelper.extractUserFromToken(token), habitId));
+    expect(res.body).toMatchObject(Payload.habitGetPayloads(habitId));
   });
 
   // GET getHabit
   test('getHabit', async () => {
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitOriginalPayloads[i];
 
-      const res = await testClient.get(`/habits/${habitId + i}`).set('Authorization', `Bearer ${token}`);
+      const res = await testClient
+        .get(`/habits/${habitId + i}/calender/${parseInt(moment().format('MM'))}/${parseInt(moment().format('DD'))}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
-        category: payload.category,
-        description: payload.description,
-        habitId: habitId + i,
-        title: payload.title,
-        userId: AuthHelper.extractUserFromToken(token),
+        habit: {
+          habitId: habitId + i,
+          userId: AuthHelper.extractUserFromToken(token),
+          title: payload.title,
+          category: payload.category,
+          dayOfWeek: payload.dayOfWeek,
+          alarmTime: payload.alarmTime,
+          continuousCount: 0,
+          commitHistory: [],
+        },
+        commitFullCount: 0,
       });
     }
   });
@@ -81,7 +90,7 @@ describe('testHabit', () => {
   // PUT updateHabit
   test('updateHabit', async () => {
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitUpdatePayloads[i];
 
       const res = await testClient
         .put(`/habits/${habitId + i}`)
@@ -92,11 +101,13 @@ describe('testHabit', () => {
       }
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
-        category: payload.category,
-        description: payload.description,
         habitId: habitId + i,
-        title: payload.title,
         userId: AuthHelper.extractUserFromToken(token),
+        title: payload.title,
+        category: payload.category,
+        dayOfWeek: payload.dayOfWeek,
+        alarmTime: payload.alarmTime,
+        continuousCount: 0,
       });
     }
   });
@@ -116,4 +127,3 @@ describe('testHabit', () => {
     done();
   });
 });
-*/
