@@ -1,9 +1,9 @@
 import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
-import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch, QueryParams } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
-import { CalculateUser } from '../validations/UserValidation';
+import { CalculateUserExp, GetUsersQuery } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
 
@@ -30,9 +30,33 @@ export class UserController extends BaseController {
     return currentUser;
   }
 
+  // 닉네임, FCM Token 업데이트
+  @Patch('/users')
+  public async patchUser(@CurrentUser() CurrentUser: User, @QueryParams() queries: GetUsersQuery) {
+    try {
+      const queryErrors = await validate(queries);
+      if (queryErrors.length > 0) throw new BadRequestError(queryErrors);
+
+      const payload: any = {};
+      if (queries.name) payload.name = queries.name;
+      if (queries.fcmToken) payload.fcmToken = queries.fcmToken;
+
+      const user = await this.prisma.user.update({
+        where: { userId: CurrentUser.userId },
+        data: payload,
+      });
+      // delete user.oauthKey;
+      // delete user.fcmToken;
+      return user;
+    } catch (err) {
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
   // 사용자 경험치 계산 API
   @Patch('/users/calculate')
-  public async calculateExp(@CurrentUser() currentUser: User, @Body() body: CalculateUser) {
+  public async calculateExp(@CurrentUser() currentUser: User, @Body() body: CalculateUserExp) {
     try {
       const bodyErrors = await validate(body);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);

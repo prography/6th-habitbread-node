@@ -8,20 +8,14 @@
 //   RankingUpdateJob: () => {
 //     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
 
-//     schedule.scheduleJob('0 * * * *', async () => {
+//     schedule.scheduleJob('*/10 * * * * *', async () => {
 //       console.log('랭킹 업데이트 시작 !');
 //       try {
-//         const characters = await prisma.character.findMany({
-//           select: {
-//             characterId: true,
-//             exp: true,
-//             users: true,
-//           },
-//         });
+//         const users = await prisma.user.findMany();
 
-//         characters.forEach(async character => {
-//           const userName = character.users.name;
-//           const exp = character.exp;
+//         users.forEach(async user => {
+//           const nickName = user.name;
+//           const exp = user.exp;
 
 //           await prisma.ranking.upsert({
 //             where: {
