@@ -1,5 +1,6 @@
 /*import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import moment from 'moment-timezone';
 import supertest from 'supertest';
 import app from '../../src/app';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
@@ -8,6 +9,7 @@ import { Payload } from '../payloads/Payload';
 import { createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
+moment.tz.setDefault('Aisa/Seoul');
 
 describe('testHabit', () => {
   const testClient = supertest(app);
@@ -58,7 +60,7 @@ describe('testHabit', () => {
   test('getHabits', async () => {
     const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.checkOriginalPayloads(AuthHelper.extractUserFromToken(token), habitId));
+    expect(res.body).toMatchObject(Payload.getPayloads(habitId));
   });
 
   // GET getHabit
@@ -66,14 +68,22 @@ describe('testHabit', () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.originalPayloads[i];
 
-      const res = await testClient.get(`/habits/${habitId + i}`).set('Authorization', `Bearer ${token}`);
+      const res = await testClient
+        .get(`/habits/${habitId + i}/calender/${parseInt(moment().format('MM'))}/${parseInt(moment().format('DD'))}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
-        category: payload.category,
-        description: payload.description,
-        habitId: habitId + i,
-        title: payload.title,
-        userId: AuthHelper.extractUserFromToken(token),
+        habits: {
+          habitId: habitId,
+          userId: AuthHelper.extractUserFromToken(token),
+          title: payload.title,
+          category: payload.category,
+          dayOfWeek: payload.dayOfWeek,
+          alarmTime: payload.alarmTime,
+          continuousCount: 0,
+          commitHistory: [],
+        },
+        commitFullCount: 0,
       });
     }
   });
@@ -92,11 +102,13 @@ describe('testHabit', () => {
       }
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
-        category: payload.category,
-        description: payload.description,
         habitId: habitId + i,
-        title: payload.title,
         userId: AuthHelper.extractUserFromToken(token),
+        title: payload.title,
+        category: payload.category,
+        dayOfWeek: payload.dayOfWeek,
+        alarmTime: payload.alarmTime,
+        continuousCount: 0,
       });
     }
   });

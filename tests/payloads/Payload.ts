@@ -1,9 +1,10 @@
+// habit
 export class Payload {
   public static originalPayloads = [
     {
       category: 'test',
-      title: '프로그라피 노드 스터디하기',
-      dayOfWeek: '0100000',
+      title: '습관빵 코딩',
+      dayOfWeek: '0111000',
       alarmTime: '19:00:00',
     },
     {
@@ -40,6 +41,28 @@ export class Payload {
       isScheduled: true,
     },
   ];
+
+  public static getPayloads(habitId: number) {
+    return {
+      habits: [
+        {
+          habitId: habitId,
+          title: '습관빵 코딩',
+          persent: 0,
+        },
+        {
+          habitId: habitId + 1,
+          title: '파출소 출근하기',
+          persent: 0,
+        },
+        {
+          habitId: habitId + 2,
+          title: '프로그라피 노드 스터디하기',
+          persent: 0,
+        },
+      ],
+    };
+  }
 
   // Item
   public static ItemPayloads = [
