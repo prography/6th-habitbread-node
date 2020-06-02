@@ -3,6 +3,7 @@ import { validate } from 'class-validator';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { Util } from '../utils/util';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -72,22 +73,8 @@ export class HabitController extends BaseController {
       });
       if (habits.length === 0) throw new NoContent('');
 
-      const customizeHabits: { habitId: number; title: string; persent: number }[] = [];
       habits.forEach((habit: any) => {
-        let dayCount = 0,
-          stack = 30;
-        for (let i = moment().day(); i >= 0; --i) {
-          if (habit.dayOfWeek[i] === '1') dayCount++;
-          stack--;
-        }
-        let dayCheck = 0;
-        for (let i = 0; i < 7; ++i) if (habit.dayOfWeek[i] === '1') dayCheck++;
-        dayCount += (stack / 7) * dayCheck;
-        for (let i = 7 - (stack % 7); i < 7; ++i) if (habit.dayOfWeek[i] === '1') dayCount++;
-
-        habit.percent = Math.round((habit.commitHistory.length * 100) / dayCount);
-        delete habit.commitHistory;
-        delete habit.dayOfWeek;
+        habit = Util.calulateAchievement(habit);
       });
 
       return habits;
