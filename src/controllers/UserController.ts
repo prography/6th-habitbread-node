@@ -1,9 +1,9 @@
 import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
-import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch, QueryParams } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
-import { CalculateUserExp, GetUsersQuery } from '../validations/UserValidation';
+import { GetUserBody } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
 
@@ -30,41 +30,21 @@ export class UserController extends BaseController {
     return currentUser;
   }
 
-  // 닉네임, FCM Token 업데이트
+  // 닉네임 , 경험치 계산, FCM Token 업데이트
   @Patch('/users')
-  public async patchUser(@CurrentUser() CurrentUser: User, @QueryParams() queries: GetUsersQuery) {
+  public async patchUser(@CurrentUser() currentUser: User, @Body() body: GetUserBody) {
     try {
-      const queryErrors = await validate(queries);
-      if (queryErrors.length > 0) throw new BadRequestError(queryErrors);
-
-      const payload: any = {};
-      if (queries.name) payload.name = queries.name;
-      if (queries.fcmToken) payload.fcmToken = queries.fcmToken;
-
-      const user = await this.prisma.user.update({
-        where: { userId: CurrentUser.userId },
-        data: payload,
-      });
-      // delete user.oauthKey;
-      // delete user.fcmToken;
-      return user;
-    } catch (err) {
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
-  }
-
-  // 사용자 경험치 계산 API
-  @Patch('/users/calculate')
-  public async calculateExp(@CurrentUser() currentUser: User, @Body() body: CalculateUserExp) {
-    try {
-      const bodyErrors = await validate(body);
+      const bodyErrors = await validate(body, { skipMissingProperties: true });
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
-      const exp: number = currentUser.exp + body.exp;
+      const payload: any = {};
+      if (body.name) payload.name = body.name;
+      if (body.fcmToken) payload.fcmToken = body.fcmToken;
+      if (body.exp) payload.exp = currentUser.exp + body.exp;
+
       const user = await this.prisma.user.update({
         where: { userId: currentUser.userId },
-        data: { exp },
+        data: payload,
       });
       delete user.oauthKey;
       delete user.fcmToken;

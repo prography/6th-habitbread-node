@@ -1,20 +1,17 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class GetUsersQuery {
+export class GetUserBody {
   @IsNotEmpty()
   @IsString()
   name!: string;
 
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  fcmToken!: string;
-}
-
-export class CalculateUserExp {
   @IsNumber()
   @IsNotEmpty()
   exp!: number;
+
+  @IsNotEmpty()
+  @IsString()
+  fcmToken!: string;
 }
 
 // Spec Test Util
