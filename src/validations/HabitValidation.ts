@@ -20,6 +20,20 @@ export class UpdateHabit {
   alarmTime!: string | null;
 }
 
+export class GetHabit {
+  @IsNumber()
+  @IsNotEmpty()
+  habitId!: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  year!: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  month!: number;
+}
+
 export class ID {
   @IsNumber()
   @IsNotEmpty()
