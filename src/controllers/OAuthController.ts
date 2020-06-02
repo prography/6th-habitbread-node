@@ -17,7 +17,8 @@ export class OAuthControllers extends BaseController {
   private oauth2Client = new google.auth.OAuth2(env.GOOGLE.CLIENT_ID, env.GOOGLE.CLIENT_SECRET, env.GOOGLE.REDIRECT_URL);
   private parseResponse = (data: any) => {
     return {
-      email: data.emailAddresses.length ? data.emailAddresses[0].value : 'example@mail.com',
+      name: data.names.length ? data.names[0].displayName : '습관이',
+      oauthKey: data.emailAddresses[0].value,
     };
   };
   private authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
@@ -54,16 +55,17 @@ export class OAuthControllers extends BaseController {
       });
       const me = await people.people.get({
         resourceName: 'people/me',
-        personFields: 'emailAddresses,names,photos',
+        personFields: 'emailAddresses,names',
       });
 
-      const { email } = this.parseResponse(me.data);
+      const { name, oauthKey } = this.parseResponse(me.data);
+      if (oauthKey === null) throw new InternalServerError('알 수 없는 Error 발생');
       let user = await this.prisma.user.findOne({
-        where: { oauthKey: email },
+        where: { oauthKey },
       });
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { oauthKey: email },
+          data: { name, oauthKey },
         });
       }
       const token = AuthHelper.makeAccessToken(user.userId);

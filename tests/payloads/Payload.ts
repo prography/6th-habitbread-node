@@ -1,52 +1,24 @@
 export class Payload {
   public static originalPayloads = [
     {
-      title: 'habit1',
-      description: '이건 description1입니다.',
       category: 'test',
-      isScheduled: false,
+      title: '프로그라피 노드 스터디하기',
+      dayOfWeek: '0100000',
+      alarmTime: '19:00:00',
     },
     {
-      title: ' habit2',
-      description: '이건 description2입니다.',
       category: 'test',
-      isScheduled: false,
+      title: '파출소 출근하기',
+      dayOfWeek: '1111111',
+      alarmTime: '19:00:00',
     },
     {
-      title: 'habit3',
-      description: '이건 description3입니다.',
       category: 'test',
-      isScheduled: false,
+      title: '프로그라피 노드 스터디하기',
+      dayOfWeek: '0100000',
+      alarmTime: '19:00:00',
     },
   ];
-
-  public static checkOriginalPayloads = (userId: number, habitId: number) => {
-    return {
-      habits: [
-        {
-          category: 'test',
-          description: '이건 description1입니다.',
-          habitId: habitId,
-          title: 'habit1',
-          userId,
-        },
-        {
-          category: 'test',
-          description: '이건 description2입니다.',
-          habitId: habitId + 1,
-          title: ' habit2',
-          userId,
-        },
-        {
-          category: 'test',
-          description: '이건 description3입니다.',
-          habitId: habitId + 2,
-          title: 'habit3',
-          userId,
-        },
-      ],
-    };
-  };
 
   public static updatePayloads = [
     {

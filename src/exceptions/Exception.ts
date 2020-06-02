@@ -38,6 +38,17 @@ export class UnauthorizedError extends HttpError {
   }
 }
 
+export class ForbiddenError extends HttpError {
+  public message: any;
+  constructor(msg: any) {
+    super(403);
+    Object.setPrototypeOf(this, ForbiddenError.prototype);
+    this.name = this.constructor.name;
+    this.message = msg;
+    this.stack = undefined;
+  }
+}
+
 export class NotFoundError extends HttpError {
   public message: any;
   constructor(msg: any) {

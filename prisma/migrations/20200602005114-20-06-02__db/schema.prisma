@@ -18,9 +18,9 @@ model Ranking {
 }
 
 model Scheduler {
-  scheduleId     Int       @id @map("schedule_id")
+  scheduleId     Int       @default(autoincrement()) @id @map("schedule_id")
   userId         Int       @map("user_id")
-  habitId        Int       @map("habit_id")
+  habitId        Int       @map("habit_id") @unique
 
   @@map("scheduler")
 }
@@ -31,7 +31,8 @@ model Habit {
   title           String
   category        String
   dayOfWeek       String    @map("day_of_week")
-  continuousCount Int       @map("countinuous_count")
+  alarmTime       String?   @map("alaram_time")
+  continuousCount Int       @map("countinuous_count") @default(0)
 
   commitHistory   CommitHistory[]
   user            User      @relation(fields: [userId], references: [userId])
@@ -66,6 +67,7 @@ model User {
 }
 
 model UserItem {
+  userItemId  Int       @default(autoincrement()) @id @map("user_item_id")
   itemId      Int       @map("item_id")
   userId      Int       @map("user_id")
   createdAt   DateTime  @default(now())
@@ -73,7 +75,6 @@ model UserItem {
   item        Item      @relation(fields: [itemId], references: [itemId])
   user        User      @relation(fields: [userId], references: [userId])
 
-  @@id([itemId, userId])
   @@map("user_item")
 }
 

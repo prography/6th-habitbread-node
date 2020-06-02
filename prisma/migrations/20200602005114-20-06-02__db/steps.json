@@ -144,7 +144,7 @@
     {
       "tag": "CreateField",
       "model": "Ranking",
-      "field": "persent",
+      "field": "achievement",
       "type": "Int",
       "arity": "Required"
     },
@@ -181,6 +181,31 @@
       "field": "scheduleId",
       "type": "Int",
       "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Scheduler",
+          "field": "scheduleId"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Scheduler",
+          "field": "scheduleId"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "autoincrement()"
     },
     {
       "tag": "CreateDirective",
@@ -254,7 +279,7 @@
       "tag": "CreateField",
       "model": "Scheduler",
       "field": "habitId",
-      "type": "String",
+      "type": "Int",
       "arity": "Required"
     },
     {
@@ -283,100 +308,15 @@
       "value": "\"habit_id\""
     },
     {
-      "tag": "CreateField",
-      "model": "Scheduler",
-      "field": "habitTitle",
-      "type": "String",
-      "arity": "Required"
-    },
-    {
       "tag": "CreateDirective",
       "location": {
         "path": {
           "tag": "Field",
           "model": "Scheduler",
-          "field": "habitTitle"
+          "field": "habitId"
         },
-        "directive": "map"
+        "directive": "unique"
       }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Scheduler",
-          "field": "habitTitle"
-        },
-        "directive": "map"
-      },
-      "argument": "",
-      "value": "\"habit_title\""
-    },
-    {
-      "tag": "CreateField",
-      "model": "Scheduler",
-      "field": "habitAlarmAt",
-      "type": "DateTime",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "Scheduler",
-          "field": "habitAlarmAt"
-        },
-        "directive": "map"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Scheduler",
-          "field": "habitAlarmAt"
-        },
-        "directive": "map"
-      },
-      "argument": "",
-      "value": "\"habit_alarm_at\""
-    },
-    {
-      "tag": "CreateField",
-      "model": "Scheduler",
-      "field": "habitType",
-      "type": "Int",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "Scheduler",
-          "field": "habitType"
-        },
-        "directive": "map"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Scheduler",
-          "field": "habitType"
-        },
-        "directive": "map"
-      },
-      "argument": "",
-      "value": "\"habit_type\""
     },
     {
       "tag": "CreateDirective",
@@ -515,16 +455,130 @@
     {
       "tag": "CreateField",
       "model": "Habit",
-      "field": "description",
+      "field": "category",
       "type": "String",
-      "arity": "Optional"
+      "arity": "Required"
     },
     {
       "tag": "CreateField",
       "model": "Habit",
-      "field": "category",
+      "field": "dayOfWeek",
       "type": "String",
       "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "dayOfWeek"
+        },
+        "directive": "map"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "dayOfWeek"
+        },
+        "directive": "map"
+      },
+      "argument": "",
+      "value": "\"day_of_week\""
+    },
+    {
+      "tag": "CreateField",
+      "model": "Habit",
+      "field": "alarmTime",
+      "type": "String",
+      "arity": "Optional"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "alarmTime"
+        },
+        "directive": "map"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "alarmTime"
+        },
+        "directive": "map"
+      },
+      "argument": "",
+      "value": "\"alaram_time\""
+    },
+    {
+      "tag": "CreateField",
+      "model": "Habit",
+      "field": "continuousCount",
+      "type": "Int",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "continuousCount"
+        },
+        "directive": "map"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "continuousCount"
+        },
+        "directive": "map"
+      },
+      "argument": "",
+      "value": "\"countinuous_count\""
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "continuousCount"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Habit",
+          "field": "continuousCount"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "0"
     },
     {
       "tag": "CreateField",
@@ -892,25 +946,7 @@
       "model": "User",
       "field": "name",
       "type": "String",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateField",
-      "model": "User",
-      "field": "email",
-      "type": "String",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "User",
-          "field": "email"
-        },
-        "directive": "unique"
-      }
+      "arity": "Optional"
     },
     {
       "tag": "CreateField",
@@ -943,38 +979,6 @@
       },
       "argument": "",
       "value": "0"
-    },
-    {
-      "tag": "CreateField",
-      "model": "User",
-      "field": "imageUrl",
-      "type": "String",
-      "arity": "Optional"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "User",
-          "field": "imageUrl"
-        },
-        "directive": "map"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "User",
-          "field": "imageUrl"
-        },
-        "directive": "map"
-      },
-      "argument": "",
-      "value": "\"image_url\""
     },
     {
       "tag": "CreateField",
@@ -1122,8 +1126,15 @@
     {
       "tag": "CreateField",
       "model": "User",
+      "field": "fcmToken",
+      "type": "String",
+      "arity": "Optional"
+    },
+    {
+      "tag": "CreateField",
+      "model": "User",
       "field": "items",
-      "type": "Item",
+      "type": "UserItem",
       "arity": "List"
     },
     {
@@ -1159,6 +1170,74 @@
     {
       "tag": "CreateModel",
       "model": "UserItem"
+    },
+    {
+      "tag": "CreateField",
+      "model": "UserItem",
+      "field": "userItemId",
+      "type": "Int",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "userItemId"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "userItemId"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "autoincrement()"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "userItemId"
+        },
+        "directive": "id"
+      }
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "userItemId"
+        },
+        "directive": "map"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "userItemId"
+        },
+        "directive": "map"
+      },
+      "argument": "",
+      "value": "\"user_item_id\""
     },
     {
       "tag": "CreateField",
@@ -1223,6 +1302,38 @@
       },
       "argument": "",
       "value": "\"user_id\""
+    },
+    {
+      "tag": "CreateField",
+      "model": "UserItem",
+      "field": "createdAt",
+      "type": "DateTime",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "createdAt"
+        },
+        "directive": "default"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "UserItem",
+          "field": "createdAt"
+        },
+        "directive": "default"
+      },
+      "argument": "",
+      "value": "now()"
     },
     {
       "tag": "CreateField",
@@ -1315,61 +1426,6 @@
       },
       "argument": "references",
       "value": "[userId]"
-    },
-    {
-      "tag": "CreateField",
-      "model": "UserItem",
-      "field": "createdAt",
-      "type": "DateTime",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "UserItem",
-          "field": "createdAt"
-        },
-        "directive": "default"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "UserItem",
-          "field": "createdAt"
-        },
-        "directive": "default"
-      },
-      "argument": "",
-      "value": "now()"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Model",
-          "model": "UserItem"
-        },
-        "directive": "id"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Model",
-          "model": "UserItem"
-        },
-        "directive": "id"
-      },
-      "argument": "",
-      "value": "[itemId, userId]"
     },
     {
       "tag": "CreateDirective",
@@ -1485,6 +1541,13 @@
       "model": "Item",
       "field": "level",
       "type": "Int",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Item",
+      "field": "img",
+      "type": "String",
       "arity": "Required"
     },
     {
