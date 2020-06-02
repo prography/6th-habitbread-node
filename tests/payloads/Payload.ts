@@ -1,6 +1,6 @@
 // habit
 export class Payload {
-  public static originalPayloads = [
+  public static habitOriginalPayloads = [
     {
       category: 'test',
       title: '습관빵 코딩',
@@ -21,47 +21,45 @@ export class Payload {
     },
   ];
 
-  public static updatePayloads = [
+  public static habitUpdatePayloads = [
     {
-      title: '수정된 - habit1',
-      description: '이건 수정된 description1입니다.',
-      category: 'testUpdate',
-      isScheduled: true,
+      category: 'test',
+      title: '습관빵 코딩',
+      dayOfWeek: '0111000',
+      alarmTime: '20:00:00',
     },
     {
-      title: '수정된 -  habit2',
-      description: '이건 수정된 description2입니다.',
-      category: 'testUpdate',
-      isScheduled: true,
+      category: 'test',
+      title: '파출소 출근하기',
+      dayOfWeek: '1111111',
+      alarmTime: '21:00:00',
     },
     {
-      title: '수정된 - habit3',
-      description: '이건 수정된 description3입니다.',
-      category: 'testUpdate',
-      isScheduled: true,
+      category: 'test',
+      title: '프로그라피 노드 스터디하기',
+      dayOfWeek: '0100000',
+      alarmTime: '22:00:00',
     },
   ];
 
-  public static getPayloads(habitId: number) {
-    return {
-      habits: [
-        {
-          habitId: habitId,
-          title: '습관빵 코딩',
-          persent: 0,
-        },
-        {
-          habitId: habitId + 1,
-          title: '파출소 출근하기',
-          persent: 0,
-        },
-        {
-          habitId: habitId + 2,
-          title: '프로그라피 노드 스터디하기',
-          persent: 0,
-        },
-      ],
-    };
+  public static habitGetPayloads(habitId: number) {
+    return [
+      {
+        habitId: habitId,
+        title: '습관빵 코딩',
+        percent: 0,
+      },
+      {
+        habitId: habitId + 1,
+        title: '파출소 출근하기',
+        percent: 0,
+      },
+      {
+        habitId: habitId + 2,
+        title: '프로그라피 노드 스터디하기',
+        percent: 0,
+      },
+    ];
   }
 
   // Item

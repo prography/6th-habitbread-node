@@ -9,19 +9,11 @@ import { BaseController } from './BaseController';
 @JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
-  public dayOfTheWeek = new Map();
 
   constructor() {
     super();
     this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
-    this.dayOfTheWeek.set('Mon', 0);
-    this.dayOfTheWeek.set('Tue', 1);
-    this.dayOfTheWeek.set('Wed', 2);
-    this.dayOfTheWeek.set('Thu', 3);
-    this.dayOfTheWeek.set('Fri', 4);
-    this.dayOfTheWeek.set('Sat', 5);
-    this.dayOfTheWeek.set('Sun', 6);
   }
 
   // 습관 등록하기
@@ -71,7 +63,7 @@ export class HabitController extends BaseController {
           commitHistory: {
             where: {
               createdAt: {
-                gte: moment().add(-30, 'days').startOf('days').toDate(),
+                gte: moment().subtract(30, 'days').startOf('days').toDate(),
                 lte: moment().endOf('days').toDate(),
               },
             },
@@ -81,10 +73,10 @@ export class HabitController extends BaseController {
       if (habits.length === 0) throw new NoContent('');
 
       const customizeHabits: { habitId: number; title: string; persent: number }[] = [];
-      habits.forEach(habit => {
+      habits.forEach((habit: any) => {
         let dayCount = 0,
           stack = 30;
-        for (let i = this.dayOfTheWeek.get(moment().format('ddd')); i >= 0; --i) {
+        for (let i = moment().day(); i >= 0; --i) {
           if (habit.dayOfWeek[i] === '1') dayCount++;
           stack--;
         }
@@ -93,14 +85,12 @@ export class HabitController extends BaseController {
         dayCount += (stack / 7) * dayCheck;
         for (let i = 7 - (stack % 7); i < 7; ++i) if (habit.dayOfWeek[i] === '1') dayCount++;
 
-        customizeHabits.push({
-          habitId: habit.habitId,
-          title: habit.title,
-          persent: Math.round((habit.commitHistory.length * 100) / dayCount),
-        });
+        habit.percent = Math.round((habit.commitHistory.length * 100) / dayCount);
+        delete habit.commitHistory;
+        delete habit.dayOfWeek;
       });
 
-      return { habits: customizeHabits };
+      return habits;
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
@@ -113,22 +103,16 @@ export class HabitController extends BaseController {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+      const month = parseInt(moment().format('MM')) - id.month;
+      const year = parseInt(moment().format('YYYY')) - id.year;
       const findHabit = await this.prisma.habit.findOne({
         where: { habitId: id.habitId },
         include: {
           commitHistory: {
             where: {
               createdAt: {
-                gte: moment()
-                  .add(-(parseInt(moment().format('MM')) - id.month), 'months')
-                  .add(-(parseInt(moment().format('YYYY')) - id.year), 'years')
-                  .startOf('months')
-                  .toDate(),
-                lte: moment()
-                  .add(-(parseInt(moment().format('MM')) - id.month), 'months')
-                  .add(-(parseInt(moment().format('YYYY')) - id.year), 'years')
-                  .endOf('months')
-                  .toDate(),
+                gte: moment().subtract(month, 'months').subtract(year, 'years').startOf('months').toDate(),
+                lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
               },
             },
           },
@@ -236,7 +220,7 @@ export class HabitController extends BaseController {
       if (findHabitForDay === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
 
       let check = 0;
-      const todayOfTheWeek = this.dayOfTheWeek.get(moment().format('ddd'));
+      const todayOfTheWeek = moment().day();
       for (let i = todayOfTheWeek + 6; i !== todayOfTheWeek; --i) {
         check++;
         if (i > 6) {
@@ -251,7 +235,7 @@ export class HabitController extends BaseController {
           commitHistory: {
             where: {
               createdAt: {
-                gte: moment().add(-check, 'days').startOf('days').toDate(),
+                gte: moment().subtract(check, 'days').startOf('days').toDate(),
                 lte: moment().endOf('days').toDate(),
               },
             },

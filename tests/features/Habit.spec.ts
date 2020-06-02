@@ -24,7 +24,7 @@ describe('testHabit', () => {
     const user = await createUser(prisma, new AddUser({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
     token = AuthHelper.makeAccessToken(user.userId);
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitOriginalPayloads[i];
 
       const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
@@ -37,7 +37,7 @@ describe('testHabit', () => {
   // POST creatHabits
   test('createHabits', async () => {
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitOriginalPayloads[i];
       const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
       if (i === 0) {
         habitId = res.body.habitId;
@@ -59,13 +59,13 @@ describe('testHabit', () => {
   test('getHabits', async () => {
     const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.getPayloads(habitId));
+    expect(res.body).toMatchObject(Payload.habitGetPayloads(habitId));
   });
 
   // GET getHabit
   test('getHabit', async () => {
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitOriginalPayloads[i];
 
       const res = await testClient
         .get(`/habits/${habitId + i}/calender/${parseInt(moment().format('MM'))}/${parseInt(moment().format('DD'))}`)
@@ -90,7 +90,7 @@ describe('testHabit', () => {
   // PUT updateHabit
   test('updateHabit', async () => {
     for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.originalPayloads[i];
+      const payload = Payload.habitUpdatePayloads[i];
 
       const res = await testClient
         .put(`/habits/${habitId + i}`)
