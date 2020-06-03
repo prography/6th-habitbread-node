@@ -21,7 +21,7 @@ describe('Test Character', () => {
   let user: User;
   let token: string;
   let userItems: Array<number>;
-  let ItemPayloads: Array<any>;
+  let userItemPayloads: Array<any>;
 
   beforeEach(async done => {
     await prisma.userItem.deleteMany({});
@@ -38,10 +38,10 @@ describe('Test Character', () => {
     token = AuthHelper.makeAccessToken(user.userId);
 
     // 아이템 생성
-    ItemPayloads = [];
+    userItemPayloads = [];
     for (const payload of Payload.ItemPayloads) {
       const item = await createItem(prisma, new AddItem(payload));
-      ItemPayloads.push({
+      userItemPayloads.push({
         userId: user.userId,
         itemId: item.itemId,
       });
@@ -49,8 +49,8 @@ describe('Test Character', () => {
 
     // 사용자와 아이템 연결 - 마지막 payload는 post 테스트 시 사용
     userItems = [];
-    for (let i = 0; i < ItemPayloads.length - 1; i++) {
-      const userItem = await createUserItem(prisma, new AddUserItem(ItemPayloads[i]));
+    for (let i = 0; i < userItemPayloads.length - 1; i++) {
+      const userItem = await createUserItem(prisma, new AddUserItem(userItemPayloads[i]));
       userItems.push(userItem.userItemId);
     }
 
@@ -76,7 +76,7 @@ describe('Test Character', () => {
 
   // 사용자 아이템 관계 생성 테스트
   test('Post - /items', async () => {
-    const itemId = ItemPayloads[ItemPayloads.length - 1].itemId; // 마지막 item payload와 user 연결
+    const itemId = userItemPayloads[userItemPayloads.length - 1].itemId; // 마지막 item payload와 user 연결
     const data = { itemId };
 
     const res1 = await client.post('/items').set('Authorization', `Bearer ${token}`).send(data);

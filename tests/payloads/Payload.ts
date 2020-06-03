@@ -74,19 +74,19 @@ export class Payload {
   // Ranking
   public static RankingPayloads = [
     {
-      userId: 123433,
+      userId: 1234335,
       userName: 'testUser1',
       exp: 10000,
       achievement: 10,
     },
     {
-      userId: 436237,
+      userId: 4362375,
       userName: 'testUser2',
       exp: 2500,
       achievement: 10,
     },
     {
-      userId: 324827,
+      userId: 3248272,
       userName: 'testUser3',
       exp: 5000,
       achievement: 40,

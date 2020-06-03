@@ -2,13 +2,25 @@ import { PrismaClient, Ranking } from '@prisma/client';
 
 // Key 값 검사
 export const assertRanking = (item: any) => {
-  expect(item).toMatchObject({
-    userId: item.userId,
-    userName: item.userName,
-    exp: item.exp,
-    achievement: item.achievement,
-    rank: item.rank,
-    totalCount: item.totalCount,
+  const user = item.user;
+  expect(user).toMatchObject({
+    userId: user.userId,
+    userName: user.userName,
+    exp: user.exp,
+    achievement: user.achievement,
+    rank: user.rank,
+    totalCount: user.totalCount,
+  });
+
+  const ranking: Array<any> = item.ranking;
+  ranking.forEach(user => {
+    expect(user).toMatchObject({
+      userId: user.userId,
+      userName: user.userName,
+      exp: user.exp,
+      achievement: user.achievement,
+      rank: user.rank,
+    });
   });
 };
 

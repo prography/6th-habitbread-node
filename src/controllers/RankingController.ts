@@ -36,7 +36,7 @@ export class RankingController extends BaseController {
       const user: any = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
       if (user) user.totalCount = rankings.length;
 
-      return { user, rankings: rankings };
+      return { user, ranking: rankings };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
