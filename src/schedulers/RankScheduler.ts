@@ -1,28 +1,38 @@
 import { PrismaClient, User } from '@prisma/client';
 import schedule from 'node-schedule';
+import { Util } from '../utils/util';
 
 const prisma = new PrismaClient();
 
-const getAchievement = async () => {};
+const upsertRanking = async (user: User) => {
+  const habits = await prisma.habit.findMany({
+    where: { userId: user.userId },
+    include: { commitHistory: true },
+  });
 
-const upsertUsers = async (user: User) => {
-  const nickName = user.name;
-  const exp = user.exp;
+  let achievement = 0;
+  habits.forEach(habit => {
+    const newHabit: any = Util.calulateAchievement(habit);
+    achievement += newHabit.percent;
+  });
+  console.log(achievement);
+  console.log(habits.length);
+  if (habits.length > 0) achievement = Math.round((achievement / habits.length) * 100);
 
-  // await prisma.ranking.upsert({
-  //   where: {
-  //     rankingId: character.characterId, // develop 수정 -> characterId or userId 로 찾도록
-  //   },
-  //   create: {
-  //     rankingId: character.characterId,
-  //     userName,
-  //     exp,
-  //   },
-  //   update: {
-  //     userName,
-  //     exp,
-  //   },
-  // });
+  await prisma.ranking.upsert({
+    where: { userId: user.userId },
+    create: {
+      userId: user.userId,
+      userName: user.name!,
+      exp: user.exp,
+      achievement,
+    },
+    update: {
+      userName: user.name!,
+      exp: user.exp,
+      achievement,
+    },
+  });
 };
 
 const scheduler = {
@@ -35,9 +45,7 @@ const scheduler = {
       try {
         const users = await prisma.user.findMany();
 
-        users.forEach(async user => {
-          upsertUsers(user);
-        });
+        for (const user of users) await upsertRanking(user);
       } catch (err) {
         throw new Error(err.message);
       }

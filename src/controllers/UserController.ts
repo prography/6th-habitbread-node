@@ -59,11 +59,10 @@ export class UserController extends BaseController {
   @Delete('/users')
   public async deleteUser(@CurrentUser() currentUser: User) {
     try {
-      await this.prisma.user.delete({
-        where: {
-          userId: currentUser.userId,
-        },
+      await this.prisma.ranking.delete({
+        where: { userId: currentUser.userId },
       });
+      await this.prisma.raw`delete from users where user_id = ${currentUser.userId};`;
       return { message: 'Delete User Success' };
     } catch (err) {
       if (err instanceof HttpError) throw err;
