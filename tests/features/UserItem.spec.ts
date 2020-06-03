@@ -37,8 +37,8 @@ describe('Test Character', () => {
     user = await createUser(prisma, new AddUser(payload));
     token = AuthHelper.makeAccessToken(user.userId);
 
-    ItemPayloads = [];
     // 아이템 생성
+    ItemPayloads = [];
     for (const payload of Payload.ItemPayloads) {
       const item = await createItem(prisma, new AddItem(payload));
       ItemPayloads.push({
@@ -47,8 +47,8 @@ describe('Test Character', () => {
       });
     }
 
+    // 사용자와 아이템 연결 - 마지막 payload는 post 테스트 시 사용
     userItems = [];
-    // 사용자와 아이템 연결
     for (let i = 0; i < ItemPayloads.length - 1; i++) {
       const userItem = await createUserItem(prisma, new AddUserItem(ItemPayloads[i]));
       userItems.push(userItem.userItemId);

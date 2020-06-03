@@ -1,6 +1,6 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, Ranking, User } from '@prisma/client';
 import { CurrentUser, Get, HttpError, JsonController } from 'routing-controllers';
-import { InternalServerError, NoContent } from '../exceptions/Exception';
+import { InternalServerError } from '../exceptions/Exception';
 import { BaseController } from './BaseController';
 
 @JsonController('/ranking')
@@ -16,24 +16,27 @@ export class RankingController extends BaseController {
   @Get()
   public async index(@CurrentUser() currentUser: User) {
     try {
-      const totalCount = await this.prisma.ranking.count();
-
-      const rankings = await this.prisma.raw`
+      const rankings: Ranking[] = await this.prisma.raw`
+      SELECT
+        *
+      FROM (
         SELECT
-          r.user_id,
-          r.user_name,
-          r.exp,
-          r.achievement,
-          (SELECT COUNT(*) FROM ranking WHERE exp > r.exp) AS rank
-        FROM ranking r
-        WHERE r.user_id = ${currentUser.userId}
+          r1.user_id AS userId,
+          r1.user_name AS userName,
+          r1.exp,
+          r1.achievement,
+          @rownum := @rownum + 1 AS rank
+        FROM ranking r1
+        JOIN (SELECT @rownum := 0) row
+        ORDER BY r1.exp desc, r1.achievement desc
+      ) r2
+      LIMIT 200
       `;
-      if (rankings.length === 0) throw new NoContent('');
 
-      const ranking = rankings[0];
-      ranking.rank += 1;
-      ranking.totalCount = totalCount;
-      return ranking;
+      const user: any = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
+      if (user) user.totalCount = rankings.length;
+
+      return { user, rankings: rankings };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);

@@ -1,13 +1,14 @@
 import { PrismaClient, Ranking } from '@prisma/client';
 
 // Key 값 검사
-export const assertRanking = (item: Ranking) => {
+export const assertRanking = (item: any) => {
   expect(item).toMatchObject({
-    rankingId: item.rankingId,
     userId: item.userId,
     userName: item.userName,
     exp: item.exp,
     achievement: item.achievement,
+    rank: item.rank,
+    totalCount: item.totalCount,
   });
 };
 
@@ -15,7 +16,6 @@ export const assertRanking = (item: Ranking) => {
 export const createRanking = async (prisma: PrismaClient, ranking: Ranking) => {
   const newRanking = await prisma.ranking.create({
     data: {
-      rankingId: ranking.rankingId,
       userId: ranking.userId,
       userName: ranking.userName,
       exp: ranking.exp,

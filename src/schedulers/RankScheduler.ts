@@ -15,9 +15,7 @@ const upsertRanking = async (user: User) => {
     const newHabit: any = Util.calulateAchievement(habit);
     achievement += newHabit.percent;
   });
-  console.log(achievement);
-  console.log(habits.length);
-  if (habits.length > 0) achievement = Math.round((achievement / habits.length) * 100);
+  if (habits.length > 0) achievement = Math.round(achievement / habits.length);
 
   await prisma.ranking.upsert({
     where: { userId: user.userId },

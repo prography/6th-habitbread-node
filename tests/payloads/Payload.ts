@@ -71,26 +71,37 @@ export class Payload {
     },
   ];
 
-  // public static RankingPayloads = [
-  //   {
-  //     rankingId: 1,
-  //     userName: 'testUser1',
-  //     exp: 10000,
-  //   },
-  //   {
-  //     rankingId: 2,
-  //     userName: 'testUser2',
-  //     exp: 0,
-  //   },
-  //   {
-  //     rankingId: 3,
-  //     userName: 'testUser3',
-  //     exp: 5000,
-  //   },
-  //   {
-  //     rankingId: 4,
-  //     userName: 'testUser4',
-  //     exp: 500,
-  //   },
-  // ];
+  // Ranking
+  public static RankingPayloads = [
+    {
+      userId: 123433,
+      userName: 'testUser1',
+      exp: 10000,
+      achievement: 10,
+    },
+    {
+      userId: 436237,
+      userName: 'testUser2',
+      exp: 2500,
+      achievement: 10,
+    },
+    {
+      userId: 324827,
+      userName: 'testUser3',
+      exp: 5000,
+      achievement: 40,
+    },
+    {
+      userId: 4546473,
+      userName: 'testUser4',
+      exp: 2500,
+      achievement: 50,
+    },
+    {
+      userId: 5637218,
+      userName: 'testUser5',
+      exp: 500,
+      achievement: 50,
+    },
+  ];
 }
