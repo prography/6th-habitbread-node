@@ -1,6 +1,6 @@
 import app from './app';
 import env from './configs/index';
-import scheduler from './schedulers/RankScheduler';
+// import scheduler from './schedulers/RankScheduler';
 
 // Production 환경
 const listenProd = () => {
@@ -21,7 +21,7 @@ const listenProd = () => {
 const listenDev = () => {
   app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
-    scheduler.RankingUpdateJob();
+    // scheduler.RankingUpdateJob();
   });
 };
 
