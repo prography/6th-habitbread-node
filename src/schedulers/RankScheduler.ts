@@ -1,9 +1,10 @@
 import { PrismaClient, User } from '@prisma/client';
 import schedule from 'node-schedule';
-import { Util } from '../utils/util';
+import { AchievementUtil } from '../utils/AchievementUtil';
 
 const prisma = new PrismaClient();
 
+// 랭킹 upsert 메서드
 const upsertRanking = async (user: User) => {
   const habits = await prisma.habit.findMany({
     where: { userId: user.userId },
@@ -12,7 +13,7 @@ const upsertRanking = async (user: User) => {
 
   let achievement = 0;
   habits.forEach(habit => {
-    const newHabit: any = Util.calulateAchievement(habit);
+    const newHabit: any = AchievementUtil.calulateAchievement(habit);
     achievement += newHabit.percent;
   });
   if (habits.length > 0) achievement = Math.round(achievement / habits.length);

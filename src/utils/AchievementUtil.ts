@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
+import { Util } from './BaseUtil';
 
-export class Util {
+export class AchievementUtil extends Util {
   public static calulateAchievement(habit: any) {
     let dayCount = 0,
       stack = 30;

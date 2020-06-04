@@ -1,5 +1,5 @@
 import { PrismaClient, Ranking, User } from '@prisma/client';
-import { CurrentUser, Get, HttpError, JsonController } from 'routing-controllers';
+import { CurrentUser, Get, JsonController } from 'routing-controllers';
 import { InternalServerError } from '../exceptions/Exception';
 import { BaseController } from './BaseController';
 
@@ -37,7 +37,6 @@ export class RankingController extends BaseController {
 
       return { user, userTotalCount, rankings };
     } catch (err) {
-      if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
   }
