@@ -34,6 +34,7 @@
     "dotenv": "^8.2.0",
     "dotenv-cli": "^3.1.0",
     "express": "^4.17.1",
+    "firebase-admin": "^8.12.1",
     "googleapis": "^51.0.0",
     "greenlock-express": "^4.0.3",
     "jsonwebtoken": "^8.5.1",
