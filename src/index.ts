@@ -22,6 +22,7 @@ const listenDev = () => {
   app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
     scheduler.AlarmUpdateJob();
+    scheduler.FCMJob();
   });
 };
 
