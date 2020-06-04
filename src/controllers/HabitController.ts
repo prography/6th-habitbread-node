@@ -3,6 +3,7 @@ import { validate } from 'class-validator';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import scheduler from '../schedulers/AlarmScheduler';
 import { Util } from '../utils/util';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
@@ -44,6 +45,8 @@ export class HabitController extends BaseController {
       await this.prisma.scheduler.create({
         data: { userId: currentUser.userId, habitId: newHabit.habitId },
       });
+      if (newHabit.dayOfWeek[moment().day()] === '1')
+        if (parseInt(moment().format('HHmm')) < parseInt(moment(newHabit.alarmTime, 'HH:mm:ss').format('HHmm'))) scheduler.AddDataInToQueue(newHabit);
       return newHabit;
     } catch (err) {
       if (err instanceof HttpError) throw err;
@@ -146,7 +149,9 @@ export class HabitController extends BaseController {
             },
           },
         });
-        // 스케줄러 등록 부분(추가 수정 필요)
+
+        // 스케줄러 편집
+        if (fixHabit.dayOfWeek[moment().day()] === '1') scheduler.DeleteDataFromQueue(fixHabit);
         if (alarmTime === null) {
           if (findHabit.alarmTime) {
             await this.prisma.scheduler.delete({
@@ -160,6 +165,9 @@ export class HabitController extends BaseController {
           create: { userId: currentUser.userId, habitId: findHabit.habitId },
           update: {},
         });
+        if (fixHabit.dayOfWeek[moment().day()] === '1')
+          if (parseInt(moment().format('HHmm')) < parseInt(moment(fixHabit.alarmTime, 'HH:mm:ss').format('HHmm')))
+            scheduler.AddDataInToQueue(fixHabit);
         return fixHabit;
       }
       throw new ForbiddenError('잘못된 접근입니다.');
@@ -238,12 +246,24 @@ export class HabitController extends BaseController {
             throw new ForbiddenError('오늘은 이미 commit 했습니다.');
           return await this.prisma.habit.update({
             where: { habitId: id.habitId },
-            data: { commitHistory: { create: {} }, continuousCount: findHabit.continuousCount + 1 },
+            data: {
+              commitHistory: { create: {} },
+              continuousCount: findHabit.continuousCount + 1,
+              user: {
+                update: { exp: currentUser.exp + 2 },
+              },
+            },
           });
         }
         return await this.prisma.habit.update({
           where: { habitId: id.habitId },
-          data: { commitHistory: { create: {} }, continuousCount: 1 },
+          data: {
+            commitHistory: { create: {} },
+            continuousCount: 1,
+            user: {
+              update: { exp: currentUser.exp + 2 },
+            },
+          },
         });
       }
       throw new ForbiddenError('잘못된 접근입니다.');
