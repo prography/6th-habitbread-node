@@ -34,11 +34,11 @@ const upsertRanking = async (user: User) => {
 };
 
 const scheduler = {
-  // 1시간 마다 모든 사용자의 캐릭터 경험치를 조회한 후 Rank 테이블 갱신
+  // 1시간 마다 모든 사용자의 경험치를 조회한 후 Ranking 테이블 갱신
   RankingUpdateJob: () => {
     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
 
-    schedule.scheduleJob('*/10 * * * * *', async () => {
+    schedule.scheduleJob('0 * * * *', async () => {
       console.log('랭킹 업데이트 시작 !');
       try {
         const users = await prisma.user.findMany();

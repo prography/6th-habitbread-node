@@ -21,6 +21,8 @@ describe('Test Ranking', () => {
 
   beforeEach(async done => {
     await prisma.ranking.deleteMany({});
+    await prisma.habit.deleteMany({});
+    await prisma.userItem.deleteMany({});
     await prisma.user.deleteMany({});
 
     // 사용자 생성 및 토큰 발급
@@ -57,13 +59,36 @@ describe('Test Ranking', () => {
     expect(res.status).toBe(200);
     assertRanking(res.body);
 
-    // payload 순위 조정
+    // payload 순위 조정 (경험치 1순위, 달성도 2순위)
     rankings.sort((x, y) => {
       if (y.exp === x.exp) return y.achievement - x.achievement;
       return y.exp - x.exp;
     });
+
+    const currrentUser = rankings.filter(ranking => ranking.userId === user.userId)[0];
+
+    // 현재 사용자가 맞는지
+    expect(res.body.user).toMatchObject({
+      userId: currrentUser.userId,
+      userName: currrentUser.userName,
+      exp: currrentUser.exp,
+      achievement: currrentUser.achievement,
+      rank: expect.any(String),
+    });
+
+    // 전체 랭킹 순위가 맞는지
     // Use .toMatchObject to check that a JavaScript object matches a subset of the properties of an object.
-    expect(res.body.ranking).toMatchObject(rankings);
+    const length = res.body.rankings.length;
+    for (let i = 0; i < length; i++) {
+      expect(res.body.rankings[i]).toMatchObject({
+        userId: rankings[i].userId,
+        userName: rankings[i].userName,
+        exp: rankings[i].exp,
+        achievement: rankings[i].achievement,
+        rank: expect.any(String),
+      });
+    }
+    expect(res.body.rankings).toHaveLength(6);
   });
 
   afterAll(async done => {

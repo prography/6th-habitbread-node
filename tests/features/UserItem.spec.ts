@@ -14,7 +14,7 @@ import { createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
 
-describe('Test Character', () => {
+describe('Test User Item', () => {
   const client = supertest(app);
   const prisma = new PrismaClient();
 
@@ -25,7 +25,6 @@ describe('Test Character', () => {
 
   beforeEach(async done => {
     await prisma.userItem.deleteMany({});
-    await prisma.habit.deleteMany({});
     await prisma.user.deleteMany({});
     await prisma.item.deleteMany({});
 
