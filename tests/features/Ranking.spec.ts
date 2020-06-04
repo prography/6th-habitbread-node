@@ -45,7 +45,7 @@ describe('Test Ranking', () => {
     rankings.push(res);
 
     // 랭킹 리스트
-    for (const payload of Payload.RankingPayloads) {
+    for (const payload of Payload.RankingPayloads(user.userId)) {
       const ranking = await createRanking(prisma, new AddRanking(payload));
       rankings.push(ranking);
     }
