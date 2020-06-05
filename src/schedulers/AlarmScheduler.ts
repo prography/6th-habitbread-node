@@ -2,7 +2,6 @@ import { Habit, PrismaClient, User } from '@prisma/client';
 import * as admin from 'firebase-admin';
 import moment from 'moment-timezone';
 import schedule from 'node-schedule';
-import { HttpError } from 'routing-controllers';
 import { InternalServerError, NotFoundError } from '../exceptions/Exception';
 moment.tz.setDefault('Asia/Seoul');
 
@@ -61,7 +60,6 @@ const UpsertAlarmQueue = async () => {
     }
     alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
   } catch (err) {
-    if (err instanceof HttpError) throw err;
     throw new InternalServerError(err.message);
   }
   console.log('정렬 끝 =)');
@@ -72,17 +70,21 @@ const scheduler = {
     alarmQueue = alarmQueue.filter(alarm => alarm.habitId !== data.habitId);
   },
   AddDataInToQueue: async (data: Habit) => {
-    const user = await prisma.user.findOne({ where: { userId: data.userId } });
-    if (user === null) throw new NotFoundError('user가 없습니다.');
-    if (user.fcmToken === null) throw new NotFoundError('user가 없습니다.');
-    alarmQueue.push({
-      fcmtoken: user.fcmToken,
-      title: data.title,
-      habitId: data.habitId,
-      alarmTime: parseInt(moment(data.alarmTime, 'HH:mm:ss').format('HHmm')),
-    });
-    alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
-    console.log('alarmQueue 업데이트 완료');
+    try {
+      const user = await prisma.user.findOne({ where: { userId: data.userId } });
+      if (user === null) throw new NotFoundError('user가 없습니다.');
+      if (user.fcmToken === null) throw new NotFoundError('user가 없습니다.');
+      alarmQueue.push({
+        fcmtoken: user.fcmToken,
+        title: data.title,
+        habitId: data.habitId,
+        alarmTime: parseInt(moment(data.alarmTime, 'HH:mm:ss').format('HHmm')),
+      });
+      alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
+      console.log('alarmQueue 업데이트 완료');
+    } catch (err) {
+      throw new InternalServerError(err.message);
+    }
   },
   // 00시 00분에 습관 등록
   AlarmUpdateJob: async () => {
@@ -130,7 +132,6 @@ const scheduler = {
             .catch(err => console.log(err));
         }
       } catch (err) {
-        if (err instanceof HttpError) throw err;
         throw new InternalServerError(err.message);
       }
     });
