@@ -45,9 +45,11 @@ export class HabitController extends BaseController {
       await this.prisma.scheduler.create({
         data: { userId: currentUser.userId, habitId: newHabit.habitId },
       });
-      if (newHabit.dayOfWeek[moment().day()] === '1')
-        if (parseInt(moment().format('HHmm')) < parseInt(moment(newHabit.alarmTime, 'HH:mm:ss').format('HHmm')))
-          alarmScheduler.AddDataInToQueue(newHabit);
+      if (newHabit.dayOfWeek[moment().day()] === '1') {
+        const time = moment().startOf('minutes');
+        const alarmTime = moment(newHabit.alarmTime, 'HH:mm');
+        if (time.isBefore(alarmTime)) alarmScheduler.AddDataInToQueue(currentUser, newHabit);
+      }
       return newHabit;
     } catch (err) {
       if (err instanceof HttpError) throw err;
@@ -89,7 +91,7 @@ export class HabitController extends BaseController {
   }
 
   // habitId로 습관 조회하기
-  @Get('/:habitId/calender/:year/:month')
+  @Get('/:habitId/calendar/:year/:month')
   public async findHabit(@CurrentUser() currentUser: User, @Params() id: GetHabit) {
     try {
       const paramErrors = await validate(id);
@@ -166,9 +168,11 @@ export class HabitController extends BaseController {
           create: { userId: currentUser.userId, habitId: findHabit.habitId },
           update: {},
         });
-        if (fixHabit.dayOfWeek[moment().day()] === '1')
-          if (parseInt(moment().format('HHmm')) < parseInt(moment(fixHabit.alarmTime, 'HH:mm:ss').format('HHmm')))
-            alarmScheduler.AddDataInToQueue(fixHabit);
+        if (fixHabit.dayOfWeek[moment().day()] === '1') {
+          const time = moment().startOf('minutes');
+          const alarmTime = moment(fixHabit.alarmTime, 'HH:mm');
+          if (time.isBefore(alarmTime)) alarmScheduler.AddDataInToQueue(currentUser, fixHabit);
+        }
         return fixHabit;
       }
       throw new ForbiddenError('잘못된 접근입니다.');

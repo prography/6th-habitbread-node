@@ -29,10 +29,11 @@ type HabitIncludeUser = {
   dayOfWeek: string;
 };
 
-/*const habitCheck = (habit: HabitIncludeUser | null) => {
-  if (habit === null || habit.alarmTime === null || habit.user.fcmToken === null) return true;
+const habitCheck = (habit: HabitIncludeUser | null) => {
+  if (habit === null) return true;
+  if (habit.alarmTime === null || habit.user.fcmToken === null) return true;
   return false;
-};*/
+};
 let alarmQueue: AlarmQueue[] = [];
 const UpsertAlarmQueue = async () => {
   console.log('습관빵 알림 리스트 시작~!');
@@ -45,16 +46,13 @@ const UpsertAlarmQueue = async () => {
         where: { habitId: schedule.habitId },
         select: { user: true, habitId: true, alarmTime: true, title: true, dayOfWeek: true },
       });
-      // if (habitCheck(habit)) continue;
-      if (habit === null) continue;
-      if (habit.alarmTime === null) continue;
-      if (habit.user.fcmToken === null) continue;
-      if (habit.dayOfWeek[moment().add(1, 'days').day()] === '1') {
+      if (habitCheck(habit)) continue;
+      if (habit!.dayOfWeek[moment().add(1, 'days').day()] === '1') {
         alarmQueue.push({
-          fcmtoken: habit.user.fcmToken,
-          title: habit.title,
-          habitId: habit.habitId,
-          alarmTime: parseInt(moment(habit.alarmTime, 'HH:mm:ss').format('HHmm')),
+          fcmtoken: habit!.user.fcmToken!,
+          title: habit!.title,
+          habitId: habit!.habitId,
+          alarmTime: parseInt(moment(habit!.alarmTime, 'HH:mm:ss').format('HHmm')),
         });
       }
     }
@@ -69,11 +67,9 @@ const scheduler = {
   DeleteDataFromQueue: (data: Habit) => {
     alarmQueue = alarmQueue.filter(alarm => alarm.habitId !== data.habitId);
   },
-  AddDataInToQueue: async (data: Habit) => {
+  AddDataInToQueue: async (user: User, data: Habit) => {
     try {
-      const user = await prisma.user.findOne({ where: { userId: data.userId } });
-      if (user === null) throw new NotFoundError('user가 없습니다.');
-      if (user.fcmToken === null) throw new NotFoundError('user가 없습니다.');
+      if (user.fcmToken === null) throw new NotFoundError('알람 설정 사용자가 아닙니다.');
       alarmQueue.push({
         fcmtoken: user.fcmToken,
         title: data.title,
@@ -110,14 +106,14 @@ const scheduler = {
           const alarm = alarmQueue.shift();
           if (!alarm) continue;
 
-          let timeString: string;
-          if (alarm?.alarmTime.toString().length === 2) timeString = '00' + alarm?.alarmTime.toString();
-          if (alarm?.alarmTime.toString().length === 3) timeString = '0' + alarm?.alarmTime.toString();
+          let timeString: string = alarm?.alarmTime.toString();
+          if (timeString.length === 2) timeString += '00';
+          if (timeString.length === 3) timeString += '0';
           const time = (type: string) => moment(timeString, 'HHmm').format(type);
           const AMPM = moment(alarm?.alarmTime.toString(), 'HHmm').hours() >= 12 ? 'PM' : 'AM';
           const fcmMessage = {
             notification: {
-              title: `습관빵 알람 - ${AMPM} ${time('HH')}:${time('mm')}`,
+              title: `습관빵 알람 - ${AMPM} ${time('hh')}:${time('mm')}`,
               body: `${alarm.title}빵을 구울 시간이에요!`,
             },
             data: {
@@ -125,11 +121,7 @@ const scheduler = {
             },
             token: alarm.fcmtoken,
           };
-          admin
-            .messaging()
-            .send(fcmMessage)
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
+          await admin.messaging().send(fcmMessage);
         }
       } catch (err) {
         throw new InternalServerError(err.message);
