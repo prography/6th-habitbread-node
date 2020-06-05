@@ -68,10 +68,10 @@ export class UserItemController extends BaseController {
     try {
       // 내가 어떤 레벨의 빵을 가져올지
       const breads = [
-        { level: 1, weight: 0.5, count: 0 },
-        { level: 2, weight: 0.3, count: 0 },
-        { level: 3, weight: 0.15, count: 0 },
-        { level: 4, weight: 0.05, count: 0 },
+        { level: 1, weight: 0.5 },
+        { level: 2, weight: 0.3 },
+        { level: 3, weight: 0.15 },
+        { level: 4, weight: 0.05 },
       ];
 
       const items = await this.prisma.item.findMany();

@@ -94,7 +94,7 @@ describe('Test User Item', () => {
     expect(res1.status).toBe(200);
     const res2 = await client.get(`/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
     expect(res2.status).toBe(404);
-    expect(res2.body.name).toBe(NotFoundError.name);
+    expect(res2.body.name).toEqual(NotFoundError.name);
   });
 
   afterAll(async done => {

@@ -1,5 +1,5 @@
 import { PrismaClient, Ranking } from '@prisma/client';
-import { JsonResponse } from 'types-custom';
+import { JsonResponse } from '../../src/@types/types-custom';
 
 // Key 값 검사
 export const assertRanking = (item: JsonResponse) => {

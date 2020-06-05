@@ -1,9 +1,7 @@
 import { User } from '@prisma/client';
 
-declare module 'types-custom' {
-  export type JsonResponse = { [key: string]: any };
-}
+export type JsonResponse = { [key: string]: any };
 
-export declare type UserInfo = User & { itemTotalCount: number; nextLevelAchievement: number };
+export declare type UserInfo = User & { itemTotalCount: number };
 
-export declare type RandomItem = { level: number; weight: number; count: number };
+export declare type RandomItem = { level: number; weight: number };

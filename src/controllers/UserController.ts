@@ -27,7 +27,6 @@ export class UserController extends BaseController {
   @Get('/users')
   public async getUser(@CurrentUser() currentUser: UserInfo) {
     currentUser.itemTotalCount = await this.prisma.userItem.count({ where: { userId: currentUser.userId } });
-    currentUser.nextLevelAchievement = currentUser.exp % 100;
     delete currentUser.oauthKey;
     delete currentUser.fcmToken;
     return currentUser;
@@ -62,10 +61,11 @@ export class UserController extends BaseController {
   @Delete('/users')
   public async deleteUser(@CurrentUser() currentUser: User) {
     try {
-      await this.prisma.ranking.delete({
-        where: { userId: currentUser.userId },
-      });
+      const ranking = await this.prisma.ranking.findOne({ where: { userId: currentUser.userId } });
+      if (ranking) await this.prisma.ranking.delete({ where: { userId: currentUser.userId } });
+
       await this.prisma.raw`delete from users where user_id = ${currentUser.userId};`;
+
       return { message: 'Delete User Success' };
     } catch (err) {
       if (err instanceof HttpError) throw err;
