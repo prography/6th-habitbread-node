@@ -1,10 +1,10 @@
-// import scheduler from './schedulers/RankScheduler';
 import app from './app';
 import env from './configs/index';
+import scheduler from './schedulers/RankScheduler';
 
 // Production 환경
-const listenProd = () => {
-  require('greenlock-express')
+const listenProd = async () => {
+  await require('greenlock-express')
     .init({
       packageRoot: `${__dirname}/..`,
       configDir: './src/configs/greenlock.d',
@@ -15,13 +15,13 @@ const listenProd = () => {
     })
     // Serves on 80 and 443
     .serve(app);
+  scheduler.RankingUpdateJob();
 };
 
 // Develop 환경
 const listenDev = () => {
   app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
-    // scheduler.RankingUpdateJob();
   });
 };
 

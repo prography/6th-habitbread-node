@@ -1,50 +1,57 @@
-// import { PrismaClient } from '@prisma/client';
-// import schedule from 'node-schedule';
+import { PrismaClient, User } from '@prisma/client';
+import schedule from 'node-schedule';
+import { AchievementUtil } from '../utils/AchievementUtil';
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
-// const scheduler = {
-//   // 1시간 마다 모든 사용자의 캐릭터 경험치를 조회한 후 Rank 테이블 갱신
-//   RankingUpdateJob: () => {
-//     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
+// 랭킹 upsert 메서드
+const upsertRanking = async (user: User) => {
+  const habits = await prisma.habit.findMany({
+    where: { userId: user.userId },
+    include: { commitHistory: true },
+  });
 
-//     schedule.scheduleJob('0 * * * *', async () => {
-//       console.log('랭킹 업데이트 시작 !');
-//       try {
-//         const characters = await prisma.character.findMany({
-//           select: {
-//             characterId: true,
-//             exp: true,
-//             users: true,
-//           },
-//         });
+  let achievement = 0;
+  habits.forEach(habit => {
+    const newHabit: any = AchievementUtil.calulateAchievement(habit);
+    achievement += newHabit.percent;
+  });
+  if (habits.length > 0) achievement = Math.round(achievement / habits.length);
 
-//         characters.forEach(async character => {
-//           const userName = character.users.name;
-//           const exp = character.exp;
+  await prisma.ranking.upsert({
+    where: { userId: user.userId },
+    create: {
+      userId: user.userId,
+      userName: user.name!,
+      exp: user.exp,
+      achievement,
+    },
+    update: {
+      userName: user.name!,
+      exp: user.exp,
+      achievement,
+    },
+  });
+};
 
-//           await prisma.ranking.upsert({
-//             where: {
-//               rankingId: character.characterId, // develop 수정 -> characterId or userId 로 찾도록
-//             },
-//             create: {
-//               rankingId: character.characterId,
-//               userName,
-//               exp,
-//             },
-//             update: {
-//               userName,
-//               exp,
-//             },
-//           });
-//         });
-//       } catch (err) {
-//         throw new Error(err.message);
-//       }
+const scheduler = {
+  // 1시간 마다 모든 사용자의 경험치를 조회한 후 Ranking 테이블 갱신
+  RankingUpdateJob: () => {
+    console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
 
-//       console.log('랭킹 업데이트 종료 :)');
-//     });
-//   },
-// };
+    schedule.scheduleJob('0 * * * *', async () => {
+      console.log('랭킹 업데이트 시작 !');
+      try {
+        const users = await prisma.user.findMany();
 
-// export default scheduler;
+        for (const user of users) await upsertRanking(user);
+      } catch (err) {
+        throw new Error(err.message);
+      }
+
+      console.log('랭킹 업데이트 종료 :)');
+    });
+  },
+};
+
+export default scheduler;

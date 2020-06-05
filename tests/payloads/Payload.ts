@@ -92,26 +92,39 @@ export class Payload {
     },
   ];
 
-  // public static RankingPayloads = [
-  //   {
-  //     rankingId: 1,
-  //     userName: 'testUser1',
-  //     exp: 10000,
-  //   },
-  //   {
-  //     rankingId: 2,
-  //     userName: 'testUser2',
-  //     exp: 0,
-  //   },
-  //   {
-  //     rankingId: 3,
-  //     userName: 'testUser3',
-  //     exp: 5000,
-  //   },
-  //   {
-  //     rankingId: 4,
-  //     userName: 'testUser4',
-  //     exp: 500,
-  //   },
-  // ];
+  // Ranking Payload Method
+  public static RankingPayloads(userId: number) {
+    return [
+      {
+        userId: userId + 1,
+        userName: 'testUser1',
+        exp: 10000,
+        achievement: 10,
+      },
+      {
+        userId: userId + 2,
+        userName: 'testUser2',
+        exp: 2500,
+        achievement: 10,
+      },
+      {
+        userId: userId + 3,
+        userName: 'testUser3',
+        exp: 5000,
+        achievement: 40,
+      },
+      {
+        userId: userId + 4,
+        userName: 'testUser4',
+        exp: 2500,
+        achievement: 50,
+      },
+      {
+        userId: userId + 5,
+        userName: 'testUser5',
+        exp: 500,
+        achievement: 50,
+      },
+    ];
+  }
 }
