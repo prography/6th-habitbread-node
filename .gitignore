@@ -17,3 +17,6 @@ src/configs/apple-auth
 # Grennlock Files
 src/configs/greenlock.d
 .greenlockrc
+
+# Firebase Json
+src/configs/serviceAccount.json

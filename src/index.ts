@@ -1,5 +1,6 @@
 import app from './app';
 import env from './configs/index';
+import alarmScheduler from './schedulers/AlarmScheduler';
 import scheduler from './schedulers/RankScheduler';
 
 // Production 환경
@@ -16,11 +17,14 @@ const listenProd = async () => {
     // Serves on 80 and 443
     .serve(app);
   scheduler.RankingUpdateJob();
+  alarmScheduler.AlarmUpdateJob();
+  alarmScheduler.SendAlarmJob();
+  await alarmScheduler.UpsertAlarmQueue();
 };
 
 // Develop 환경
 const listenDev = () => {
-  app.listen(env.PORT, '0.0.0.0', () => {
+  app.listen(env.PORT, '0.0.0.0', async () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
   });
 };
