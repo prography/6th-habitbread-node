@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 
 export class Habit {
   @IsString()
@@ -18,6 +18,22 @@ export class Habit {
 
 export class UpdateHabit {
   alarmTime!: string | null;
+}
+
+export class GetHabit {
+  @IsNumber()
+  @IsNotEmpty()
+  habitId!: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  year!: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(1)
+  @Max(12)
+  month!: number;
 }
 
 export class ID {
