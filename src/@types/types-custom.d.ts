@@ -5,3 +5,5 @@ declare module 'types-custom' {
 }
 
 export declare type UserInfo = User & { itemTotalCount: number; nextLevelAchievement: number };
+
+export declare type RandomItem = { level: number; weight: number; count: number };
