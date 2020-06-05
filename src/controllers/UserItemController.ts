@@ -86,7 +86,8 @@ export class UserItemController extends BaseController {
       if (items.length === userItems.length) return { message: '모든 빵 아이템을 가지고 있습니다.' };
 
       let selected: Item;
-      do {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
         // 빵 Level 랜덤 픽
         const bread = RandomUtil.pickLevelOne(breads);
         const newItems = items.filter(item => item.level === bread.level);
@@ -96,8 +97,7 @@ export class UserItemController extends BaseController {
         // ID가 같으면 이미 있는 아이템
         const overlap = userItems.filter(item => item.item.itemId === selected.itemId);
         if (overlap.length === 0) break;
-        // eslint-disable-next-line no-constant-condition
-      } while (true);
+      }
 
       return await this.prisma.userItem.create({
         data: {
