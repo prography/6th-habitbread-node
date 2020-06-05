@@ -2,6 +2,7 @@ import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
+import { UserInfo } from '../@types/types-custom';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { GetUserBody } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
@@ -24,7 +25,9 @@ export class UserController extends BaseController {
 
   // 사용자 정보 검색 API
   @Get('/users')
-  public async getUser(@CurrentUser() currentUser: User) {
+  public async getUser(@CurrentUser() currentUser: UserInfo) {
+    currentUser.itemTotalCount = await this.prisma.userItem.count({ where: { userId: currentUser.userId } });
+    currentUser.nextLevelAchievement = currentUser.exp % 100;
     delete currentUser.oauthKey;
     delete currentUser.fcmToken;
     return currentUser;
