@@ -3,7 +3,7 @@ import { validate } from 'class-validator';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
-import scheduler from '../schedulers/AlarmScheduler';
+import alarmScheduler from '../schedulers/AlarmScheduler';
 import { Util } from '../utils/util';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
@@ -46,7 +46,8 @@ export class HabitController extends BaseController {
         data: { userId: currentUser.userId, habitId: newHabit.habitId },
       });
       if (newHabit.dayOfWeek[moment().day()] === '1')
-        if (parseInt(moment().format('HHmm')) < parseInt(moment(newHabit.alarmTime, 'HH:mm:ss').format('HHmm'))) scheduler.AddDataInToQueue(newHabit);
+        if (parseInt(moment().format('HHmm')) < parseInt(moment(newHabit.alarmTime, 'HH:mm:ss').format('HHmm')))
+          alarmScheduler.AddDataInToQueue(newHabit);
       return newHabit;
     } catch (err) {
       if (err instanceof HttpError) throw err;
@@ -151,7 +152,7 @@ export class HabitController extends BaseController {
         });
 
         // 스케줄러 편집
-        if (fixHabit.dayOfWeek[moment().day()] === '1') scheduler.DeleteDataFromQueue(fixHabit);
+        if (fixHabit.dayOfWeek[moment().day()] === '1') alarmScheduler.DeleteDataFromQueue(fixHabit);
         if (alarmTime === null) {
           if (findHabit.alarmTime) {
             await this.prisma.scheduler.delete({
@@ -167,7 +168,7 @@ export class HabitController extends BaseController {
         });
         if (fixHabit.dayOfWeek[moment().day()] === '1')
           if (parseInt(moment().format('HHmm')) < parseInt(moment(fixHabit.alarmTime, 'HH:mm:ss').format('HHmm')))
-            scheduler.AddDataInToQueue(fixHabit);
+            alarmScheduler.AddDataInToQueue(fixHabit);
         return fixHabit;
       }
       throw new ForbiddenError('잘못된 접근입니다.');
@@ -261,7 +262,7 @@ export class HabitController extends BaseController {
             commitHistory: { create: {} },
             continuousCount: 1,
             user: {
-              update: { exp: currentUser.exp + 2 },
+              update: { exp: currentUser.exp + 20 },
             },
           },
         });

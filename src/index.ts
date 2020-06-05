@@ -1,6 +1,6 @@
 import app from './app';
 import env from './configs/index';
-import scheduler from './schedulers/AlarmScheduler';
+import alarmScheduler from './schedulers/AlarmScheduler';
 
 // Production 환경
 const listenProd = () => {
@@ -19,10 +19,11 @@ const listenProd = () => {
 
 // Develop 환경
 const listenDev = () => {
-  app.listen(env.PORT, '0.0.0.0', () => {
+  app.listen(env.PORT, '0.0.0.0', async () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
-    scheduler.AlarmUpdateJob();
-    scheduler.SendAlarmJob();
+    alarmScheduler.AlarmUpdateJob();
+    alarmScheduler.SendAlarmJob();
+    await alarmScheduler.UpsertAlarmQueue();
   });
 };
 
