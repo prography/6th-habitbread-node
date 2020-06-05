@@ -68,7 +68,7 @@ describe('testHabit', () => {
       const payload = Payload.habitOriginalPayloads[i];
 
       const res = await testClient
-        .get(`/habits/${habitId + i}/calender/${parseInt(moment().format('MM'))}/${parseInt(moment().format('DD'))}`)
+        .get(`/habits/${habitId + i}/calendar/${parseInt(moment().format('MM'))}/${parseInt(moment().format('DD'))}`)
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
