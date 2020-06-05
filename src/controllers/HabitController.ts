@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
-import { Util } from '../utils/util';
+import { AchievementUtil } from '../utils/AchievementUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -80,7 +80,7 @@ export class HabitController extends BaseController {
       if (habits.length === 0) throw new NoContent('');
 
       habits.forEach((habit: any) => {
-        habit = Util.calulateAchievement(habit);
+        habit = AchievementUtil.calulateAchievement(habit);
       });
 
       return habits;

@@ -30,52 +30,20 @@
     {
       "tag": "CreateField",
       "model": "Ranking",
-      "field": "rankingId",
-      "type": "Int",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "Ranking",
-          "field": "rankingId"
-        },
-        "directive": "id"
-      }
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "Ranking",
-          "field": "rankingId"
-        },
-        "directive": "map"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Ranking",
-          "field": "rankingId"
-        },
-        "directive": "map"
-      },
-      "argument": "",
-      "value": "\"ranking_id\""
-    },
-    {
-      "tag": "CreateField",
-      "model": "Ranking",
       "field": "userId",
       "type": "Int",
       "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Ranking",
+          "field": "userId"
+        },
+        "directive": "id"
+      }
     },
     {
       "tag": "CreateDirective",
@@ -1449,6 +1417,22 @@
       },
       "argument": "",
       "value": "\"user_item\""
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Model",
+          "model": "UserItem",
+          "arguments": [
+            {
+              "name": "",
+              "value": "[itemId, userId]"
+            }
+          ]
+        },
+        "directive": "unique"
+      }
     },
     {
       "tag": "CreateModel",
