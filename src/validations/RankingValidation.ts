@@ -1,12 +1,14 @@
 import { Ranking } from '@prisma/client';
 export class AddRanking {
-  rankingId!: number;
+  userId!: number;
   userName!: string;
   exp!: number;
+  achievement!: number;
 
   constructor(ranking: Ranking) {
-    this.rankingId = ranking.rankingId;
+    this.userId = ranking.userId;
     this.userName = ranking.userName;
     this.exp = ranking.exp;
+    this.achievement = ranking.achievement;
   }
 }

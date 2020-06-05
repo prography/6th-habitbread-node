@@ -1,10 +1,11 @@
 import app from './app';
 import env from './configs/index';
 import alarmScheduler from './schedulers/AlarmScheduler';
+import scheduler from './schedulers/RankScheduler';
 
 // Production 환경
-const listenProd = () => {
-  require('greenlock-express')
+const listenProd = async () => {
+  await require('greenlock-express')
     .init({
       packageRoot: `${__dirname}/..`,
       configDir: './src/configs/greenlock.d',
@@ -15,15 +16,16 @@ const listenProd = () => {
     })
     // Serves on 80 and 443
     .serve(app);
+  scheduler.RankingUpdateJob();
+  alarmScheduler.AlarmUpdateJob();
+  alarmScheduler.SendAlarmJob();
+  await alarmScheduler.UpsertAlarmQueue();
 };
 
 // Develop 환경
 const listenDev = () => {
   app.listen(env.PORT, '0.0.0.0', async () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
-    alarmScheduler.AlarmUpdateJob();
-    alarmScheduler.SendAlarmJob();
-    await alarmScheduler.UpsertAlarmQueue();
   });
 };
 

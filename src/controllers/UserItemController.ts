@@ -69,6 +69,14 @@ export class UserItemController extends BaseController {
       const bodyErrors = await validate(body);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
+      const items = await this.prisma.userItem.findMany({
+        where: {
+          itemId: body.itemId,
+          userId: currentUser.userId,
+        },
+      });
+      if (items[0]) throw new BadRequestError('이미 가지고 있는 아이템입니다.');
+
       return await this.prisma.userItem.create({
         data: {
           user: {
@@ -92,9 +100,14 @@ export class UserItemController extends BaseController {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-      await this.prisma.userItem.delete({ where: { userItemId: id.userItemId } });
+      const item = await this.prisma.userItem.findOne({
+        where: { userItemId: id.userItemId },
+      });
+      if (item === null) throw new NotFoundError('빵 아이템을 찾을 수 없습니다.');
 
-      return { message: 'Delete Character Success' };
+      await this.prisma.raw`delete from user_item where user_item_id = ${id.userItemId};`;
+
+      return { message: "Delete User's Item Success" };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);

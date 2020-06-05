@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { JsonResponse } from 'types-custom';
 import { AddUserItem } from '../../src/validations/UserItemValidation';
 
 // Key 값 검사
-export const assertUserItem = (_item: any) => {
+export const assertUserItem = (_item: JsonResponse) => {
   expect(_item).toMatchObject({
     userItemId: _item.userItemId,
     createdAt: _item.createdAt,
