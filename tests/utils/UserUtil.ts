@@ -23,3 +23,15 @@ export const createUser = async (prisma: PrismaClient, user: AddUser) => {
   });
   return newUser;
 };
+
+// 사용자 생성 모듈(FCM 추가)
+export const createUserWithFCM = async (prisma: PrismaClient, user: AddUser) => {
+  const newUser = await prisma.user.create({
+    data: {
+      name: user.name,
+      oauthKey: user.oauthKey,
+      fcmToken: 'asdfasdf',
+    },
+  });
+  return newUser;
+};
