@@ -57,10 +57,10 @@ export class OAuthControllers extends BaseController {
           data: { name, oauthKey },
         });
         const token = AuthHelper.makeAccessToken(user.userId);
-        return { accessToken: token, name: null };
+        return { accessToken: token, isNewUser: true };
       }
       const token = AuthHelper.makeAccessToken(user.userId);
-      return { accessToken: token, name: user.name };
+      return { accessToken: token, isNewUser: false };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
