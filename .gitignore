@@ -20,3 +20,6 @@ src/configs/greenlock.d
 
 # Firebase Json
 src/configs/serviceAccount.json
+
+#log File
+logs/*.log
