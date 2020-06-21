@@ -2,9 +2,8 @@ import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
-import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
-import { AchievementUtil } from '../utils/AchievementUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -70,17 +69,33 @@ export class HabitController extends BaseController {
           commitHistory: {
             where: {
               createdAt: {
-                gte: moment().subtract(30, 'days').startOf('days').toDate(),
+                gte: moment().startOf('days').toDate(),
                 lte: moment().endOf('days').toDate(),
               },
             },
           },
         },
       });
-      if (habits.length === 0) throw new NoContent('');
-
-      habits.forEach((habit: any) => {
-        habit = AchievementUtil.calulateAchievement(habit);
+      if (habits.length === 0) return [];
+      habits.sort((a, b) => {
+        if (a.dayOfWeek[moment().day()] === '1') {
+          if (b.dayOfWeek[moment().day()] === '1') {
+            // a랑 b 모두 오늘 해야 하는 습관일 때
+            // 오늘 커밋을 했는지 안했는지에 따라 순위를 나눔
+            if (a.commitHistory.length > 0 && b.commitHistory.length > 0) return a.habitId - b.habitId;
+            else if (a.commitHistory.length > 0 && b.commitHistory.length === 0) return 1;
+            else if (a.commitHistory.length === 0 && b.commitHistory.length > 0) return -1;
+            else return a.habitId - b.habitId;
+          } else {
+            // a만 오늘 해야 하는 습관일 때
+            return -1;
+          }
+        } else {
+          if (b.dayOfWeek[moment().day()] === '1') {
+            // b만 오늘 해야 하는 습관일 때
+            return 1;
+          } else return a.habitId - b.habitId; // 둘 다 오늘 하는 습관이 아닐 때
+        }
       });
 
       return habits;

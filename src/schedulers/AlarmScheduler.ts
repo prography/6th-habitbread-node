@@ -2,7 +2,7 @@ import { Habit, PrismaClient, User } from '@prisma/client';
 import * as admin from 'firebase-admin';
 import moment from 'moment-timezone';
 import schedule from 'node-schedule';
-import { InternalServerError, NotFoundError } from '../exceptions/Exception';
+import { InternalServerError } from '../exceptions/Exception';
 moment.tz.setDefault('Asia/Seoul');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -68,18 +68,20 @@ const scheduler = {
     alarmQueue = alarmQueue.filter(alarm => alarm.habitId !== data.habitId);
   },
   AddDataInToQueue: async (user: User, data: Habit) => {
-    try {
-      if (user.fcmToken === null) throw new NotFoundError('알람 설정 사용자가 아닙니다.');
-      alarmQueue.push({
-        fcmtoken: user.fcmToken,
-        title: data.title,
-        habitId: data.habitId,
-        alarmTime: parseInt(moment(data.alarmTime, 'HH:mm:ss').format('HHmm')),
-      });
-      alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
-      console.log('alarmQueue 업데이트 완료');
-    } catch (err) {
-      throw new InternalServerError(err.message);
+    if (user.fcmToken === null) console.log('전체 알림 꺼둔 사람');
+    else {
+      try {
+        alarmQueue.push({
+          fcmtoken: user.fcmToken,
+          title: data.title,
+          habitId: data.habitId,
+          alarmTime: parseInt(moment(data.alarmTime, 'HH:mm:ss').format('HHmm')),
+        });
+        alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
+        console.log('alarmQueue 업데이트 완료');
+      } catch (err) {
+        throw new InternalServerError(err.message);
+      }
     }
   },
   // 00시 00분에 습관 등록
