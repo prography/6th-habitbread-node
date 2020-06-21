@@ -21,12 +21,50 @@ export class OAuthControllers extends BaseController {
       oauthKey: data.emailAddresses[0].value,
     };
   };
+  private googleResponse = (data: any) => {
+    return {
+      name: data.name ? data.name : '습관이',
+      oauthKey: data.email,
+    };
+  };
   private authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
   private auth = new AppleAuth(env.APPLE, this.authKey, 'text');
 
   constructor() {
     super();
     this.prisma = new PrismaClient();
+  }
+
+  @Post('/google')
+  public async GoogleSignIn(@Body() idTokent: any) {
+    console.log(idTokent);
+    try {
+      const ticket = await this.oauth2Client.verifyIdToken({
+        idToken: idTokent.idToken,
+        audience: env.GOOGLE.CLIENT_ID || '191839451290-ufooki36t9r9rglsfinqg5nq2bqnbkql.apps.googleusercontent.com',
+      });
+
+      const payload = ticket.getPayload();
+      console.log(payload);
+
+      const { name, oauthKey } = this.googleResponse(payload);
+      if (oauthKey === null) throw new InternalServerError('알 수 없는 Error 발생');
+      let user = await this.prisma.user.findOne({
+        where: { oauthKey },
+      });
+      if (user === null) {
+        user = await this.prisma.user.create({
+          data: { name, oauthKey },
+        });
+        const token = AuthHelper.makeAccessToken(user.userId);
+        return { accessToken: token, isNewUser: true };
+      }
+      const token = AuthHelper.makeAccessToken(user.userId);
+      return { accessToken: token, isNewUser: false };
+    } catch (err) {
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
   }
 
   @Get('/google/login')
@@ -44,7 +82,6 @@ export class OAuthControllers extends BaseController {
   public async GoogleCallback(@QueryParam('code') code: string) {
     try {
       if (code === null) throw new InternalServerError('알 수 없는 Error 발생');
-
       const { tokens } = await this.oauth2Client.getToken(code);
       this.oauth2Client.setCredentials(tokens);
       google.options({ auth: this.oauth2Client });
