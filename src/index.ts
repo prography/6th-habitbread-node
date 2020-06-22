@@ -27,7 +27,7 @@ const listenDev = async () => {
   scheduler.RankingUpdateJob();
   alarmScheduler.AlarmUpdateJob();
   alarmScheduler.SendAlarmJob();
-  await alarmScheduler.UpsertAlarmQueue();
+  alarmScheduler.UpsertAlarmQueue();
   app.listen(env.PORT, '0.0.0.0', async () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
   });
