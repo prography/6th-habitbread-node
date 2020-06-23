@@ -4,6 +4,7 @@ import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
+import { Comments } from '../utils/commentUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -77,6 +78,7 @@ export class HabitController extends BaseController {
         },
       });
       if (habits.length === 0) return [];
+
       habits.sort((a, b) => {
         if (a.dayOfWeek[moment().day()] === '1') {
           if (b.dayOfWeek[moment().day()] === '1') {
@@ -98,7 +100,19 @@ export class HabitController extends BaseController {
         }
       });
 
-      return habits;
+      // 응원 문구
+      let todayLeftHabit = 0;
+      let todayHabit = 0;
+      habits.forEach(habit => {
+        if (habit.dayOfWeek[moment().day()] === '1') {
+          if (habit.commitHistory.length === 0) todayLeftHabit++;
+          todayHabit++;
+        }
+      });
+      console.log(todayHabit, todayLeftHabit);
+      const comment = Comments.selectComment(todayHabit, todayLeftHabit);
+      console.log(comment);
+      return { comment, habits };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
