@@ -21,7 +21,8 @@ const appleConfig = {
 
 // ENV Module
 export default {
-  NODE_ENV: process.env.NODE_ENV,
+  NODE_ENV: NODE_ENV,
+  DB_URL: process.env.DB_URL,
   PORT: Number(process.env.PORT),
   PASSWORD_SECRET: process.env.PASSWORD_SECRET,
   APPLE: appleConfig,

@@ -5,11 +5,8 @@ services:
     image: mysql:5.7
     ports:
       - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: haibt_bread
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
+    env_file:
+      - ./.env.prod
     expose: 
       - 3306
     restart: on-failure
@@ -24,15 +21,17 @@ services:
     build: .
     ports: 
       - 3000:3000
-    environment: 
-      NODE_ENV: dev
-      PORT: 3000
-      DB_URL: mysql://admin:admin@172.16.5.2/haibt_bread
+    env_file: 
+      - ./.env
+      - ./.env.dev
     volumes:
       - .:/usr/src/app
     depends_on: 
       - mysql-database
-    command: npm run dev
+    command: >
+      sh -c "ENV=prod npm run prisma:generate &&
+            ENV=prod npm run prisma:up &&
+            npm start"
     networks:
       backend:
         ipv4_address: 172.16.5.3
