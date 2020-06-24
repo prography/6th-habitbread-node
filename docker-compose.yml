@@ -4,23 +4,34 @@ services:
     container_name: mysql-database
     image: mysql:5.7
     ports:
-      - 3306:3306
+      - "3306:3306"
     env_file:
       - ./.env.prod
     expose: 
       - 3306
-    restart: on-failure
+    restart: always
     volumes: 
       - ./db/data:/var/lib/mysql
     networks:
       backend:
         ipv4_address: 172.16.5.2
-    
+  nginx:
+    container_name: node-nginx-lb
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - node-server
+    restart: always
+    networks:
+      backend:
+        ipv4_address: 172.16.5.4
+
   node-server:
     container_name: node-server
     build: .
     ports: 
-      - 3000:3000
+      - 3000:80
     env_file: 
       - ./.env
       - ./.env.dev
@@ -29,9 +40,10 @@ services:
     depends_on: 
       - mysql-database
     command: >
-      sh -c "ENV=prod npm run prisma:generate &&
-            ENV=prod npm run prisma:up &&
+      sh -c "ENV=dev npm run prisma:generate &&
+            ENV=dev npm run prisma:up &&
             npm start"
+    restart: always
     networks:
       backend:
         ipv4_address: 172.16.5.3
