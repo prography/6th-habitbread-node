@@ -4,7 +4,7 @@ services:
     container_name: mysql-database
     image: mysql:5.7
     ports:
-      - "3306:3306"
+      - 3306:3306
     env_file:
       - ./.env.prod
     expose: 
@@ -20,6 +20,11 @@ services:
     build: ./nginx
     ports:
       - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf:/etc/letsencrypt/habitbread
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
     depends_on:
       - node-server
     restart: always
@@ -31,18 +36,18 @@ services:
     container_name: node-server
     build: .
     ports: 
-      - 3000:80
+      - 3000:3000
+    environment:
+      - NODE_ENV=prod
     env_file: 
       - ./.env
-      - ./.env.dev
+      - ./.env.prod
     volumes:
       - .:/usr/src/app
     depends_on: 
       - mysql-database
-    command: >
-      sh -c "ENV=dev npm run prisma:generate &&
-            ENV=dev npm run prisma:up &&
-            npm start"
+    entrypoint: 
+      - ./docker-entrypoint.sh
     restart: always
     networks:
       backend:
