@@ -1,0 +1,35 @@
+2020/06/26 05:02:12 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:13 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:14 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:15 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:16 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:18 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:22 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:29 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:02:43 [emerg] 1#1: host not found in upstream "node-server:3000" in /etc/nginx/nginx.conf:10
+2020/06/26 05:03:23 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:24 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:24 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:25 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:27 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:29 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:33 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:40 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:03:53 [emerg] 1#1: open() "/etc/letsencrypt/options-ssl-nginx.conf" failed (2: No such file or directory) in /etc/nginx/nginx.conf:32
+2020/06/26 05:04:01 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:02 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:03 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:04 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:05 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:07 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:11 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:18 [emerg] 1#1: unexpected "}" in /etc/nginx/nginx.conf:22
+2020/06/26 05:04:22 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:23 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:24 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:25 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:26 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:28 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:32 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:39 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
+2020/06/26 05:04:52 [emerg] 1#1: no "ssl_certificate" is defined for the "listen ... ssl" directive in /etc/nginx/nginx.conf:25
