@@ -21,5 +21,5 @@ COPY . ${APP_PATH}
 
 EXPOSE 80 3000
 
-# docker-compose 'command' more priority than this
+# # docker-compose 'command' more priority than this
 CMD [ "npm", "start" ]

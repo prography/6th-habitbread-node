@@ -15,6 +15,7 @@ services:
     networks:
       backend:
         ipv4_address: 172.16.5.2
+        
   nginx:
     container_name: node-nginx-lb
     build: ./nginx
@@ -22,12 +23,12 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./nginx/conf:/etc/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/www:/var/www
       - ./nginx/log:/var/log/nginx
-      - ./nginx/lib:/var/lib/letsencrypt
-      - ./nginx/www:/var/www
-    # depends_on:
-    #   - node-server
+    depends_on:
+      - node-server
     restart: always
     networks:
       backend:
@@ -45,11 +46,10 @@ services:
       - ./.env.prod
     volumes:
       - .:/usr/src/app
-    # depends_on: 
-    #   - mysql-database
+    depends_on: 
+      - mysql-database
     entrypoint: 
       - ./docker-entrypoint.sh
-    restart: always
     networks:
       backend:
         ipv4_address: 172.16.5.3

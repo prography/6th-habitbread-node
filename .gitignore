@@ -15,7 +15,7 @@ db/data
 src/configs/apple-auth
 
 # NGINX conf
-nginx/conf
+nginx/log/*
 
 # Grennlock Files
 src/configs/greenlock.d
