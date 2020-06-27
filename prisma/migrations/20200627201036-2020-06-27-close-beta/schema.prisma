@@ -29,6 +29,7 @@ model Habit {
   userId          Int       @map("user_id")
   title           String
   category        String
+  description     String?
   dayOfWeek       String    @map("day_of_week")
   alarmTime       String?   @map("alaram_time")
   continuousCount Int       @map("countinuous_count") @default(0)
