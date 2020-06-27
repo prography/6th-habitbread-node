@@ -131,6 +131,11 @@ export class OAuthControllers extends BaseController {
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
       const oauthKey = idToken.sub;
+      let userName = '습관이';
+      if (body.user) {
+        const { name } = JSON.parse(body.user);
+        userName = `${name.lastName} ${name.firstName}`;
+      }
 
       let user = await this.prisma.user.findOne({
         where: {
@@ -140,7 +145,10 @@ export class OAuthControllers extends BaseController {
 
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { oauthKey },
+          data: {
+            oauthKey,
+            name: userName,
+          },
         });
       }
 
