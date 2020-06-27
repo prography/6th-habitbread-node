@@ -430,6 +430,13 @@
     {
       "tag": "CreateField",
       "model": "Habit",
+      "field": "description",
+      "type": "String",
+      "arity": "Optional"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Habit",
       "field": "dayOfWeek",
       "type": "String",
       "arity": "Required"

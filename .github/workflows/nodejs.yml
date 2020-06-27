@@ -37,6 +37,17 @@ jobs:
         echo "PORT = 3001" >> .env.test
         echo "DB_URL = ${{ secrets.DB_URL_TEST }}" >> .env.test
         echo "PASSWORD_SECRET = ${{ secrets.PASSWORD_SECRET }}" >> .env.test
+        echo "TEST_USER_OAUTH_KEY = ${{ secrets.TEST_USER_OAUTH_KEY }}" >> .env.test
+        echo "TYPE = ${{ secrets.TYPE }}" >> .env.test
+        echo "PROJECT_ID = ${{ secrets.PROJECT_ID }}" >> .env.test
+        echo "PRIVATE_KEY_ID = ${{ secrets.PRIVATE_KEY_ID }}" >> .env.test
+        echo "PRIVATE_KEY = ${{ secrets.PRIVATE_KEY }}" >> .env.test
+        echo "CLIENT_EMAIL = ${{ secrets.CLIENT_EMAIL }}" >> .env.test
+        echo "CLIENT_ID = ${{ secrets.CLIENT_ID }}" >> .env.test
+        echo "AUTH_URI = ${{ secrets.AUTH_URI }}" >> .env.test
+        echo "TOKEN_URI = ${{ secrets.TOKEN_URI }}" >> .env.test
+        echo "AUTH_PROVIDER_X509_CERT_URL = ${{ secrets.AUTH_PROVIDER_X509_CERT_URL }}" >> .env.test
+        echo "CLIENT_X509_CERT_URL = ${{ secrets.CLIENT_X509_CERT_URL }}" >> .env.test
 
     - name: Prisma generate and migrate up
       run: ENV=test npm run prisma:generate

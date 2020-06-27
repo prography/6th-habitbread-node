@@ -12,7 +12,7 @@ useExpressServer(app, {
   currentUserChecker: AuthHelper.currentUserChecker,
 });
 
-morgan.token('date', (req, res, tz) => {
+morgan.token('date', () => {
   return moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
 });
 morgan.format('myformat', ':remote-addr - :remote-user [:date] ":method :url" :status :res[content-length] - :response-time ms');
