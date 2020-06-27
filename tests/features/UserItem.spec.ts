@@ -73,21 +73,6 @@ describe('Test User Item', () => {
     assertUserItem(res.body);
   });
 
-  // 사용자 아이템 관계 생성 테스트
-  test('Post - /items', async () => {
-    const itemId = userItemPayloads[userItemPayloads.length - 1].itemId; // 마지막 item payload와 user 연결
-    const data = { itemId };
-
-    const res1 = await client.post('/items').set('Authorization', `Bearer ${token}`).send(data);
-    expect(res1.status).toBe(201);
-    expect(res1.body.itemId).toBe(data.itemId);
-    expect(res1.body.userId).toBe(user.userId);
-
-    const res2 = await client.get(`/items/${res1.body.userItemId}`).set('Authorization', `Bearer ${token}`);
-    expect(res2.status).toBe(200);
-    assertUserItem(res2.body);
-  });
-
   // 캐릭터 삭제 테스트
   test('Delete -  /items/:userItemId', async () => {
     const res1 = await client.delete(`/items/${userItems[0]}`).set('Authorization', `Bearer ${token}`);
@@ -96,6 +81,21 @@ describe('Test User Item', () => {
     expect(res2.status).toBe(404);
     expect(res2.body.name).toEqual(NotFoundError.name);
   });
+
+  // // 사용자 아이템 관계 생성 테스트
+  // test('Post - /items', async () => {
+  //   const itemId = userItemPayloads[userItemPayloads.length - 1].itemId; // 마지막 item payload와 user 연결
+  //   const data = { itemId };
+
+  //   const res1 = await client.post('/items').set('Authorization', `Bearer ${token}`).send(data);
+  //   expect(res1.status).toBe(201);
+  //   expect(res1.body.itemId).toBe(data.itemId);
+  //   expect(res1.body.userId).toBe(user.userId);
+
+  //   const res2 = await client.get(`/items/${res1.body.userItemId}`).set('Authorization', `Bearer ${token}`);
+  //   expect(res2.status).toBe(200);
+  //   assertUserItem(res2.body);
+  // });
 
   afterAll(async done => {
     // Closing the DB connection allows Jest to exit successfully.

@@ -1,19 +1,26 @@
 import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
+import { Response } from 'express';
 import moment from 'moment-timezone';
-import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
 import { AchievementUtil } from '../utils/AchievementUtil';
+import { LevelUtil } from '../utils/LevelUtil';
+import { UserItemUtil } from '../utils/UserItemUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
+  private levelUtil: any;
+  private userItemUtil: any;
 
   constructor() {
     super();
+    this.levelUtil = LevelUtil.getInstance();
+    this.userItemUtil = new UserItemUtil();
     this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
   }
@@ -208,7 +215,7 @@ export class HabitController extends BaseController {
 
   // habit commit하기
   @Get('/:habitId/commit')
-  public async commitHabit(@CurrentUser() currentUser: User, @Params() id: ID) {
+  public async commitHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
@@ -243,38 +250,40 @@ export class HabitController extends BaseController {
         },
       });
 
+      let updateHabit;
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
         if (findHabit.commitHistory.length) {
           if (findHabit.commitHistory.length === 2) throw new ForbiddenError('오늘은 이미 commit 했습니다.');
           if (moment(findHabit.commitHistory[0].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
             throw new ForbiddenError('오늘은 이미 commit 했습니다.');
-          return await this.prisma.habit.update({
-            where: { habitId: id.habitId },
-            data: {
-              commitHistory: { create: {} },
-              continuousCount: findHabit.continuousCount + 1,
-              user: {
-                update: { exp: currentUser.exp + 2 },
-              },
-            },
-          });
-        }
-        return await this.prisma.habit.update({
-          where: { habitId: id.habitId },
-          data: {
-            commitHistory: { create: {} },
-            continuousCount: 1,
-            user: {
-              update: { exp: currentUser.exp + 20 },
-            },
-          },
-        });
+          updateHabit = await this.updateHabitFunc(currentUser, id, findHabit.continuousCount + 1);
+        } else updateHabit = await this.updateHabitFunc(currentUser, id, 1);
+
+        const isEqual = this.levelUtil.compareLevels(currentUser.exp, updateHabit.user.exp);
+        if (!isEqual) return this.userItemUtil.createItem(this.prisma, currentUser);
+        return {};
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
+  }
+
+  async updateHabitFunc(currentUser: User, id: ID, continuousCount: number) {
+    return await this.prisma.habit.update({
+      where: { habitId: id.habitId },
+      data: {
+        commitHistory: { create: {} },
+        continuousCount,
+        user: {
+          update: { exp: currentUser.exp + 5 },
+        },
+      },
+      select: {
+        user: true,
+      },
+    });
   }
 }
