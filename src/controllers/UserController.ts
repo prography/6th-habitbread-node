@@ -4,6 +4,7 @@ import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from
 import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/types-custom';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
+import { LevelUtil } from '../utils/LevelUtil';
 import { GetUserBody } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
@@ -11,9 +12,11 @@ const id: string = uuid();
 @JsonController()
 export class UserController extends BaseController {
   private prisma: PrismaClient;
+  private levelUtil: any;
 
   constructor() {
     super();
+    this.levelUtil = LevelUtil.getInstance();
     this.prisma = new PrismaClient();
   }
 
@@ -27,6 +30,9 @@ export class UserController extends BaseController {
   @Get('/users')
   public async getUser(@CurrentUser() currentUser: UserInfo) {
     currentUser.itemTotalCount = await this.prisma.userItem.count({ where: { userId: currentUser.userId } });
+    const { level, percent } = this.levelUtil.getLevels(currentUser.exp);
+    currentUser.level = level;
+    currentUser.levelPercent = percent;
     delete currentUser.oauthKey;
     delete currentUser.fcmToken;
     return currentUser;
