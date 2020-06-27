@@ -4,16 +4,17 @@ import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
-import { Comments } from '../utils/commentUtil';
+import { Comments } from '../utils/CommentUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
-
+  private comment: any;
   constructor() {
     super();
+    this.comment = new Comments();
     this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
   }
@@ -70,8 +71,8 @@ export class HabitController extends BaseController {
           commitHistory: {
             where: {
               createdAt: {
-                gte: moment().startOf('days').toDate(),
-                lte: moment().endOf('days').toDate(),
+                gte: moment().startOf('weeks').toDate(),
+                lte: moment().endOf('weeks').toDate(),
               },
             },
           },
@@ -79,39 +80,17 @@ export class HabitController extends BaseController {
       });
       if (habits.length === 0) return [];
 
-      habits.sort((a, b) => {
-        if (a.dayOfWeek[moment().day()] === '1') {
-          if (b.dayOfWeek[moment().day()] === '1') {
-            // a랑 b 모두 오늘 해야 하는 습관일 때
-            // 오늘 커밋을 했는지 안했는지에 따라 순위를 나눔
-            if (a.commitHistory.length > 0 && b.commitHistory.length > 0) return a.habitId - b.habitId;
-            else if (a.commitHistory.length > 0 && b.commitHistory.length === 0) return 1;
-            else if (a.commitHistory.length === 0 && b.commitHistory.length > 0) return -1;
-            else return a.habitId - b.habitId;
-          } else {
-            // a만 오늘 해야 하는 습관일 때
-            return -1;
-          }
-        } else {
-          if (b.dayOfWeek[moment().day()] === '1') {
-            // b만 오늘 해야 하는 습관일 때
-            return 1;
-          } else return a.habitId - b.habitId; // 둘 다 오늘 하는 습관이 아닐 때
-        }
-      });
-
       // 응원 문구
-      let todayLeftHabit = 0;
+      let todayDoneHabit = 0;
       let todayHabit = 0;
       habits.forEach(habit => {
         if (habit.dayOfWeek[moment().day()] === '1') {
-          if (habit.commitHistory.length === 0) todayLeftHabit++;
+          if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
+            todayDoneHabit++;
           todayHabit++;
         }
       });
-      console.log(todayHabit, todayLeftHabit);
-      const comment = Comments.selectComment(todayHabit, todayLeftHabit);
-      console.log(comment);
+      const comment = this.comment.selectComment(todayHabit, todayDoneHabit);
       return { comment, habits };
     } catch (err) {
       if (err instanceof HttpError) throw err;
