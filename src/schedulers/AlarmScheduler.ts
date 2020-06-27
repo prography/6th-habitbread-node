@@ -2,15 +2,15 @@ import { Habit, PrismaClient, User } from '@prisma/client';
 import * as admin from 'firebase-admin';
 import moment from 'moment-timezone';
 import schedule from 'node-schedule';
+import env from '../configs/index';
 import { InternalServerError } from '../exceptions/Exception';
 moment.tz.setDefault('Asia/Seoul');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const serviceAccount = require('../configs/serviceAccount.json');
 const prisma = new PrismaClient();
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(env.FCM),
   databaseURL: 'https://habitbread-5abef.firebaseio.com',
 });
 
