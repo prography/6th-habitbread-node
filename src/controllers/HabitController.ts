@@ -2,11 +2,10 @@ import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
-import { Comments } from '../utils/CommentUtil';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
-import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
-import { AchievementUtil } from '../utils/AchievementUtil';
+import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
@@ -39,6 +38,7 @@ export class HabitController extends BaseController {
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
+          description: habit.description,
           category: habit.category,
           dayOfWeek: habit.dayOfWeek,
           alarmTime,
@@ -76,6 +76,7 @@ export class HabitController extends BaseController {
         select: {
           habitId: true,
           title: true,
+          description: true,
           dayOfWeek: true,
           commitHistory: {
             where: {
@@ -165,6 +166,9 @@ export class HabitController extends BaseController {
         const fixHabit = await this.prisma.habit.update({
           where: { habitId: id.habitId },
           data: {
+            title: habit.title,
+            description: habit.description,
+            category: habit.category,
             alarmTime,
             user: {
               connect: { userId: currentUser.userId },

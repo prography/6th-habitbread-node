@@ -7,6 +7,10 @@ export class Habit {
 
   @IsString()
   @IsNotEmpty()
+  description!: string;
+
+  @IsString()
+  @IsNotEmpty()
   category!: string;
 
   @IsString()
@@ -17,6 +21,18 @@ export class Habit {
 }
 
 export class UpdateHabit {
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  category!: string;
+
   alarmTime!: string | null;
 }
 
