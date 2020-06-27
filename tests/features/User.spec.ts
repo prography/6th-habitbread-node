@@ -41,7 +41,6 @@ describe('Test User', () => {
   test('Patch - /users', async () => {
     const payload = {
       name: '김건훈',
-      exp: 100,
       fcmToken: 'fcmToken!@#$',
     };
     const res = await client.patch('/users').set('Authorization', `Bearer ${token}`).send(payload);
@@ -49,7 +48,6 @@ describe('Test User', () => {
     assertUser(res.body);
 
     expect(user.name).not.toEqual(res.body.name);
-    expect(user.exp).not.toEqual(res.body.exp);
     expect(user.fcmToken).not.toEqual(res.body.fcmToken);
   });
 
