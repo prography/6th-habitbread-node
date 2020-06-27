@@ -214,7 +214,8 @@ export class HabitController extends BaseController {
   }
 
   // habit commit하기
-  @Get('/:habitId/commit')
+  @Post('/:habitId/commit')
+  @HttpCode(201)
   public async commitHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
@@ -254,9 +255,8 @@ export class HabitController extends BaseController {
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
         if (findHabit.commitHistory.length) {
-          if (findHabit.commitHistory.length === 2) throw new ForbiddenError('오늘은 이미 commit 했습니다.');
-          if (moment(findHabit.commitHistory[0].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
-            throw new ForbiddenError('오늘은 이미 commit 했습니다.');
+          if (moment(findHabit.commitHistory[findHabit.commitHistory.length - 1].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
+            return res.status(800).send({});
           updateHabit = await this.updateHabitFunc(currentUser, id, findHabit.continuousCount + 1);
         } else updateHabit = await this.updateHabitFunc(currentUser, id, 1);
 
