@@ -50,6 +50,7 @@ describe('testHabit', () => {
         userId: AuthHelper.extractUserFromToken(token),
         title: payload.title,
         category: payload.category,
+        description: payload.description,
         dayOfWeek: payload.dayOfWeek,
         alarmTime: payload.alarmTime,
         continuousCount: 0,
@@ -61,7 +62,10 @@ describe('testHabit', () => {
   test('getHabits', async () => {
     const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.habitGetPayloads(habitId));
+    expect(res.body).toMatchObject({
+      comment: res.body.comment,
+      habits: Payload.habitGetPayloads(habitId),
+    });
   });
 
   // GET getHabit
@@ -78,6 +82,7 @@ describe('testHabit', () => {
           userId: AuthHelper.extractUserFromToken(token),
           title: payload.title,
           category: payload.category,
+          description: payload.description,
           dayOfWeek: payload.dayOfWeek,
           alarmTime: payload.alarmTime,
           continuousCount: 0,
@@ -106,6 +111,7 @@ describe('testHabit', () => {
         userId: AuthHelper.extractUserFromToken(token),
         title: payload.title,
         category: payload.category,
+        description: payload.description,
         dayOfWeek: payload.dayOfWeek,
         alarmTime: payload.alarmTime,
         continuousCount: 0,

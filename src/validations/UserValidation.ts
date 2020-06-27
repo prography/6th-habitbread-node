@@ -1,13 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class GetUserBody {
   @IsNotEmpty()
   @IsString()
   name!: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  exp!: number;
 
   @IsNotEmpty()
   @IsString()

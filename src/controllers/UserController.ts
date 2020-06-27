@@ -4,6 +4,7 @@ import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from
 import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/types-custom';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
+import alarmScheduler from '../schedulers/AlarmScheduler';
 import { LevelUtil } from '../utils/LevelUtil';
 import { GetUserBody } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
@@ -47,8 +48,13 @@ export class UserController extends BaseController {
 
       const payload: any = {};
       if (body.name) payload.name = body.name;
-      if (body.fcmToken) payload.fcmToken = body.fcmToken;
-      if (body.exp) payload.exp = currentUser.exp + body.exp;
+      if (body.fcmToken) {
+        payload.fcmToken = body.fcmToken;
+        if (currentUser.fcmToken === null) alarmScheduler.AddUserInToQueue(currentUser);
+      } else {
+        payload.fcmToken = null;
+        alarmScheduler.DeleteUserFromQueue(currentUser);
+      }
 
       const user = await this.prisma.user.update({
         where: { userId: currentUser.userId },

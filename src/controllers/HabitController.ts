@@ -3,9 +3,9 @@ import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
-import { BadRequestError, ForbiddenError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
-import { AchievementUtil } from '../utils/AchievementUtil';
+import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
@@ -14,11 +14,13 @@ import { BaseController } from './BaseController';
 @JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
+  private comment: any;
   private levelUtil: any;
   private userItemUtil: any;
 
   constructor() {
     super();
+    this.comment = new Comments();
     this.levelUtil = LevelUtil.getInstance();
     this.userItemUtil = new UserItemUtil();
     this.prisma = new PrismaClient();
@@ -36,6 +38,7 @@ export class HabitController extends BaseController {
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
+          description: habit.description,
           category: habit.category,
           dayOfWeek: habit.dayOfWeek,
           alarmTime,
@@ -73,24 +76,34 @@ export class HabitController extends BaseController {
         select: {
           habitId: true,
           title: true,
+          description: true,
           dayOfWeek: true,
           commitHistory: {
             where: {
               createdAt: {
-                gte: moment().subtract(30, 'days').startOf('days').toDate(),
-                lte: moment().endOf('days').toDate(),
+                gte: moment().startOf('weeks').toDate(),
+                lte: moment().endOf('weeks').toDate(),
               },
             },
           },
         },
       });
-      if (habits.length === 0) throw new NoContent('');
+      if (habits.length === 0) return [];
 
-      habits.forEach((habit: any) => {
-        habit = AchievementUtil.calulateAchievement(habit);
+      // 응원 문구
+      let todayDoneHabit = 0;
+      let todayHabit = 0;
+      habits.forEach(habit => {
+        if (habit.dayOfWeek[moment().day()] === '1') {
+          if (habit.commitHistory.length) {
+            if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
+              todayDoneHabit++;
+          }
+          todayHabit++;
+        }
       });
-
-      return habits;
+      const comment = this.comment.selectComment(todayHabit, todayDoneHabit);
+      return { comment, habits };
     } catch (err) {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
@@ -105,7 +118,7 @@ export class HabitController extends BaseController {
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
       const month = parseInt(moment().format('MM')) - id.month;
       const year = parseInt(moment().format('YYYY')) - id.year;
-      const findHabit = await this.prisma.habit.findOne({
+      let findHabit = await this.prisma.habit.findOne({
         where: { habitId: id.habitId },
         include: {
           commitHistory: {
@@ -120,6 +133,27 @@ export class HabitController extends BaseController {
       });
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
+        if (findHabit.commitHistory.length) {
+          if (
+            moment(findHabit.commitHistory[findHabit.commitHistory.length - 1].createdAt, 'yyyy-MM-DDTHH-mm-ss.SSSZ').startOf('days') <
+            moment().subtract(1, 'days').startOf('days')
+          ) {
+            findHabit = await this.prisma.habit.update({
+              where: { habitId: id.habitId },
+              data: { continuousCount: 0 },
+              include: {
+                commitHistory: {
+                  where: {
+                    createdAt: {
+                      gte: moment().subtract(month, 'months').subtract(year, 'years').startOf('months').toDate(),
+                      lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
+                    },
+                  },
+                },
+              },
+            });
+          }
+        }
         const commitFullCount = await this.prisma.commitHistory.count({
           where: { habitId: id.habitId },
         });
@@ -153,6 +187,9 @@ export class HabitController extends BaseController {
         const fixHabit = await this.prisma.habit.update({
           where: { habitId: id.habitId },
           data: {
+            title: habit.title,
+            description: habit.description,
+            category: habit.category,
             alarmTime,
             user: {
               connect: { userId: currentUser.userId },
@@ -214,7 +251,7 @@ export class HabitController extends BaseController {
   }
 
   // habit commit하기
-  @Get('/:habitId/commit')
+  @Post('/:habitId/commit')
   public async commitHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
