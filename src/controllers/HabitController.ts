@@ -2,7 +2,7 @@ import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
-import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
+import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import alarmScheduler from '../schedulers/AlarmScheduler';
 import { Comments } from '../utils/CommentUtil';
@@ -29,6 +29,7 @@ export class HabitController extends BaseController {
 
   // 습관 등록하기
   @Post('/')
+  @HttpCode(201)
   public async createHabit(@CurrentUser() currentUser: User, @Body() habit: Habit) {
     try {
       const bodyErrors = await validate(habit);
@@ -128,6 +129,7 @@ export class HabitController extends BaseController {
                 lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
               },
             },
+            select: { createdAt: true },
           },
         },
       });
@@ -149,6 +151,7 @@ export class HabitController extends BaseController {
                       lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
                     },
                   },
+                  select: { createdAt: true },
                 },
               },
             });
@@ -171,6 +174,7 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 수정하기
   @Put('/:habitId')
+  @HttpCode(201)
   public async updateHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Body() habit: UpdateHabit) {
     try {
       const paramErrors = await validate(id);
@@ -252,6 +256,7 @@ export class HabitController extends BaseController {
 
   // habit commit하기
   @Post('/:habitId/commit')
+  @HttpCode(201)
   public async commitHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
@@ -291,7 +296,7 @@ export class HabitController extends BaseController {
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
         if (findHabit.commitHistory.length) {
-          if (findHabit.commitHistory.length === 2) throw new ForbiddenError('오늘은 이미 commit 했습니다.');
+          if (findHabit.commitHistory.length === 2) return res.status(800).send({});
           if (moment(findHabit.commitHistory[0].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
             throw new ForbiddenError('오늘은 이미 commit 했습니다.');
           updateHabit = await this.updateHabitFunc(currentUser, id, findHabit.continuousCount + 1);

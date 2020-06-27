@@ -44,7 +44,7 @@ describe('testHabit', () => {
       if (i === 0) {
         habitId = res.body.habitId;
       }
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body).toMatchObject({
         habitId: habitId + i,
         userId: AuthHelper.extractUserFromToken(token),
@@ -105,7 +105,7 @@ describe('testHabit', () => {
       if (i === 0) {
         habitId = res.body.habitId;
       }
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body).toMatchObject({
         habitId: habitId + i,
         userId: AuthHelper.extractUserFromToken(token),
