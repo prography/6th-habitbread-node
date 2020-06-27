@@ -86,6 +86,7 @@ export class HabitController extends BaseController {
                 lte: moment().endOf('weeks').toDate(),
               },
             },
+            select: { createdAt: true },
           },
         },
       });
