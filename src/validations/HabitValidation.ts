@@ -5,9 +5,7 @@ export class Habit {
   @IsNotEmpty()
   title!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  description!: string;
+  description!: string | null;
 
   @IsString()
   @IsNotEmpty()
@@ -25,9 +23,7 @@ export class UpdateHabit {
   @IsNotEmpty()
   title!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  description!: string;
+  description!: string | null;
 
   @IsString()
   @IsNotEmpty()
