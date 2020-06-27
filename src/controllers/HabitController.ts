@@ -85,8 +85,10 @@ export class HabitController extends BaseController {
       let todayHabit = 0;
       habits.forEach(habit => {
         if (habit.dayOfWeek[moment().day()] === '1') {
-          if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
-            todayDoneHabit++;
+          if (habit.commitHistory.length) {
+            if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
+              todayDoneHabit++;
+          }
           todayHabit++;
         }
       });

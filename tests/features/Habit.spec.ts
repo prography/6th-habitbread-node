@@ -61,7 +61,10 @@ describe('testHabit', () => {
   test('getHabits', async () => {
     const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.habitGetPayloads(habitId));
+    expect(res.body).toMatchObject({
+      comment: res.body.comment,
+      habits: Payload.habitGetPayloads(habitId),
+    });
   });
 
   // GET getHabit
