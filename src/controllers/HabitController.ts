@@ -298,7 +298,7 @@ export class HabitController extends BaseController {
       if (findHabit.userId === currentUser.userId) {
         if (findHabit.commitHistory.length) {
           if (moment(findHabit.commitHistory[findHabit.commitHistory.length - 1].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
-            return res.status(800).send({});
+            return res.status(303).send({});
           updateHabit = await this.updateHabitFunc(currentUser, id, findHabit.continuousCount + 1);
         } else updateHabit = await this.updateHabitFunc(currentUser, id, 1);
 
