@@ -1,5 +1,4 @@
 import moment from 'moment-timezone';
-import schedule from 'node-schedule';
 import redis from 'redis';
 
 moment.tz.setDefault('Asia/Seoul');
@@ -10,27 +9,13 @@ const redisClient = new redis.RedisClient({
   password: 'zlekfl123!!',
 });
 
-const time = moment().add(5, 'seconds').format('mmss');
-redisClient.rpush(time, ['1', '2,', '3']);
-
-const popHabitId = () => {
+const hmset = (key: string, value: string[]) => {
   return new Promise((resolve, response) => {
-    redisClient.rpop(moment().format('mmss'), (err, data) => {
-      if (data) {
-        resolve(data);
-      } else {
-        resolve(null);
-      }
+    redisClient.hmset(key, value, (err, data) => {
+      if (err) throw err;
+      resolve(data);
     });
   });
 };
 
-schedule.scheduleJob('*/1 * * * * *', async () => {
-  console.log('1초에 한 번씩 실행 됐다!');
-  let check = 1;
-  while (check) {
-    const data = await popHabitId();
-    if (data) console.log(data);
-    else check = 0;
-  }
-});
+hmset('testId', ['key1', 'value1', 'key2', 'value2']);
