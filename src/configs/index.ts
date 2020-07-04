@@ -1,6 +1,6 @@
 import { AppleAuthConfig } from 'apple-auth';
 import dotenv from 'dotenv';
-import { ServiceAccount } from '../@types/types-custom';
+import { RedisConfig, ServiceAccount } from '../@types/types-custom';
 
 // '.env' File Loading
 dotenv.config();
@@ -33,6 +33,12 @@ const fcmConfig = {
   client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
 } as ServiceAccount;
 
+const redisConfig = {
+  host: process.env.REDIS_HOST,
+  port: Number(process.env.REDIS_PORT),
+  password: process.env.REDIS_PASSWORD,
+} as RedisConfig;
+
 // ENV Module
 export default {
   NODE_ENV: process.env.NODE_ENV,
@@ -46,4 +52,5 @@ export default {
   },
   FIREBASE: process.env.FIREBASE_CONFIG_ROOT,
   FCM: fcmConfig,
+  REDIS: redisConfig,
 };

@@ -1,119 +1,21 @@
-import { Habit, PrismaClient, User } from '@prisma/client';
 import * as admin from 'firebase-admin';
+import { TokenMessage } from 'firebase-admin/lib/messaging';
 import moment from 'moment-timezone';
 import schedule from 'node-schedule';
 import env from '../configs/index';
 import { InternalServerError } from '../exceptions/Exception';
+import { RedisUtil } from '../utils/RedisUtil';
+
 moment.tz.setDefault('Asia/Seoul');
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const prisma = new PrismaClient();
+const redis = new RedisUtil(env.REDIS);
 
 admin.initializeApp({
   credential: admin.credential.cert(env.FCM),
   databaseURL: 'https://habitbread-5abef.firebaseio.com',
 });
 
-type AlarmQueue = {
-  fcmtoken: string;
-  title: string;
-  alarmTime: number;
-  habitId: number;
-};
-
-type HabitIncludeUser = {
-  user: User;
-  habitId: number;
-  alarmTime: string | null;
-  title: string;
-  dayOfWeek: string;
-};
-
-const habitCheckWithUser = (habit: HabitIncludeUser | null) => {
-  if (habit === null) return true;
-  if (habit.alarmTime === null || habit.user.fcmToken === null) return true;
-  return false;
-};
-let alarmQueue: AlarmQueue[] = [];
-
-const AddScheduleInToQueue = async (schedule: any) => {
-  console.log(schedule);
-  const habit = await prisma.habit.findOne({
-    where: { habitId: schedule.habitId },
-    select: { user: true, habitId: true, alarmTime: true, title: true, dayOfWeek: true },
-  });
-  if (habitCheckWithUser(habit)) return;
-  if (habit!.dayOfWeek[moment().add(1, 'days').day()] === '1') {
-    alarmQueue.push({
-      fcmtoken: habit!.user.fcmToken!,
-      title: habit!.title,
-      habitId: habit!.habitId,
-      alarmTime: parseInt(moment(habit!.alarmTime, 'HH:mm:ss').format('HHmm')),
-    });
-  }
-};
-const UpsertAlarmQueue = async () => {
-  // alarmQueue update
-  console.log('습관빵 알림 리스트 시작~!');
-  try {
-    const data = await prisma.scheduler.findMany();
-    for await (const schedule of data) {
-      await AddScheduleInToQueue(schedule);
-    }
-    alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
-  } catch (err) {
-    throw new InternalServerError(err.message);
-  }
-  console.log('정렬 끝 =)');
-};
-const DeleteDataFromQueue = (data: Habit) => {
-  // 특정 습관 지우기
-  alarmQueue = alarmQueue.filter(alarm => alarm.habitId !== data.habitId);
-};
-const AddDataInToQueue = async (user: User, data: Habit) => {
-  if (user.fcmToken === null) console.log('전체 알림 꺼둔 사람');
-  else {
-    try {
-      alarmQueue.push({
-        fcmtoken: user.fcmToken,
-        title: data.title,
-        habitId: data.habitId,
-        alarmTime: parseInt(moment(data.alarmTime, 'HH:mm:ss').format('HHmm')),
-      });
-      alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
-      console.log('alarmQueue 업데이트 완료');
-    } catch (err) {
-      throw new InternalServerError(err.message);
-    }
-  }
-};
-const DeleteUserFromQueue = async (user: User) => {
-  const habits = await prisma.habit.findMany({ where: { userId: user.userId } });
-  habits.forEach(habit => DeleteDataFromQueue(habit));
-  console.log(`${user.name} Habit alarmQueue에서 전부 삭제 완료`);
-  console.log(alarmQueue);
-};
-const AddUserInToQueue = async (user: User) => {
-  const data = await prisma.scheduler.findMany({ where: { userId: user.userId } });
-  for await (const schedule of data) {
-    await AddScheduleInToQueue(schedule);
-  }
-  alarmQueue.sort((a, b) => a.alarmTime - b.alarmTime);
-  console.log(alarmQueue);
-};
 const scheduler = {
-  UpsertAlarmQueue,
-  DeleteDataFromQueue,
-  AddDataInToQueue,
-  DeleteUserFromQueue,
-  AddUserInToQueue,
-  // 00시 00분에 습관 등록
-  AlarmUpdateJob: async () => {
-    console.log('AlarmUpdate 스케줄러 정상 작동');
-    schedule.scheduleJob({ hour: 23, minute: 59, second: 1 }, async () => {
-      UpsertAlarmQueue();
-    });
-  },
   //알람 메세지 전송
   SendAlarmJob: async () => {
     console.log('SendAlarm 스케줄러 정상 작동');
@@ -122,31 +24,44 @@ const scheduler = {
       try {
         // eslint-disable-next-line no-constant-condition
         while (1) {
-          if (alarmQueue.length === 0) break;
-          if (alarmQueue[0].alarmTime > parseInt(moment().format('HHmm'))) break;
-          if (alarmQueue[0].alarmTime < parseInt(moment().format('HHmm'))) {
-            alarmQueue.shift();
-            continue;
-          }
-          const alarm = alarmQueue.shift();
-          if (!alarm) continue;
-
-          let timeString: string = alarm?.alarmTime.toString();
-          if (timeString.length === 2) timeString += '00';
-          if (timeString.length === 3) timeString += '0';
-          const time = (type: string) => moment(timeString, 'HHmm').format(type);
-          const AMPM = moment(alarm?.alarmTime.toString(), 'HHmm').hours() >= 12 ? 'PM' : 'AM';
-          const fcmMessage = {
+          const habitId = await redis.spop(moment().format('MMDDHHmm'));
+          if (habitId === null) break;
+          const data = await redis.hmget(`habitId:${habitId}`, ['userId', 'title', 'dayOfWeek']);
+          const user = await redis.hmget(`userId:${data[0]}`, ['isAlarmOn', 'FCMToken']);
+          if (user[0] === '0') break;
+          const AMPM = moment().hours() >= 12 ? 'PM' : 'AM';
+          const time = (type: string) => moment().format(type);
+          const FCM: TokenMessage = {
             notification: {
               title: `습관빵 알람 - ${AMPM} ${time('hh')}:${time('mm')}`,
-              body: `${alarm.title}빵을 구울 시간이에요!`,
+              body: `${data[1]}빵을 구울 시간이에요!`,
             },
             data: {
-              habitId: alarm.habitId.toString(),
+              habitId: habitId,
             },
-            token: alarm.fcmtoken,
+            token: user[1],
           };
-          await admin.messaging().send(fcmMessage);
+
+          await admin.messaging().send(FCM);
+
+          let check = moment().day() + 1;
+          if (check === 7) check = 0;
+          while (data[2][check] !== '1') {
+            check++;
+            if (check === 7) check = 0;
+          }
+
+          if (check <= moment().day()) {
+            check = 7 - moment().day() - check;
+            await redis.sadd(moment().add(check, 'days').format('MMDDHHmm'), habitId);
+            await redis.hmset(`habitId:${habitId}`, ['userId', data[0], 'title', data[1], 'dayOfWeek', data[2]]);
+            await redis.expire(`habitId:${habitId}`, 604860);
+          } else {
+            check = check - moment().day();
+            await redis.sadd(moment().add(check, 'days').format('MMDDHHmm'), habitId);
+            await redis.hmset(`habitId:${habitId}`, ['userId', data[0], 'title', data[1], 'dayOfWeek', data[2]]);
+            await redis.expire(`habitId:${habitId}`, 604860);
+          }
         }
       } catch (err) {
         throw new InternalServerError(err.message);
