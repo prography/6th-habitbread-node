@@ -30,10 +30,9 @@ export class UserController extends BaseController {
   // 사용자 정보 검색 API
   @Get('/users')
   public async getUser(@CurrentUser() currentUser: UserInfo) {
+    const { percent } = this.levelUtil.getLevelsAndPercents(currentUser.exp);
+    currentUser.percent = percent;
     currentUser.itemTotalCount = await this.prisma.userItem.count({ where: { userId: currentUser.userId } });
-    const { level, percent } = this.levelUtil.getLevels(currentUser.exp);
-    currentUser.level = level;
-    currentUser.levelPercent = percent;
     delete currentUser.oauthKey;
     delete currentUser.fcmToken;
     return currentUser;

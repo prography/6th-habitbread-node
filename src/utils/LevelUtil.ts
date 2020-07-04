@@ -19,6 +19,7 @@ export class LevelUtil extends Util {
     }
   }
 
+  // 싱글톤
   public static getInstance() {
     if (!this.util) {
       this.util = new LevelUtil();
@@ -26,7 +27,15 @@ export class LevelUtil extends Util {
     return this.util;
   }
 
-  public getLevels(exp: number) {
+  private getPercent(exp: number, preRequiredExp: number, nextRequiredExp: number) {
+    const current = exp - preRequiredExp;
+    const total = nextRequiredExp - preRequiredExp;
+    if (total === 0) throw new Error('getPercent Function Error !');
+    return Math.floor((current / total) * 100);
+  }
+
+  // 현재 경험치의 레벨, 퍼센트를 반환하는 메소드
+  public getLevelsAndPercents(exp: number) {
     let level;
     let percent;
 
@@ -37,7 +46,7 @@ export class LevelUtil extends Util {
       // i -> i+1 레벨로 가기 위한 레벨업 경험치를 못 넘은 경우
       if (exp < this.levels[i]) {
         level = i;
-        percent = Math.floor((exp / this.levels[i]) * 100);
+        percent = this.getPercent(exp, this.levels[i - 1], this.levels[i]);
         break;
       } else if (exp === this.levels[i]) {
         level = i + 1;
@@ -50,8 +59,8 @@ export class LevelUtil extends Util {
 
   // 현재 경험치와 업데이트된 경험치를 비교
   public compareLevels(currentExp: number, updateExp: number) {
-    const { ...current } = this.getLevels(currentExp);
-    const { ...update } = this.getLevels(updateExp);
+    const { ...current } = this.getLevelsAndPercents(currentExp);
+    const { ...update } = this.getLevelsAndPercents(updateExp);
 
     if (current.level === update.level) return true;
     else return false;
