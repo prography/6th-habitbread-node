@@ -34,7 +34,7 @@ export class RankingController extends BaseController {
       const user = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
       const userTotalCount = await this.prisma.ranking.count();
 
-      return { user, userTotalCount, rankings: rankings.slice(0, 199) };
+      return { user, userTotalCount, rankings: rankings.slice(0, 200) };
     } catch (err) {
       throw new InternalServerError(err.message);
     }
