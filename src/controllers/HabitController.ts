@@ -90,8 +90,6 @@ export class HabitController extends BaseController {
           },
         },
       });
-      if (habits.length === 0) return [];
-
       // 응원 문구
       let todayDoneHabit = 0;
       let todayHabit = 0;
@@ -105,6 +103,7 @@ export class HabitController extends BaseController {
         }
       });
       const comment = this.comment.selectComment(todayHabit, todayDoneHabit);
+      if (habits.length === 0) return { comment, habits: [] };
       return { comment, habits };
     } catch (err) {
       if (err instanceof HttpError) throw err;
