@@ -48,6 +48,9 @@ jobs:
         echo "TOKEN_URI = ${{ secrets.TOKEN_URI }}" >> .env.test
         echo "AUTH_PROVIDER_X509_CERT_URL = ${{ secrets.AUTH_PROVIDER_X509_CERT_URL }}" >> .env.test
         echo "CLIENT_X509_CERT_URL = ${{ secrets.CLIENT_X509_CERT_URL }}" >> .env.test
+        echo "REDIS_HOST = ${{ secrets.REDIS_HOST }}" >> .env.test
+        echo "REDIS_PORT = ${{ secrets.REDIS_PORT }}" >> .env.test
+        echo "REDIS_PASSWORD = ${{ secrets.REDIS_PASSWORD }}" >> .env.test
 
     - name: Prisma generate and migrate up
       run: ENV=test npm run prisma:generate
