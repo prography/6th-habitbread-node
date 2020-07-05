@@ -36,12 +36,12 @@ export class OAuthControllers extends BaseController {
   }
 
   @Post('/google')
-  public async GoogleSignIn(@Body() idTokent: any) {
-    console.log(idTokent);
+  public async GoogleSignIn(@Body() idToken: any) {
+    console.log(idToken);
     try {
       const ticket = await this.oauth2Client.verifyIdToken({
-        idToken: idTokent.idToken,
-        audience: env.GOOGLE.CLIENT_ID || '191839451290-ufooki36t9r9rglsfinqg5nq2bqnbkql.apps.googleusercontent.com',
+        idToken: idToken.idToken,
+        audience: env.GOOGLE.CLIENT_ID!,
       });
 
       const payload = ticket.getPayload();
