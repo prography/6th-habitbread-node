@@ -50,7 +50,6 @@ export default {
     CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     REDIRECT_URL: process.env.GOOGLE_REDIRECT_URL,
   },
-  FIREBASE: process.env.FIREBASE_CONFIG_ROOT,
   FCM: fcmConfig,
   REDIS: redisConfig,
 };
