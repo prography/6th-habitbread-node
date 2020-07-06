@@ -35,13 +35,14 @@ export class OAuthControllers extends BaseController {
     this.prisma = new PrismaClient();
   }
 
-  @Post('/google')
-  public async GoogleSignIn(@Body() idTokent: any) {
-    console.log(idTokent);
+  // google verify (Android & iOS)
+  @Post('/google/verify')
+  public async GoogleSignIn(@Body() idToken: any) {
+    console.log(idToken);
     try {
       const ticket = await this.oauth2Client.verifyIdToken({
-        idToken: idTokent.idToken,
-        audience: env.GOOGLE.CLIENT_ID || '191839451290-ufooki36t9r9rglsfinqg5nq2bqnbkql.apps.googleusercontent.com',
+        idToken: idToken.idToken,
+        audience: env.GOOGLE.CLIENT_ID!,
       });
 
       const payload = ticket.getPayload();
@@ -67,7 +68,8 @@ export class OAuthControllers extends BaseController {
     }
   }
 
-  @Get('/google/login')
+  // google test login (Web)
+  @Get('/google')
   public async GoogleOAuth(@Res() res: Response) {
     const scopes = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'];
     const url = this.oauth2Client.generateAuthUrl({
@@ -78,6 +80,7 @@ export class OAuthControllers extends BaseController {
     return res.end();
   }
 
+  // google test login callback (Web)
   @Get('/google/callback')
   public async GoogleCallback(@QueryParam('code') code: string) {
     try {

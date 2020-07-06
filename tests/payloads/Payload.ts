@@ -6,21 +6,21 @@ export class Payload {
       title: '습관빵 코딩',
       description: '설명충 극혐~!',
       dayOfWeek: '0111000',
-      alarmTime: '19:00:00',
+      alarmTime: '19:00',
     },
     {
       category: 'test',
       title: '파출소 출근하기',
       description: '설명충 극혐~!',
       dayOfWeek: '1111111',
-      alarmTime: '19:00:00',
+      alarmTime: '19:00',
     },
     {
       category: 'test',
       title: '프로그라피 노드 스터디하기',
       description: '설명충 극혐~!',
       dayOfWeek: '0100000',
-      alarmTime: '19:00:00',
+      alarmTime: '19:00',
     },
   ];
 
@@ -30,21 +30,21 @@ export class Payload {
       title: '습관빵 코딩',
       description: '설명충 극혐~!!@!@',
       dayOfWeek: '0111000',
-      alarmTime: '20:00:00',
+      alarmTime: '20:00',
     },
     {
       category: 'test',
       title: '파출소 출근하기',
       description: '설명충 극혐~!!@!@',
       dayOfWeek: '1111111',
-      alarmTime: '21:00:00',
+      alarmTime: '21:00',
     },
     {
       category: 'test',
       title: '프로그라피 노드 스터디하기',
       description: '설명충 극혐~!!@!@',
       dayOfWeek: '0100000',
-      alarmTime: '22:00:00',
+      alarmTime: '22:00',
     },
   ];
 

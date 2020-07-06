@@ -3,9 +3,10 @@ import { validate } from 'class-validator';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/types-custom';
+import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
-import alarmScheduler from '../schedulers/AlarmScheduler';
 import { LevelUtil } from '../utils/LevelUtil';
+import { RedisUtil } from '../utils/RedisUtil';
 import { GetUserBody } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
@@ -14,11 +15,13 @@ const id: string = uuid();
 export class UserController extends BaseController {
   private prisma: PrismaClient;
   private levelUtil: any;
+  private redis: RedisUtil;
 
   constructor() {
     super();
     this.levelUtil = LevelUtil.getInstance();
     this.prisma = new PrismaClient();
+    this.redis = new RedisUtil(env.REDIS);
   }
 
   // 임시: prod 환경 Nginx 테스팅
@@ -49,10 +52,10 @@ export class UserController extends BaseController {
       if (body.name) payload.name = body.name;
       if (body.fcmToken) {
         payload.fcmToken = body.fcmToken;
-        if (currentUser.fcmToken === null) alarmScheduler.AddUserInToQueue(currentUser);
+        await this.redis.hmset(`userId:${currentUser.userId}`, ['isAlarmOn', '1', 'FCMToken', body.fcmToken]);
       } else {
         payload.fcmToken = null;
-        alarmScheduler.DeleteUserFromQueue(currentUser);
+        await this.redis.hmset(`userId:${currentUser.userId}`, ['isAlarmOn', '0', 'FCMToken', 'null']);
       }
 
       const user = await this.prisma.user.update({

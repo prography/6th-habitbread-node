@@ -1,12 +1,13 @@
-import { PrismaClient, User } from '@prisma/client';
+import { Habit as prismaHabit, PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
+import env from '../configs/index';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
-import alarmScheduler from '../schedulers/AlarmScheduler';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
+import { RedisUtil } from '../utils/RedisUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
@@ -17,6 +18,7 @@ export class HabitController extends BaseController {
   private comment: any;
   private levelUtil: any;
   private userItemUtil: any;
+  private redis: RedisUtil;
 
   constructor() {
     super();
@@ -25,6 +27,7 @@ export class HabitController extends BaseController {
     this.userItemUtil = new UserItemUtil();
     this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
+    this.redis = new RedisUtil(env.REDIS);
   }
 
   // 습관 등록하기
@@ -35,7 +38,7 @@ export class HabitController extends BaseController {
       const bodyErrors = await validate(habit);
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
       if (habit.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
-      const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss') : null;
+      const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm').format('HH:mm') : null;
       const newHabit = await this.prisma.habit.create({
         data: {
           title: habit.title,
@@ -59,7 +62,7 @@ export class HabitController extends BaseController {
       if (newHabit.dayOfWeek[moment().day()] === '1') {
         const time = moment().startOf('minutes');
         const alarmTime = moment(newHabit.alarmTime, 'HH:mm');
-        if (time.isBefore(alarmTime)) alarmScheduler.AddDataInToQueue(currentUser, newHabit);
+        if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(newHabit, currentUser);
       }
       return newHabit;
     } catch (err) {
@@ -187,7 +190,7 @@ export class HabitController extends BaseController {
       });
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
       if (findHabit.userId === currentUser.userId) {
-        const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm:ss').format('HH:mm:ss') : null;
+        const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm').format('HH:mm') : null;
         const fixHabit = await this.prisma.habit.update({
           where: { habitId: id.habitId },
           data: {
@@ -202,7 +205,7 @@ export class HabitController extends BaseController {
         });
 
         // 스케줄러 편집
-        if (fixHabit.dayOfWeek[moment().day()] === '1') alarmScheduler.DeleteDataFromQueue(fixHabit);
+        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(fixHabit.habitId));
         if (alarmTime === null) {
           if (findHabit.alarmTime) {
             await this.prisma.scheduler.delete({
@@ -216,11 +219,7 @@ export class HabitController extends BaseController {
           create: { userId: currentUser.userId, habitId: findHabit.habitId },
           update: {},
         });
-        if (fixHabit.dayOfWeek[moment().day()] === '1') {
-          const time = moment().startOf('minutes');
-          const alarmTime = moment(fixHabit.alarmTime, 'HH:mm');
-          if (time.isBefore(alarmTime)) alarmScheduler.AddDataInToQueue(currentUser, fixHabit);
-        }
+        await this.addOrUpdateRedis(fixHabit, currentUser);
         return fixHabit;
       }
       throw new ForbiddenError('잘못된 접근입니다.');
@@ -245,6 +244,8 @@ export class HabitController extends BaseController {
         await this.prisma.commitHistory.deleteMany({ where: { habitId: id.habitId } });
         await this.prisma.scheduler.deleteMany({ where: { habitId: id.habitId } });
         await this.prisma.habit.delete({ where: { habitId: id.habitId } });
+        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(findHabit.habitId));
+
         return { message: 'success' };
       }
       throw new ForbiddenError('잘못된 접근입니다.');
@@ -326,5 +327,11 @@ export class HabitController extends BaseController {
         user: true,
       },
     });
+  }
+
+  async addOrUpdateRedis(habit: prismaHabit, user: User) {
+    await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
+    await this.redis.hmset(`habitId:${habit.habitId}`, ['userId', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
+    await this.redis.expire(`habitId:${habit.habitId}`, 604860);
   }
 }
