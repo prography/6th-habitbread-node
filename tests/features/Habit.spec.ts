@@ -6,7 +6,7 @@ import app from '../../src/app';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
 import { AddUser } from '../../src/validations/UserValidation';
 import { Payload } from '../payloads/Payload';
-import { createUser } from '../utils/UserUtil';
+import { createUserWithFCM } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
 moment.tz.setDefault('Aisa/Seoul');
@@ -20,8 +20,10 @@ describe('testHabit', () => {
   beforeEach(async done => {
     await prisma.commitHistory.deleteMany({});
     await prisma.habit.deleteMany({});
+    await prisma.userItem.deleteMany({});
+    await prisma.item.deleteMany({});
     await prisma.user.deleteMany({});
-    const user = await createUser(prisma, new AddUser({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
+    const user = await createUserWithFCM(prisma, new AddUser({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
     token = AuthHelper.makeAccessToken(user.userId);
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.habitOriginalPayloads[i];
@@ -42,12 +44,13 @@ describe('testHabit', () => {
       if (i === 0) {
         habitId = res.body.habitId;
       }
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body).toMatchObject({
         habitId: habitId + i,
         userId: AuthHelper.extractUserFromToken(token),
         title: payload.title,
         category: payload.category,
+        description: payload.description,
         dayOfWeek: payload.dayOfWeek,
         alarmTime: payload.alarmTime,
         continuousCount: 0,
@@ -59,16 +62,18 @@ describe('testHabit', () => {
   test('getHabits', async () => {
     const res = await testClient.get('/habits').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject(Payload.habitGetPayloads(habitId));
+    expect(res.body).toMatchObject({
+      comment: res.body.comment,
+      habits: Payload.habitGetPayloads(habitId),
+    });
   });
 
   // GET getHabit
   test('getHabit', async () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.habitOriginalPayloads[i];
-
       const res = await testClient
-        .get(`/habits/${habitId + i}/calendar/${parseInt(moment().format('MM'))}/${parseInt(moment().format('DD'))}`)
+        .get(`/habits/${habitId + i}/calendar/${parseInt(moment().format('YYYY'))}/${parseInt(moment().format('M'))}`)
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
@@ -77,6 +82,7 @@ describe('testHabit', () => {
           userId: AuthHelper.extractUserFromToken(token),
           title: payload.title,
           category: payload.category,
+          description: payload.description,
           dayOfWeek: payload.dayOfWeek,
           alarmTime: payload.alarmTime,
           continuousCount: 0,
@@ -99,12 +105,13 @@ describe('testHabit', () => {
       if (i === 0) {
         habitId = res.body.habitId;
       }
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body).toMatchObject({
         habitId: habitId + i,
         userId: AuthHelper.extractUserFromToken(token),
         title: payload.title,
         category: payload.category,
+        description: payload.description,
         dayOfWeek: payload.dayOfWeek,
         alarmTime: payload.alarmTime,
         continuousCount: 0,

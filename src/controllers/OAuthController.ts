@@ -21,6 +21,12 @@ export class OAuthControllers extends BaseController {
       oauthKey: data.emailAddresses[0].value,
     };
   };
+  private googleResponse = (data: any) => {
+    return {
+      name: data.name ? data.name : '습관이',
+      oauthKey: data.email,
+    };
+  };
   private authKey = fs.readFileSync('./src/configs/apple-auth/AuthKey.p8').toString();
   private auth = new AppleAuth(env.APPLE, this.authKey, 'text');
 
@@ -29,7 +35,41 @@ export class OAuthControllers extends BaseController {
     this.prisma = new PrismaClient();
   }
 
-  @Get('/google/login')
+  // google verify (Android & iOS)
+  @Post('/google/verify')
+  public async GoogleSignIn(@Body() idToken: any) {
+    console.log(idToken);
+    try {
+      const ticket = await this.oauth2Client.verifyIdToken({
+        idToken: idToken.idToken,
+        audience: env.GOOGLE.CLIENT_ID!,
+      });
+
+      const payload = ticket.getPayload();
+      console.log(payload);
+
+      const { name, oauthKey } = this.googleResponse(payload);
+      if (oauthKey === null) throw new InternalServerError('알 수 없는 Error 발생');
+      let user = await this.prisma.user.findOne({
+        where: { oauthKey },
+      });
+      if (user === null) {
+        user = await this.prisma.user.create({
+          data: { name, oauthKey },
+        });
+        const token = AuthHelper.makeAccessToken(user.userId);
+        return { accessToken: token, isNewUser: true };
+      }
+      const token = AuthHelper.makeAccessToken(user.userId);
+      return { accessToken: token, isNewUser: false };
+    } catch (err) {
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
+  // google test login (Web)
+  @Get('/google')
   public async GoogleOAuth(@Res() res: Response) {
     const scopes = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'];
     const url = this.oauth2Client.generateAuthUrl({
@@ -40,11 +80,11 @@ export class OAuthControllers extends BaseController {
     return res.end();
   }
 
+  // google test login callback (Web)
   @Get('/google/callback')
   public async GoogleCallback(@QueryParam('code') code: string) {
     try {
       if (code === null) throw new InternalServerError('알 수 없는 Error 발생');
-
       const { tokens } = await this.oauth2Client.getToken(code);
       this.oauth2Client.setCredentials(tokens);
       google.options({ auth: this.oauth2Client });
@@ -94,6 +134,11 @@ export class OAuthControllers extends BaseController {
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
       const oauthKey = idToken.sub;
+      let userName = '습관이';
+      if (body.user) {
+        const { name } = JSON.parse(body.user);
+        userName = `${name.lastName} ${name.firstName}`;
+      }
 
       let user = await this.prisma.user.findOne({
         where: {
@@ -103,7 +148,10 @@ export class OAuthControllers extends BaseController {
 
       if (user === null) {
         user = await this.prisma.user.create({
-          data: { oauthKey },
+          data: {
+            oauthKey,
+            name: userName,
+          },
         });
       }
 

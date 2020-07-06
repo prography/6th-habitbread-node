@@ -1,6 +1,4 @@
-# IF THERE'S A GIT CONFLICT IN THIS FILE, DON'T SOLVE IT MANUALLY!
-# INSTEAD EXECUTE `prisma migrate fix`
 # Prisma Migrate lockfile v1
-# Read more about conflict resolution here: TODO
 
-20200606011139-habit-bread_close_beta
+20200627201036-2020-06-27-close-beta
+20200628024522-2020-06-28-close-beta

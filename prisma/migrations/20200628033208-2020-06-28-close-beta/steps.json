@@ -430,6 +430,13 @@
     {
       "tag": "CreateField",
       "model": "Habit",
+      "field": "description",
+      "type": "String",
+      "arity": "Optional"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Habit",
       "field": "dayOfWeek",
       "type": "String",
       "arity": "Required"
@@ -1525,13 +1532,6 @@
       "model": "Item",
       "field": "level",
       "type": "Int",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateField",
-      "model": "Item",
-      "field": "img",
-      "type": "String",
       "arity": "Required"
     },
     {

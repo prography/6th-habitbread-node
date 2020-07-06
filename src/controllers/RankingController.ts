@@ -30,12 +30,11 @@ export class RankingController extends BaseController {
           JOIN (SELECT @rownum := 0) row
           ORDER BY r1.exp desc, r1.achievement desc
         ) r2
-        LIMIT 200
       `;
       const user = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
       const userTotalCount = await this.prisma.ranking.count();
 
-      return { user, userTotalCount, rankings };
+      return { user, userTotalCount, rankings: rankings.slice(0, 200) };
     } catch (err) {
       throw new InternalServerError(err.message);
     }
