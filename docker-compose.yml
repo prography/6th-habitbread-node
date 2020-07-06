@@ -15,6 +15,12 @@ services:
     networks:
       backend:
         ipv4_address: 172.16.5.2
+
+  redis-database:
+    image: redis
+    container_name: redis-database
+    expose:
+      - 6379
         
   nginx:
     container_name: node-nginx-lb
@@ -41,6 +47,7 @@ services:
       - 3000:3000
     environment:
       - NODE_ENV=prod
+      - REDIS_URL=redis://cache
     env_file: 
       - ./.env
       - ./.env.prod
@@ -48,6 +55,7 @@ services:
       - .:/usr/src/app
     depends_on: 
       - mysql-database
+      - redis-database
     entrypoint: 
       - ./docker-entrypoint.sh
     networks:
