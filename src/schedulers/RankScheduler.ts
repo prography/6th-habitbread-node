@@ -10,6 +10,7 @@ const upsertRanking = async (user: User) => {
     where: { userId: user.userId },
     include: { commitHistory: true },
   });
+  if (habits.length === 0) return;
 
   let achievement = 0;
   habits.forEach(habit => {
@@ -39,11 +40,11 @@ const scheduler = {
   RankingUpdateJob: () => {
     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
 
-    schedule.scheduleJob('*/1 * * * *', async () => {
+    schedule.scheduleJob('0 * * * *', async () => {
       console.log('랭킹 업데이트 시작 !');
       try {
         const users = await prisma.user.findMany();
-
+        if (users.length === 0) throw new Error('랭킹 업데이트: 업데이트 할 사용자가 없습니다.');
         for (const user of users) await upsertRanking(user);
       } catch (err) {
         throw new Error(err.message);

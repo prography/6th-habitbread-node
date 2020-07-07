@@ -7,7 +7,7 @@
     "start": "tsc && node dist",
     "test": "cross-env NODE_ENV=test jest ./tests/features/index.spec.ts --forceExit",
     "dev": "nodemon",
-    "prisma:echo": "echo Using Prisma Environment File '=>' .env.$ENV ':)'",
+    "prisma:echo": "echo Using Prisma Environment File : .env.$ENV ':)'",
     "prisma:generate": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma generate",
     "prisma:save": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate save --experimental",
     "prisma:up": "npm run prisma:echo && dotenv -e .env.$ENV -- prisma migrate up --experimental",
