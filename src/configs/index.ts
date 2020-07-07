@@ -52,4 +52,5 @@ export default {
   },
   FCM: fcmConfig,
   REDIS: redisConfig,
+  SENTRY_DNS: process.env.SENTRY_DNS,
 };

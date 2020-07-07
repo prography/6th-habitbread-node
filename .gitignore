@@ -22,4 +22,4 @@ src/configs/greenlock.d
 src/configs/serviceAccount.json
 
 #log File
-logs/*.log
+logs/**/*.log

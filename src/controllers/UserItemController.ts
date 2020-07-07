@@ -2,6 +2,7 @@ import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { CurrentUser, Delete, Get, HttpError, JsonController, Params } from 'routing-controllers';
 import { BadRequestError, InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 import { UserItemID } from '../validations/UserItemValidation';
 import { BaseController } from './BaseController';
 
@@ -30,6 +31,7 @@ export class UserItemController extends BaseController {
 
       return items;
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -54,6 +56,7 @@ export class UserItemController extends BaseController {
 
       return item;
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -75,6 +78,7 @@ export class UserItemController extends BaseController {
 
       return { message: "Delete User's Item Success" };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }

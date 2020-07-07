@@ -8,6 +8,7 @@ import { Body, Get, HttpError, JsonController, Post, QueryParam, Res, UseBefore 
 import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
+import { errorService } from '../services/LogService';
 import { BaseController } from './BaseController';
 
 @UseBefore(urlencoded({ extended: true }))
@@ -63,6 +64,7 @@ export class OAuthControllers extends BaseController {
       const token = AuthHelper.makeAccessToken(user.userId);
       return { accessToken: token, isNewUser: false };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -111,6 +113,7 @@ export class OAuthControllers extends BaseController {
       const token = AuthHelper.makeAccessToken(user.userId);
       return { accessToken: token };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -158,6 +161,7 @@ export class OAuthControllers extends BaseController {
       const token = AuthHelper.makeAccessToken(user.userId);
       return { accessToken: token };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message || err);
     }

@@ -5,6 +5,7 @@ import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
 import env from '../configs/index';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import { RedisUtil } from '../utils/RedisUtil';
@@ -66,6 +67,7 @@ export class HabitController extends BaseController {
       }
       return newHabit;
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -109,6 +111,7 @@ export class HabitController extends BaseController {
       if (habits.length === 0) return { comment, habits: [] };
       return { comment, habits };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -170,6 +173,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -224,6 +228,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -250,6 +255,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -308,6 +314,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }

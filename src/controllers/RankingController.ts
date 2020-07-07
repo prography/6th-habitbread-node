@@ -1,6 +1,7 @@
 import { PrismaClient, Ranking, User } from '@prisma/client';
 import { CurrentUser, Get, JsonController } from 'routing-controllers';
 import { InternalServerError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 import { BaseController } from './BaseController';
 
 @JsonController('/ranking')
@@ -36,6 +37,7 @@ export class RankingController extends BaseController {
 
       return { user, userTotalCount, rankings: rankings.slice(0, 200) };
     } catch (err) {
+      errorService(err);
       throw new InternalServerError(err.message);
     }
   }

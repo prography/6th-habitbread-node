@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/types-custom';
 import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 import { LevelUtil } from '../utils/LevelUtil';
 import { RedisUtil } from '../utils/RedisUtil';
 import { GetUserBody } from '../validations/UserValidation';
@@ -66,6 +67,7 @@ export class UserController extends BaseController {
       delete user.fcmToken;
       return user;
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -82,6 +84,7 @@ export class UserController extends BaseController {
 
       return { message: 'Delete User Success' };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
