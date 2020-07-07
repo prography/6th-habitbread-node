@@ -11,9 +11,18 @@ if (NODE_ENV === 'prod') dotenv.config({ path: `${__dirname}/../../.env.prod` })
 else if (NODE_ENV === 'dev') dotenv.config({ path: `${__dirname}/../../.env.dev` });
 else if (NODE_ENV === 'test') dotenv.config({ path: `${__dirname}/../../.env.test` });
 
-// Apple Config
-const appleConfig = {
-  client_id: process.env.APPLE_CLIENT_ID,
+// Apple ios Config
+const appleConfigIos = {
+  client_id: process.env.APPLE_IOS_CLIENT_ID,
+  team_id: process.env.APPLE_TEAM_ID,
+  key_id: process.env.APPLE_KEY_ID,
+  redirect_uri: process.env.APPLE_REDIRECT_URI,
+  scope: process.env.APPLE_SCOPE,
+} as AppleAuthConfig;
+
+// Apple web Config
+const appleConfigWeb = {
+  client_id: process.env.APPLE_WEB_CLIENT_ID,
   team_id: process.env.APPLE_TEAM_ID,
   key_id: process.env.APPLE_KEY_ID,
   redirect_uri: process.env.APPLE_REDIRECT_URI,
@@ -44,7 +53,10 @@ export default {
   NODE_ENV: process.env.NODE_ENV,
   PORT: Number(process.env.PORT),
   PASSWORD_SECRET: process.env.PASSWORD_SECRET,
-  APPLE: appleConfig,
+  APPLE: {
+    IOS: appleConfigIos,
+    WEB: appleConfigWeb,
+  },
   GOOGLE: {
     CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
