@@ -14,6 +14,9 @@ db/data
 # Apple Private Key
 src/configs/apple-auth
 
+# NGINX conf
+nginx/log/*
+
 # Grennlock Files
 src/configs/greenlock.d
 .greenlockrc

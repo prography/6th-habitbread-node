@@ -10,6 +10,13 @@ const listenServer = () => {
   });
 };
 
+// Server listen
+const listenServer = () => {
+  app.listen(env.PORT, '0.0.0.0', async () => {
+    console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
+  });
+};
+
 // Production 환경
 const listenProd = async () => {
   scheduler.RankingUpdateJob();
