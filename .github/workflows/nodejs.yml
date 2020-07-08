@@ -26,7 +26,6 @@ jobs:
       uses: supercharge/redis-github-action@1.1.0
       with:
         redis-version: ${{ matrix.redis-version }}
-      run: redis-cli ping
 
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
