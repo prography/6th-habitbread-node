@@ -54,6 +54,9 @@ export default class RedisUtil {
   // expire
   public readonly expire = this.promisify(this.client.expire);
 
+  // 모든 키 삭제
+  public readonly flushall = this.promisify(this.client.flushall);
+
   // Redis 종료 - 서버 종료시 호출할 것
   public readonly quit = this.promisify(this.client.quit);
 }

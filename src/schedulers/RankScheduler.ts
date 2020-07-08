@@ -8,7 +8,7 @@ const redis = RedisUtil.getInstance();
 const expire = 30 * 60; // 30분
 
 // Redis에 랭킹 데이터 저장
-const redisUpsert = async (user: User, achievement: number) => {
+export const redisUpsert = async (user: User | Record<string, any>, achievement: number) => {
   const { userId, name, exp } = user;
   await redis.zadd('user:score', exp, `user:${userId}`);
   await redis.expire('user:score', expire);
@@ -38,23 +38,24 @@ const upsertRanking = async (user: User) => {
   await redisUpsert(user, achievement);
 };
 
+const rankingJob = async () => {
+  console.log('랭킹 업데이트 시작 !');
+  try {
+    const users = await prisma.user.findMany();
+    if (users.length === 0) throw new Error('랭킹 업데이트: 업데이트 할 사용자가 없습니다.');
+
+    for (const user of users) await upsertRanking(user);
+  } catch (err) {
+    throw new Error(err.message);
+  }
+  console.log('랭킹 업데이트 종료 :)');
+};
+
 const scheduler = {
   // 1시간 마다 모든 사용자의 경험치를 조회한 후 Ranking 테이블 갱신
   RankingUpdateJob: () => {
     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
-
-    schedule.scheduleJob('*/2 * * * *', async () => {
-      console.log('랭킹 업데이트 시작 !');
-      try {
-        const users = await prisma.user.findMany();
-        if (users.length === 0) throw new Error('랭킹 업데이트: 업데이트 할 사용자가 없습니다.');
-
-        for (const user of users) await upsertRanking(user);
-      } catch (err) {
-        throw new Error(err.message);
-      }
-      console.log('랭킹 업데이트 종료 :)');
-    });
+    schedule.scheduleJob('*/2 * * * *', async () => rankingJob());
   },
 };
 

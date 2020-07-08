@@ -42,13 +42,13 @@ export class RankingController extends BaseController {
     const userHash = await this.redis.hgetall(key);
 
     const score = users[key];
-    const tempRank = await this.redis.zrevrangebyscore('user:score', score, score, 'limit', 0, 1);
+    const denseRank = await this.redis.zrevrangebyscore('user:score', score, score, 'limit', 0, 1);
 
     const userId = Number(key.split(':')[1]);
     const userName = userHash.name;
     const exp = Number(userHash.exp);
     const achievement = Number(userHash.achievement);
-    const rank = (await this.redis.zrevrank('user:score', tempRank[0])) + 1;
+    const rank = String((await this.redis.zrevrank('user:score', denseRank[0])) + 1);
 
     return { userId, userName, exp, achievement, rank };
   }
