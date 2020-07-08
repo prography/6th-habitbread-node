@@ -23,8 +23,8 @@ const listenProd = async () => {
 
 // Develop 환경
 const listenDev = async () => {
-  // scheduler.RankingUpdateJob();
-  // alarmScheduler.SendAlarmJob();
+  scheduler.RankingUpdateJob();
+  alarmScheduler.SendAlarmJob();
   app.listen(env.PORT, '0.0.0.0', async () => {
     console.log(`Server running on ${env.PORT} at ${env.NODE_ENV} :)`);
   });
