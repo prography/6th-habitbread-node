@@ -18,11 +18,7 @@ const listenProd = async () => {
 };
 
 // Develop 환경
-const listenDev = async () => {
-  scheduler.RankingUpdateJob();
-  alarmScheduler.SendAlarmJob();
-  listenServer();
-};
+const listenDev = async () => listenServer();
 
 if (env.NODE_ENV === 'prod') listenProd();
 else if (env.NODE_ENV === 'dev') listenDev();
