@@ -27,9 +27,8 @@ export class RankingController extends BaseController {
         const user = await this.rankBuilder(users, key);
         rankings.push(user);
       }
-      // filter?
+      // filter vs redis get
       const user = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
-      // redis get?
       // const user = await this.rankBuilder(users, `user:${currentUser.userId}`);
       const userTotalCount = userKeys.length;
 
@@ -42,15 +41,15 @@ export class RankingController extends BaseController {
   // Ranking - Response 템플릿 빌더
   // Dense Ranking 기능
   public async rankBuilder(users: Record<string, string>, key: string) {
-    const hash = await this.redis.hgetall(key);
+    const userHash = await this.redis.hgetall(key);
 
     const score = users[key];
     const tempRank = await this.redis.zrevrangebyscore('user:score', score, score, 'limit', 0, 1);
 
     const userId = Number(key.split(':')[1]);
-    const userName = hash.name;
-    const exp = Number(hash.exp);
-    const achievement = Number(hash.achievement);
+    const userName = userHash.name;
+    const exp = Number(userHash.exp);
+    const achievement = Number(userHash.achievement);
     const rank = (await this.redis.zrevrank('user:score', tempRank[0])) + 1;
 
     return { userId, userName, exp, achievement, rank };
