@@ -6,7 +6,7 @@ const dailyErrorFileTransport = new winston.transports.DailyRotateFile({
   dirname: './logs/error/',
   filename: '%DATE%-error.log',
   level: 'error',
-  format: winston.format.combine(winston.format.errors({ stack: true }), winston.format.timestamp(), winston.format.json()),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   handleExceptions: true,
 });
 
@@ -14,7 +14,7 @@ const dailyInfoFileTransport = new winston.transports.DailyRotateFile({
   dirname: './logs/info/',
   filename: '%DATE%-info.log',
   level: 'info',
-  format: winston.format.combine(winston.format.errors({ stack: true }), winston.format.timestamp(), winston.format.json()),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   handleExceptions: true,
 });
 
