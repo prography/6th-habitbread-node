@@ -5,34 +5,59 @@ services:
     image: mysql:5.7
     ports:
       - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: haibt_bread
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
+    env_file:
+      - ./.env.prod
     expose: 
       - 3306
-    restart: on-failure
+    restart: always
     volumes: 
       - ./db/data:/var/lib/mysql
     networks:
       backend:
         ipv4_address: 172.16.5.2
-    
+
+  redis-database:
+    image: redis
+    container_name: redis-database
+    expose:
+      - 6379
+        
+  nginx:
+    container_name: node-nginx-lb
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/www:/var/www
+      - ./nginx/log:/var/log/nginx
+    depends_on:
+      - node-server
+    restart: always
+    networks:
+      backend:
+        ipv4_address: 172.16.5.4
+
   node-server:
     container_name: node-server
     build: .
     ports: 
       - 3000:3000
-    environment: 
-      NODE_ENV: dev
-      PORT: 3000
-      DB_URL: mysql://admin:admin@172.16.5.2/haibt_bread
+    environment:
+      - NODE_ENV=prod
+      - REDIS_URL=redis://cache
+    env_file: 
+      - ./.env
+      - ./.env.prod
     volumes:
       - .:/usr/src/app
     depends_on: 
       - mysql-database
-    command: npm run dev
+      - redis-database
+    entrypoint: 
+      - ./docker-entrypoint.sh
     networks:
       backend:
         ipv4_address: 172.16.5.3
