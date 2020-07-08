@@ -43,7 +43,7 @@ const scheduler = {
   RankingUpdateJob: () => {
     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
 
-    schedule.scheduleJob('*/2 * * * *', async () => {
+    schedule.scheduleJob('*/30 * * * *', async () => {
       console.log('랭킹 업데이트 시작 !');
       try {
         const users = await prisma.user.findMany();
