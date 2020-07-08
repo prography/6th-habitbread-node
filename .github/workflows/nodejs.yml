@@ -31,6 +31,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
 
     steps:
       - uses: actions/checkout@v2
@@ -72,6 +75,6 @@ jobs:
         run : npm test
         env:
           # The hostname used to communicate with the Redis service container
-          REDIS_HOST: redis
+          REDIS_HOST: localhost
           # The default Redis port
           REDIS_PORT: 6379
