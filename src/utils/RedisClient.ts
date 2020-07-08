@@ -43,9 +43,9 @@ export default class RedisClient {
 
   // sorted set
   public readonly zadd = this.promisify(this.client.zadd);
-  public readonly zrange = this.promisify(this.client.zrange);
-  public readonly zrangebyscore = this.promisify(this.client.zrangebyscore);
-  public readonly zrank = this.promisify(this.client.zrank);
+  public readonly zrevrange = this.promisify(this.client.zrevrange);
+  public readonly zrevrangebyscore = this.promisify(this.client.zrevrangebyscore);
+  public readonly zrevrank = this.promisify(this.client.zrevrank);
 
   // exists
   public readonly exists = this.promisify(this.client.exists);

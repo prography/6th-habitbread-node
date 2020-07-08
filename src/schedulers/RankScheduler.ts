@@ -5,14 +5,17 @@ import RedisClient from '../utils/RedisClient';
 
 const prisma = new PrismaClient();
 const redis = RedisClient.getInstance();
+const expire = 30 * 60; // 30분
 
 // Redis에 랭킹 데이터 저장
 const redisUpsert = async (user: User, achievement: number) => {
   const { userId, name, exp } = user;
   await redis.zadd('user:score', exp, `user:${userId}`);
+  await redis.expire('user:score', expire);
 
   const userInfo = { name, exp, achievement };
   await redis.hmset(`user:${userId}`, userInfo);
+  await redis.expire(`user:${userId}`, expire);
 };
 
 // 랭킹 upsert 메서드
