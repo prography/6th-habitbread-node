@@ -18,7 +18,7 @@ services:
 
   redis-database:
     image: redis
-    container_name: redis
+    container_name: redis-database
     ports:
       - 6379:6379
     expose:
@@ -34,7 +34,6 @@ services:
       - 3000:3000
     environment:
       - NODE_ENV=dev
-      - REDIS_URL=redis-database://redis
     env_file: 
       - ./.env
       - ./.env.dev

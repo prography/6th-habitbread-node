@@ -1,10 +1,10 @@
 import { PrismaClient, User } from '@prisma/client';
 import schedule from 'node-schedule';
 import { AchievementUtil } from '../utils/AchievementUtil';
-import RedisClient from '../utils/RedisClient';
+import RedisUtil from '../utils/RedisUtil';
 
 const prisma = new PrismaClient();
-const redis = RedisClient.getInstance();
+const redis = RedisUtil.getInstance();
 const expire = 30 * 60; // 30분
 
 // Redis에 랭킹 데이터 저장
@@ -43,7 +43,7 @@ const scheduler = {
   RankingUpdateJob: () => {
     console.log('랭킹 업데이트 스케줄러 설정 완료 :)');
 
-    schedule.scheduleJob('*/30 * * * *', async () => {
+    schedule.scheduleJob('*/2 * * * *', async () => {
       console.log('랭킹 업데이트 시작 !');
       try {
         const users = await prisma.user.findMany();

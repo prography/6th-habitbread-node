@@ -9,7 +9,6 @@ export declare type RandomItem = { level: number; weight: number };
 export declare type RedisConfig = {
   host: string;
   port: number;
-  password: string;
 };
 
 export declare type HabitIncludeUser = {

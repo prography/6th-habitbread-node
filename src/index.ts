@@ -2,7 +2,7 @@ import app from './app';
 import env from './configs/index';
 import alarmScheduler from './schedulers/AlarmScheduler';
 import scheduler from './schedulers/RankScheduler';
-import RedisClient from './utils/RedisClient';
+import RedisUtil from './utils/RedisUtil';
 
 // Server listen
 const listenServer = () => {
@@ -19,13 +19,16 @@ const listenProd = async () => {
 };
 
 // Develop 환경
-const listenDev = async () => listenServer();
+const listenDev = async () => {
+  scheduler.RankingUpdateJob();
+  listenServer();
+};
 
 if (env.NODE_ENV === 'prod') listenProd();
 else if (env.NODE_ENV === 'dev') listenDev();
 
 process.on('SIGINT', async () => {
-  await RedisClient.getInstance().quit();
+  await RedisUtil.getInstance().quit();
   console.log('Exit Redis !!');
 });
 

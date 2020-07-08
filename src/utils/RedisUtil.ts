@@ -1,70 +1,59 @@
-import moment from 'moment-timezone';
-import redis, { RedisClient } from 'redis';
-import { RedisConfig } from '../@types/types-custom';
-import { Util } from './BaseUtil';
-moment.tz.setDefault('Asia/Seoul');
+import redis from 'redis';
+import { promisify } from 'util';
+import env from '../configs/index';
 
-export class RedisUtil extends Util {
-  private client: RedisClient;
+export default class RedisUtil {
+  private static _instance: null | RedisUtil = null;
+  private client = redis.createClient(env.REDIS);
 
-  constructor(config: RedisConfig) {
-    super();
-    this.client = new redis.RedisClient(config);
+  // 메서드를 Promise화로 만들어 반환하는 함수
+  private promisify(method: Function) {
+    return promisify(method).bind(this.client);
   }
 
-  sadd = (key: string, value: string) => {
-    return new Promise((resolve, response) => {
-      this.client.sadd(key, value, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    });
-  };
+  private static onError(err: any): void {
+    console.error('Redis Error : ' + err);
+  }
 
-  spop = (key: string) => {
-    return new Promise<string | null>((resolve, response) => {
-      this.client.spop(key, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    });
-  };
+  // 싱글톤
+  public static getInstance() {
+    if (!RedisUtil._instance) {
+      RedisUtil._instance = new RedisUtil();
+      RedisUtil._instance.client.on('error', this.onError);
+    }
+    return RedisUtil._instance;
+  }
 
-  srem = (key: string, value: string) => {
-    return new Promise((resolve, response) => {
-      this.client.srem(key, value, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    });
-  };
+  // keys
+  public readonly keys = this.promisify(this.client.keys);
 
-  hmset = (key: string, value: (string | number)[]) => {
-    return new Promise((resolve, response) => {
-      this.client.hmset(key, value, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    });
-  };
+  // string
+  public readonly get = this.promisify(this.client.get);
+  public readonly set = this.promisify(this.client.set);
 
-  hmget = (key: string, value: string[]) => {
-    return new Promise<string[]>((resolve, response) => {
-      this.client.hmget(key, value, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    });
-  };
+  // hash
+  public readonly hmset = this.promisify(this.client.hmset);
+  public readonly hmget = this.promisify(this.client.hmget);
+  public readonly hgetall = this.promisify(this.client.hgetall);
 
-  expire = (key: string, value: number) => {
-    return new Promise<number>((resolve, response) => {
-      this.client.expire(key, value, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    });
-  };
+  // set
+  public readonly smembers = this.promisify(this.client.smembers);
+  public readonly sadd = this.promisify(this.client.sadd);
+  public readonly spop = this.promisify(this.client.spop);
+  public readonly srem = this.promisify(this.client.srem);
 
-  closeRedis = () => this.client.quit();
+  // sorted set
+  public readonly zadd = this.promisify(this.client.zadd);
+  public readonly zrevrange = this.promisify(this.client.zrevrange);
+  public readonly zrevrangebyscore = this.promisify(this.client.zrevrangebyscore);
+  public readonly zrevrank = this.promisify(this.client.zrevrank);
+
+  // exists
+  public readonly exists = this.promisify(this.client.exists);
+
+  // expire
+  public readonly expire = this.promisify(this.client.expire);
+
+  // Redis 종료 - 서버 종료시 호출할 것
+  public readonly quit = this.promisify(this.client.quit);
 }

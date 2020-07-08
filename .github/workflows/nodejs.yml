@@ -66,9 +66,6 @@ jobs:
 
         echo "REDIS_HOST = ${{ secrets.REDIS_HOST }}" >> .env.test
         echo "REDIS_PORT = ${{ secrets.REDIS_PORT }}" >> .env.test
-        echo "REDIS_PASSWORD = ${{ secrets.REDIS_PASSWORD }}" >> .env.test
-
-        echo "REDIS_URL=redis://localhost:6379" >> .env.test
 
     - name: Prisma generate and migrate up
       run: ENV=test npm run prisma:generate
