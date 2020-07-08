@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 
-export type JsonResponse = { [key: string]: any };
+export declare type JsonResponse = { [key: string]: any };
 
 export declare type UserInfo = User & { itemTotalCount: number; percent: number };
 

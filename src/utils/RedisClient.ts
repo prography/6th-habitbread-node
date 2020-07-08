@@ -1,9 +1,8 @@
 import redis from 'redis';
 import { promisify } from 'util';
 
-// 방식 1
 export default class RedisClient {
-  private static util: null | RedisClient = null;
+  private static _instance: null | RedisClient = null;
   private client = redis.createClient(process.env.REDIS_URL!);
 
   // 메서드를 Promise화로 만들어 반환하는 함수
@@ -11,17 +10,17 @@ export default class RedisClient {
     return promisify(method).bind(this.client);
   }
 
-  // 싱글톤
-  public static getInstance() {
-    if (!this.util) {
-      this.util = new RedisClient();
-    }
-    return this.util;
+  private static onError(err: any): void {
+    console.error('Redis Error : ' + err);
   }
 
-  // Redis 종료
-  public close() {
-    return this.client.quit();
+  // 싱글톤
+  public static getInstance() {
+    if (!RedisClient._instance) {
+      RedisClient._instance = new RedisClient();
+      RedisClient._instance.client.on('error', this.onError);
+    }
+    return RedisClient._instance;
   }
 
   // keys
@@ -48,6 +47,12 @@ export default class RedisClient {
   public readonly zrangebyscore = this.promisify(this.client.zrangebyscore);
   public readonly zrank = this.promisify(this.client.zrank);
 
+  // exists
+  public readonly exists = this.promisify(this.client.exists);
+
   // expire
   public readonly expire = this.promisify(this.client.expire);
+
+  // Redis 종료 - 서버 종료시 호출할 것
+  public readonly quit = this.promisify(this.client.quit);
 }

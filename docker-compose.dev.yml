@@ -18,11 +18,14 @@ services:
 
   redis-database:
     image: redis
-    container_name: redis-database
+    container_name: redis
     ports:
       - 6379:6379
     expose:
       - 6379
+    networks:
+      backend:
+        ipv4_address: 172.16.5.4
 
   node-server:
     container_name: node-server
@@ -31,7 +34,7 @@ services:
       - 3000:3000
     environment:
       - NODE_ENV=dev
-      - REDIS_URL=redis://cache
+      - REDIS_URL=redis-database://redis
     env_file: 
       - ./.env
       - ./.env.dev
