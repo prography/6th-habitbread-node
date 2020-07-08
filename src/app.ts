@@ -8,7 +8,7 @@ import { AuthHelper } from './middleware/AuthHelper';
 import { stream } from './services/LogService';
 const app = express();
 
-if (env.NODE_ENV === 'dev') {
+if (env.NODE_ENV === 'prod') {
   // Sentry Setting
   Sentry.init({ dsn: env.SENTRY_DNS });
   app.use(Sentry.Handlers.requestHandler() as express.RequestHandler);
