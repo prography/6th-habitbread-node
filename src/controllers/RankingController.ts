@@ -27,9 +27,7 @@ export class RankingController extends BaseController {
         const user = await this.rankBuilder(users, key);
         rankings.push(user);
       }
-      // filter vs redis get
       const user = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
-      // const user = await this.rankBuilder(users, `user:${currentUser.userId}`);
       const userTotalCount = userKeys.length;
 
       return { user, userTotalCount, rankings: rankings.slice(0, 200) };
