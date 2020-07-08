@@ -8,21 +8,11 @@ import { AuthHelper } from './middleware/AuthHelper';
 import { stream } from './services/LogService';
 const app = express();
 
-if (env.NODE_ENV === 'prod') {
+if (env.NODE_ENV === 'dev') {
   // Sentry Setting
   Sentry.init({ dsn: env.SENTRY_DNS });
   app.use(Sentry.Handlers.requestHandler() as express.RequestHandler);
-  app.use(
-    Sentry.Handlers.errorHandler({
-      shouldHandleError(error) {
-        // Capture all 404 and 500 errors
-        if (error.status === 404 || error.status === 500) {
-          return true;
-        }
-        return false;
-      },
-    }) as express.ErrorRequestHandler
-  );
+  app.use(Sentry.Handlers.errorHandler() as express.ErrorRequestHandler);
 }
 
 useExpressServer(app, {
