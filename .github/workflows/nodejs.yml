@@ -18,6 +18,8 @@ jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
+    # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idcontainer
+    container: node:12 
 
     # Service containers to run with `container-job`
     services:
