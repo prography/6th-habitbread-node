@@ -16,7 +16,6 @@ export const redisUpsert = async (user: User | Record<string, any>, achievement:
 
   const userInfo = { name, exp, achievement };
   await redis.hmset(`user:${userId}`, userInfo);
-  await redis.expire(`user:${userId}`);
 };
 
 // 랭킹 upsert 메서드
@@ -44,7 +43,7 @@ const rankingJob = async () => {
   try {
     const users = await prisma.user.findMany();
     if (users.length === 0) {
-      logger.info('랭킹 업데이트: 업데이트 할 사용자가 없습니다.')
+      logger.info('랭킹 업데이트: 업데이트 할 사용자가 없습니다.');
       return;
     }
     for (const user of users) await upsertRanking(user);

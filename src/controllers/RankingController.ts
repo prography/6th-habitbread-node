@@ -49,7 +49,7 @@ export class RankingController extends BaseController {
     const userId = Number(key.split(':')[1]);
     const userName = userHash.name;
     const exp = Number(userHash.exp);
-    const achievement = Number(userHash.achievement);
+    const achievement = Number(userHash.achievement || 0);
     const rank = String((await this.redis.zrevrank('user:score', denseRank[0])) + 1);
 
     return { userId, userName, exp, achievement, rank };

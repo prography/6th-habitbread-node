@@ -48,15 +48,16 @@ export class UserController extends BaseController {
       const bodyErrors = await validate(body, { skipMissingProperties: true });
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
+      const userInfo: any = {};
+      userInfo.name = body.name || currentUser.name;
+      userInfo.exp = currentUser.exp;
+      userInfo.isAlarmOn = body.fcmToken ? 1 : 0;
+      userInfo.FCMToken = body.fcmToken || null;
+      await this.redis.hmset(`user:${currentUser.userId}`, userInfo);
+
       const payload: any = {};
-      if (body.name) payload.name = body.name;
-      if (body.fcmToken) {
-        payload.fcmToken = body.fcmToken;
-        await this.redis.hmset(`user:${currentUser.userId}`, ['isAlarmOn', '1', 'FCMToken', body.fcmToken]);
-      } else {
-        payload.fcmToken = null;
-        await this.redis.hmset(`user:${currentUser.userId}`, ['isAlarmOn', '0', 'FCMToken', 'null']);
-      }
+      payload.name = userInfo.name;
+      payload.fcmToken = userInfo.FCMToken;
 
       const user = await this.prisma.user.update({
         where: { userId: currentUser.userId },
@@ -76,9 +77,7 @@ export class UserController extends BaseController {
   @Delete('/users')
   public async deleteUser(@CurrentUser() currentUser: User) {
     try {
-      const ranking = await this.prisma.ranking.findOne({ where: { userId: currentUser.userId } });
-      if (ranking) await this.prisma.ranking.delete({ where: { userId: currentUser.userId } });
-
+      await this.redis.del(`user:${currentUser.userId}`);
       await this.prisma.raw`delete from users where user_id = ${currentUser.userId};`;
 
       return { message: 'Delete User Success' };

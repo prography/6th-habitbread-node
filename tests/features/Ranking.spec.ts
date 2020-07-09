@@ -20,7 +20,6 @@ describe('Test Ranking', () => {
   const redis = RedisUtil.getInstance();
 
   beforeEach(async done => {
-    await prisma.ranking.deleteMany({});
     await prisma.habit.deleteMany({});
     await prisma.userItem.deleteMany({});
     await prisma.user.deleteMany({});

@@ -54,6 +54,9 @@ export default class RedisUtil {
   // expire
   public readonly expire = this.promisify(this.client.expire);
 
+  // 특정 키 삭제
+  public readonly del = this.promisify(this.client.del);
+
   // 모든 키 삭제
   public readonly flushall = this.promisify(this.client.flushall);
 
