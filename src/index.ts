@@ -1,7 +1,7 @@
 import app from './app';
 import env from './configs/index';
-import alarmScheduler from './schedulers/AlarmScheduler';
-import scheduler from './schedulers/RankScheduler';
+import alarmScheduler from './jobs/AlarmScheduler';
+import scheduler from './jobs/RankScheduler';
 import RedisUtil from './utils/RedisUtil';
 
 // Server listen

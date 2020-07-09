@@ -3,6 +3,7 @@ import jsonwebtoken, { SignOptions } from 'jsonwebtoken';
 import { Action } from 'routing-controllers';
 import env from '../configs/index';
 import { AuthError, BadRequestError, NotFoundError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 
 const signOptions: SignOptions = {
   algorithm: 'HS384',
@@ -42,6 +43,7 @@ export class AuthHelper {
       const data = jsonwebtoken.verify(token, env.PASSWORD_SECRET!, signOptions) as AuthPayload;
       return data.userId;
     } catch (err) {
+      errorService(err);
       throw new AuthError(err);
     }
   }

@@ -4,6 +4,7 @@ import { Response } from 'express';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import RedisUtil from '../utils/RedisUtil';
@@ -65,6 +66,7 @@ export class HabitController extends BaseController {
       }
       return newHabit;
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -108,6 +110,7 @@ export class HabitController extends BaseController {
       if (habits.length === 0) return { comment, habits: [] };
       return { comment, habits };
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -162,13 +165,33 @@ export class HabitController extends BaseController {
         const commitFullCount = await this.prisma.commitHistory.count({
           where: { habitId: id.habitId },
         });
+
+        const lastMonth = await this.prisma.commitHistory.count({
+          where: {
+            habitId: id.habitId,
+            createdAt: {
+              gte: moment()
+                .subtract(month + 1, 'months')
+                .subtract(year, 'years')
+                .startOf('months')
+                .toDate(),
+              lte: moment()
+                .subtract(month + 1, 'months')
+                .subtract(year, 'years')
+                .endOf('months')
+                .toDate(),
+            },
+          },
+        });
         return {
           habit: findHabit,
           commitFullCount,
+          comparedToLastMonth: findHabit.commitHistory.length - lastMonth,
         };
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -223,6 +246,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -249,6 +273,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }
@@ -307,6 +332,7 @@ export class HabitController extends BaseController {
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {
+      errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
     }

@@ -2,6 +2,7 @@ import { User } from '@prisma/client';
 import _ from 'lodash';
 import { CurrentUser, Get, JsonController } from 'routing-controllers';
 import { InternalServerError } from '../exceptions/Exception';
+import { errorService } from '../services/LogService';
 import RedisUtil from '../utils/RedisUtil';
 import { BaseController } from './BaseController';
 
@@ -32,6 +33,7 @@ export class RankingController extends BaseController {
 
       return { user, userTotalCount, rankings: rankings.slice(0, 200) };
     } catch (err) {
+      errorService(err);
       throw new InternalServerError(err.message);
     }
   }
