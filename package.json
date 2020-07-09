@@ -4,7 +4,7 @@
   "description": "프로그라피 6기 - 'USO'앱을 개발하는 4팀의 TypeScript와 Express를 이용한 Node.js 백엔드 서버",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && pm2 start dist",
+    "start": "tsc && pm2-docker start dist",
     "test": "cross-env NODE_ENV=test jest ./tests/features/index.spec.ts --forceExit",
     "dev": "nodemon",
     "prisma:echo": "echo Using Prisma Environment File : .env.$ENV ':)'",

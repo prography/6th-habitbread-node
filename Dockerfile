@@ -7,6 +7,9 @@ ARG DOCKERIZE_VERSION=v0.2.0
 RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \  
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
+# install pm2
+RUN npm install -g pm2 node-gyp
+
 # install node modules
 # Add package.json before rest of repo for caching
 WORKDIR ${APP_PATH}
