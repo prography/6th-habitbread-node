@@ -1,14 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import moment from 'moment-timezone';
 import { HabitIncludeUser } from '../@types/types-custom';
-import env from '../configs/index';
 import { InternalServerError } from '../exceptions/Exception';
-import { RedisUtil } from '../utils/RedisUtil';
+import RedisUtil from '../utils/RedisUtil';
 moment.tz.setDefault('Asia/Seoul');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const prisma = new PrismaClient();
-const redis = new RedisUtil(env.REDIS);
+const redis = RedisUtil.getInstance();
 
 const habitCheckWithUser = (habit: HabitIncludeUser | null) => {
   if (habit === null) return true;
@@ -47,8 +46,8 @@ const UpsertAlarm = async () => {
     throw new InternalServerError(err.message);
   }
   console.log('추가 끝 =)');
-  redis.closeRedis();
-  prisma.disconnect();
+  await redis.quit();
+  await prisma.disconnect();
 };
 
 UpsertAlarm();

@@ -3,12 +3,11 @@ import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
-import env from '../configs/index';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import { errorService } from '../services/LogService';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
-import { RedisUtil } from '../utils/RedisUtil';
+import RedisUtil from '../utils/RedisUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
 import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
@@ -28,7 +27,7 @@ export class HabitController extends BaseController {
     this.userItemUtil = new UserItemUtil();
     this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
-    this.redis = new RedisUtil(env.REDIS);
+    this.redis = RedisUtil.getInstance();
   }
 
   // 습관 등록하기
