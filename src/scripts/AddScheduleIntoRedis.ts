@@ -11,7 +11,6 @@ const redis = RedisUtil.getInstance();
 
 const habitCheckWithUser = (habit: HabitIncludeUser | null) => {
   if (habit === null) return true;
-  if (habit.alarmTime === null || habit.user.fcmToken === null) return true;
   if (habit.dayOfWeek[moment().day()] === '0') return true;
   return false;
 };
@@ -28,7 +27,7 @@ const AddSchedule = async (schedule: any) => {
     console.log(schedule);
 
     await redis.sadd(moment(habit!.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit!.habitId));
-    await redis.hmset(`habitId:${habit!.habitId}`, ['userId', habit!.user.userId, 'title', habit!.title, 'dayOfWeek', habit!.dayOfWeek]);
+    await redis.hmset(`habitId:${habit!.habitId}`, ['user', habit!.user.userId, 'title', habit!.title, 'dayOfWeek', habit!.dayOfWeek]);
     await redis.expire(`habitId:${habit!.habitId}`, 604860);
   } catch (err) {
     console.log(err);
@@ -41,6 +40,11 @@ const UpsertAlarm = async () => {
     const data = await prisma.scheduler.findMany();
     for await (const schedule of data) {
       await AddSchedule(schedule);
+    }
+    const users = await prisma.user.findMany();
+    for await (const user of users) {
+      if (user.fcmToken) await redis.hmset(`user:${user.userId}`, ['isAlarmOn', '1', 'FCMToken', user.fcmToken]);
+      else await redis.hmset(`user:${user.userId}`, ['isAlarmOn', '0', 'FCMToken', 'null']);
     }
   } catch (err) {
     throw new InternalServerError(err.message);

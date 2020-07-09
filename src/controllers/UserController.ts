@@ -52,10 +52,10 @@ export class UserController extends BaseController {
       if (body.name) payload.name = body.name;
       if (body.fcmToken) {
         payload.fcmToken = body.fcmToken;
-        await this.redis.hmset(`userId:${currentUser.userId}`, ['isAlarmOn', '1', 'FCMToken', body.fcmToken]);
+        await this.redis.hmset(`user:${currentUser.userId}`, ['isAlarmOn', '1', 'FCMToken', body.fcmToken]);
       } else {
         payload.fcmToken = null;
-        await this.redis.hmset(`userId:${currentUser.userId}`, ['isAlarmOn', '0', 'FCMToken', 'null']);
+        await this.redis.hmset(`user:${currentUser.userId}`, ['isAlarmOn', '0', 'FCMToken', 'null']);
       }
 
       const user = await this.prisma.user.update({

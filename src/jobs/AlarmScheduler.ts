@@ -37,8 +37,8 @@ const scheduler = {
         while (1) {
           const habitId = await redis.spop(moment().format('MMDDHHmm'));
           if (habitId === null) break;
-          const [userId, title, dayOfWeek] = await redis.hmget(`habitId:${habitId}`, ['userId', 'title', 'dayOfWeek']);
-          const [isAlarmOn, FCMToekn] = await redis.hmget(`userId:${userId}`, ['isAlarmOn', 'FCMToken']);
+          const [user, title, dayOfWeek] = await redis.hmget(`habitId:${habitId}`, ['userId', 'title', 'dayOfWeek']);
+          const [isAlarmOn, FCMToekn] = await redis.hmget(`user:${user}`, ['isAlarmOn', 'FCMToken']);
           if (isAlarmOn === '0') break;
           const AMPM = moment().hours() >= 12 ? 'PM' : 'AM';
           const time = (type: string) => moment().format(type);
@@ -60,7 +60,7 @@ const scheduler = {
           if (indexOfNextDay <= moment().day()) dateToAdd = 7 - moment().day() + indexOfNextDay;
           else dateToAdd = indexOfNextDay - moment().day();
           await redis.sadd(moment().add(dateToAdd, 'days').format('MMDDHHmm'), habitId);
-          await redis.hmset(`habitId:${habitId}`, ['userId', userId, 'title', title, 'dayOfWeek', dayOfWeek]);
+          await redis.hmset(`habitId:${habitId}`, ['user', user, 'title', title, 'dayOfWeek', dayOfWeek]);
           await redis.expire(`habitId:${habitId}`, 604860);
         }
       } catch (err) {
