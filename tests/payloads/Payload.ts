@@ -1,3 +1,4 @@
+
 // habit
 export class Payload {
   public static habitOriginalPayloads = [
@@ -102,33 +103,28 @@ export class Payload {
     return [
       {
         userId: userId + 1,
-        userName: 'testUser1',
+        name: 'testUser1',
         exp: 10000,
-        achievement: 10,
       },
       {
         userId: userId + 2,
-        userName: 'testUser2',
+        name: 'testUser2',
         exp: 2500,
-        achievement: 10,
       },
       {
         userId: userId + 3,
-        userName: 'testUser3',
+        name: 'testUser3',
         exp: 5000,
-        achievement: 40,
       },
       {
         userId: userId + 4,
-        userName: 'testUser4',
+        name: 'testUser4',
         exp: 2500,
-        achievement: 50,
       },
       {
         userId: userId + 5,
-        userName: 'testUser5',
+        name: 'testUser5',
         exp: 500,
-        achievement: 50,
       },
     ];
   }

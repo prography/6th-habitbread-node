@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 
-export type JsonResponse = { [key: string]: any };
+export declare type JsonResponse = { [key: string]: any };
 
 export declare type UserInfo = User & { itemTotalCount: number; percent: number };
 
@@ -9,7 +9,6 @@ export declare type RandomItem = { level: number; weight: number };
 export declare type RedisConfig = {
   host: string;
   port: number;
-  password: string;
 };
 
 export declare type HabitIncludeUser = {
