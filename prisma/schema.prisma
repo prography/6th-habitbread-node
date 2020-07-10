@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource mysql {
@@ -11,7 +12,6 @@ model Scheduler {
   scheduleId     Int       @default(autoincrement()) @id @map("schedule_id")
   userId         Int       @map("user_id")
   habitId        Int       @map("habit_id") @unique
-
   @@map("scheduler")
 }
 
@@ -24,10 +24,8 @@ model Habit {
   dayOfWeek       String    @map("day_of_week")
   alarmTime       String?   @map("alaram_time")
   continuousCount Int       @map("countinuous_count") @default(0)
-
   commitHistory   CommitHistory[]
   user            User      @relation(fields: [userId], references: [userId])
-
   @@index([userId], name: "fk_Habit_User1_idx")
   @@map("habits")
 }
@@ -35,9 +33,7 @@ model Habit {
 model CommitHistory {
   createdAt     DateTime  @default(now()) @map("created_at") @id
   habitId       Int       @map("habit_id")
-
   habits        Habit     @relation(fields: [habitId], references: [habitId])
-
   @@index([habitId], name: "fk_Habit_History_Habit1_idx")
   @@map("commit_history")
 }
@@ -50,10 +46,8 @@ model User {
   updatedAt     DateTime? @map("updated_at") @updatedAt
   oauthKey      String    @map("oauth_key") @unique
   fcmToken      String?
-
   items         UserItem[]
   habits        Habit[]
-
   @@map("users")
 }
 
@@ -62,10 +56,8 @@ model UserItem {
   itemId      Int       @map("item_id")
   userId      Int       @map("user_id")
   createdAt   DateTime  @default(now())
-
   item        Item      @relation(fields: [itemId], references: [itemId])
   user        User      @relation(fields: [userId], references: [userId])
-
   @@unique([itemId, userId])
   @@map("user_item")
 }

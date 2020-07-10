@@ -3,7 +3,7 @@
   "steps": [
     {
       "tag": "DeleteModel",
-      "model": "Scheduler"
+      "model": "Ranking"
     }
   ]
 }
