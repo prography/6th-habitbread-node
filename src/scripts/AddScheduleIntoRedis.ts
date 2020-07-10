@@ -35,7 +35,7 @@ const AddSchedule = async (schedule: any) => {
 };
 const UpsertAlarm = async () => {
   // alarmQueue update
-  console.log('습관빵 알림 리스트 시작~!');
+  console.log('알림 스케줄러 시작 !');
   try {
     const data = await prisma.scheduler.findMany();
     for await (const schedule of data) {
@@ -49,7 +49,7 @@ const UpsertAlarm = async () => {
   } catch (err) {
     throw new InternalServerError(err.message);
   }
-  console.log('추가 끝 =)');
+  console.log('알림 스케줄러 추가 끝 =)');
   await redis.quit();
   await prisma.disconnect();
 };

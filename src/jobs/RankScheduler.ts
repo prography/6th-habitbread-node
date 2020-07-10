@@ -38,7 +38,7 @@ const upsertRanking = async (user: User) => {
   await redisUpsert(user, achievement);
 };
 
-const rankingJob = async () => {
+export const rankingJob = async () => {
   console.log('랭킹 업데이트 시작 !');
   try {
     const users = await prisma.user.findMany();
