@@ -1,6 +1,6 @@
 {
   "apps" : [{
-    "name" : "node-server",
+    "name" : "Node API Server",
     "script" : "./src/index.ts",
     "instances"  : 1,
     "watch": false,
@@ -21,6 +21,7 @@
     "name" : "Alarm Scheduler Script",
     "script" : "./src/scripts/AddScheduleIntoRedis.ts",
     "instances"  : 1,
+    "autorestart" : false,
 
     "log_date_format": "YYYY-MM-DD HH:mm Z",
     "error_file": "./logs/pm2-alarm-err.log"
