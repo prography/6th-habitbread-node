@@ -1,0 +1,28 @@
+{
+  "apps" : [{
+    "name" : "node-server",
+    "script" : "./src/index.ts",
+
+    "instances"  : 1,
+    "watch": false,
+
+    "log_date_format": "YYYY-MM-DD HH:mm Z",
+    "out_file": "./logs/pm2-server-out.log",
+    "error_file": "./logs/pm2-server-err.log"
+  },
+  {
+    "name" : "Ranking Update Scheduler Cron",
+    "script" : "./src/scripts/RankUpdateSchedulerScript.ts",
+
+    "log_date_format": "YYYY-MM-DD HH:mm Z",
+    "error_file": "./logs/pm2-server-err.log"
+  },
+  {
+    "name" : "Alarm Scheduler Script",
+    "script" : "./src/scripts/AddScheduleIntoRedis.ts",
+
+    "log_date_format": "YYYY-MM-DD HH:mm Z",
+    "error_file": "./logs/pm2-server-err.log"
+  }
+]
+}

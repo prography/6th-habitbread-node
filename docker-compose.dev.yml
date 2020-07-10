@@ -45,9 +45,10 @@ services:
     command:
       - /bin/bash
       - -c
-      - "ENV=dev npm run prisma:generate 
-      && ENV=dev npm run prisma:up
-      && npm run dev"
+      - "dockerize -wait tcp://mysql-database:3306 -timeout 10s
+        && ENV=dev npm run prisma:generate
+        && ENV=dev npm run prisma:up
+        && npm run dev"
     networks:
       backend:
         ipv4_address: 172.16.5.3

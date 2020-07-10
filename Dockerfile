@@ -9,6 +9,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERS
 
 # install pm2
 RUN npm install -g pm2 node-gyp
+RUN pm2 install typescript
 
 # install node modules
 # Add package.json before rest of repo for caching
