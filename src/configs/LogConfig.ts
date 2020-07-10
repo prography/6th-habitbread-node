@@ -23,7 +23,7 @@ const consoleTransport = new winston.transports.Console({
   format: winston.format.combine(
     winston.format.colorize(),
     winston.format.printf(({ level, message, timestamp, stack }) => {
-      if (stack) return `${level}`;
+      if (stack) return `${level} ${message}`;
       return `${level}: ${message}`;
     })
   ),
