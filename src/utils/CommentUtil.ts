@@ -16,8 +16,27 @@ export class Comments extends Util {
       '습관 하나만 더 구우면 당신도 제빵왕 김탁구~',
       '습관빵 한 개가 구워지길 기다리고 있어요.',
     ],
-    someHabitsLeft: ['습관 여러 개 남음 - 1', '습관 여러 개 남음 - 2', '습관 여러 개 남음 - 3', '습관 여러 개 남음 - 4', '습관 여러 개 남음 - 5'],
-    allHabitsLeft: ['습관 하나도 안함 - 1', '습관 하나도 안함 - 2', '습관 하나도 안함 - 3', '습관 하나도 안함 - 4', '습관 하나도 안함 - 5'],
+    someHabitsLeft: [
+      '오늘 하루도 화이팅! 습관빵들을 구워주세요',
+      '여러 습관빵들이 구워지길 기다리고 있어요.',
+      '오늘 하루도 잘해보아요. 남아있는 습관빵들을 완료해주세요.',
+      '남은 습관빵들을 구우신다면! 새로운 컬랙션을 얻을지도 몰라요?!',
+      '습관이 여러 개 남아있어요. 조금만 힘내주세요.',
+    ],
+    allHabitsLeft: [
+      '오늘의 습관빵을 시작해주세요!',
+      '오늘의 첫 습관빵을 구워보세요!',
+      '습관빵을 시작해주세요! 당신을 기다리고 있어요.',
+      '시작이 반이다. 오늘의 습관빵도 시작해보세요.',
+      '일찍 일어나는 새가 먹이를 먹는다. 랭킹 1등에 도전해보세요.',
+    ],
+    noHabitToDo: [
+      '오늘은 해야할 습관이 없어요. 새로운 습관을 생성하는 건 어떤가요?',
+      '오늘 나올 습관이 없네요.. 새로운 습관을 구워볼까요??',
+      '습관빵을 굽고 싶은가요? 새로운 습관을 생성해주세요!',
+      '습관빵과 함께 건강한 생활을 만들어 나가봐요!',
+      '오늘 해야 될 첫 습관빵을 등록해주세요!',
+    ],
   };
 
   private getComment = (key: string, index: number) => Comments.comments.allDone[index];
@@ -25,7 +44,7 @@ export class Comments extends Util {
     const min = Math.ceil(0);
     const max = Math.floor(5);
     const randomNumber = Math.floor(Math.random() * (max - min));
-    if (todayHabit === 0) return '오늘은 해야할 습관이 없어요. 새로운 습관을 생성하는 건 어떤가요?';
+    if (todayHabit === 0) return Comments.comments.noHabitToDo[randomNumber];
     else if (todayHabit === 1 && todayDoneHabit === 0) return Comments.comments.allHabitsLeft[randomNumber];
     else if (todayHabit - todayDoneHabit === 0) return Comments.comments.allDone[randomNumber];
     else if (todayHabit - todayDoneHabit === 1) return Comments.comments.oneHabitLeft[randomNumber];
