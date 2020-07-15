@@ -26,31 +26,14 @@ services:
     networks:
       backend:
         ipv4_address: 172.16.5.4
-        
-  nginx:
-    container_name: node-nginx-lb
-    build: ./nginx
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/lib/letsencrypt:/var/lib/letsencrypt
-      - /var/www:/var/www
-      - ./nginx/log:/var/log/nginx
-    depends_on:
-      - node-server
-    restart: always
-    networks:
-      backend:
-        ipv4_address: 172.16.5.5
 
   node-server:
     container_name: node-server
     build: .
     ports: 
-      - 3000:3000
+      - 80:80
     environment:
+      - PORT=80
       - NODE_ENV=dev
     env_file: 
       - ./.env
