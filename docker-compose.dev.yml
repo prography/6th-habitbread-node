@@ -26,6 +26,24 @@ services:
     networks:
       backend:
         ipv4_address: 172.16.5.4
+        
+  nginx:
+    container_name: node-nginx-lb
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/www:/var/www
+      - ./nginx/log:/var/log/nginx
+    depends_on:
+      - node-server
+    restart: always
+    networks:
+      backend:
+        ipv4_address: 172.16.5.5
 
   node-server:
     container_name: node-server
@@ -42,13 +60,8 @@ services:
     depends_on: 
       - mysql-database
       - redis-database
-    command:
-      - /bin/bash
-      - -c
-      - "dockerize -wait tcp://mysql-database:3306 -timeout 10s
-        && ENV=dev npm run prisma:generate
-        && ENV=dev npm run prisma:up
-        && npm run dev"
+    entrypoint: 
+      - ./docker-entrypoint.sh
     networks:
       backend:
         ipv4_address: 172.16.5.3

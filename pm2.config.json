@@ -2,7 +2,7 @@
   "apps" : [{
     "name" : "Node API Server",
     "script" : "./src/index.ts",
-    "instances"  : 1,
+    "instances"  : 2,
     "watch": false,
 
     "log_date_format": "YYYY-MM-DD HH:mm Z",
@@ -13,6 +13,7 @@
     "name" : "Ranking Update Scheduler Cron",
     "script" : "./src/scripts/RankUpdateSchedulerScript.ts",
     "instances"  : 1,
+    "exec_mode" : "fork",
 
     "log_date_format": "YYYY-MM-DD HH:mm Z",
     "error_file": "./logs/pm2-ranking-err.log"
@@ -21,6 +22,7 @@
     "name" : "Alarm Scheduler Script",
     "script" : "./src/scripts/AddScheduleIntoRedis.ts",
     "instances"  : 1,
+    "exec_mode" : "fork",
     "autorestart" : false,
 
     "log_date_format": "YYYY-MM-DD HH:mm Z",
