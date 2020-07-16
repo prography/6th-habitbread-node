@@ -1,4 +1,22 @@
+# vscode config
+.vscode
+
+# Ignore Files
 node_modules
 dist
-db
-.vscode
+db/data
+
+# ENV Files
+.env
+.env.*
+!.env.example
+
+# Apple Private Key
+src/configs/apple-auth
+
+# NGINX conf
+nginx/log/*
+
+#log File
+logs/**/*.log
+

@@ -25,7 +25,7 @@ services:
       - 6379
     networks:
       backend:
-        ipv4_address: 172.16.5.4
+        ipv4_address: 172.16.5.3
         
   nginx:
     container_name: node-nginx-lb
@@ -35,40 +35,18 @@ services:
       - 443:443
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
-      - /var/lib/letsencrypt:/var/lib/letsencrypt
       - /var/www:/var/www
       - ./nginx/log:/var/log/nginx
-    depends_on:
-      - node-server
+      - ./nginx/conf.d:/etc/nginx/conf.d
     restart: always
     networks:
       backend:
-        ipv4_address: 172.16.5.5
-
-  node-server:
-    container_name: node-server
-    build: .
-    ports: 
-      - 3000:3000
-    environment:
-      - NODE_ENV=prod
-    env_file: 
-      - ./.env
-      - ./.env.prod
-    volumes:
-      - .:/usr/src/app
-    depends_on: 
-      - mysql-database
-      - redis-database
-    entrypoint: 
-      - ./docker-entrypoint.sh
-    networks:
-      backend:
-        ipv4_address: 172.16.5.3
+        ipv4_address: 172.16.5.4
 
 networks:
   backend:
     driver: bridge
+    name: habitbread
     ipam:
       config:
         - subnet: 172.16.5.0/16

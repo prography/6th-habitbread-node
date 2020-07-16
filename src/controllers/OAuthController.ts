@@ -122,7 +122,7 @@ export class OAuthControllers extends BaseController {
   }
 
   // Apple IOS 인증
-  @Post('apple/verify')
+  @Post('/apple/verify')
   public async appleOAuth(@Body() body: Record<string, string>) {
     try {
       if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
