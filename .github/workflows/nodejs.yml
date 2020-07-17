@@ -4,10 +4,10 @@
 name: Node.js CI - Continuous Integration
 
 on:
-  pull_request:
-    branches:
-      - master
-      - develop
+  # pull_request:
+  #   branches:
+  #     - master
+  #     - develop
 
 jobs:
   build-and-test:
