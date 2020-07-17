@@ -72,11 +72,14 @@ jobs:
 
       - name: Prisma generate and migrate up
         run: |
+          cd app
           ENV=test npm run prisma:generate
           ENV=test npm run prisma:up
 
       - name: Run Test
-        run: npm test
+        run: |
+          cd app
+          npm test
         env:
           # PORT: 3001
           # DB_URL: ${{ secrets.DB_URL_TEST }}

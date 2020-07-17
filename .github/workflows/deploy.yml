@@ -32,6 +32,5 @@ jobs:
           eval $(ssh-agent -s)
           echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.DEPLOY_SERVER }} >> EOF
-            cd /home/ubuntu/6th-team4-node
             echo "Hello World"
           EOF
