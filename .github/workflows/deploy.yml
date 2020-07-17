@@ -26,14 +26,15 @@ jobs:
         with:
           node-version: '12.x'
 
+      # https://stackoverflow.com/questions/47025758/docker-run-it-over-ssh-the-input-device-is-not-a-tty
       - name: Deploy Node Server
         run: |
           eval $(ssh-agent -s)
           echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.DEPLOY_SERVER }} << EOF
+          ssh -o StrictHostKeyChecking=no -o RequestTTY=force ubuntu@${{ secrets.DEPLOY_SERVER }} << EOF
             echo "Start Blue-Green Deploy !"
             cd /home/ubuntu/6th-team4-node
-            git checkout master
+            git checkout feature/wwlee94/auto-deploy
             git pull origin feature/wwlee94/auto-deploy
             /bin/bash ./deploy.sh
           EOF
