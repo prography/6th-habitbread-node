@@ -7,10 +7,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
-      - develop
 
 jobs:
   build-and-deploy:
