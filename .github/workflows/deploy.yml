@@ -32,5 +32,6 @@ jobs:
           eval $(ssh-agent -s)
           echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.DEPLOY_SERVER }} << EOF
-            echo "Hello World"
+            echo "Start Blue-Green Deploy !"
+            /bin/bash ./deploy.sh
           EOF
