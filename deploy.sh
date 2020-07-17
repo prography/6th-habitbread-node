@@ -16,7 +16,7 @@ main() {
     # wait
     wait_server $BLUE_SERVER
 
-    docker exec -it node-nginx-lb service nginx reload
+    docker exec -t node-nginx-lb service nginx reload
     docker-compose -f docker-compose.green.yml down
   else
     echo "Changing Blue -> Green Server"
@@ -26,7 +26,7 @@ main() {
     # wait
     wait_server $GREEN_SERVER
 
-    docker exec -it node-nginx-lb service nginx reload
+    docker exec -t node-nginx-lb service nginx reload
     docker-compose -f docker-compose.blue.yml down
   fi
 }
