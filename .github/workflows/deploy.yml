@@ -30,7 +30,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.DEPLOY_SERVER }} << EOF
             echo "Start Blue-Green Deploy !"
             cd /home/ubuntu/6th-team4-node
-            git checkout feature/wwlee94/auto-deploy
+            git checkout master
             git pull origin feature/wwlee94/auto-deploy
             /bin/bash ./deploy.sh
           EOF
