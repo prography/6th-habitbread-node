@@ -2,17 +2,17 @@ version: '3.7'
 services:
   node-server-green:
     container_name: node-server-green
-    build: .
-    ports: 
+    build: ./app
+    ports:
       - 4000:3000
     environment:
       - NODE_ENV=prod
-    env_file: 
-      - ./.env
-      - ./.env.prod
+    env_file:
+      - ./app/.env
+      - ./app/.env.prod
     volumes:
-      - .:/usr/src/app
-    entrypoint: 
+      - ./app:/usr/src/app
+    entrypoint:
       - ./docker-entrypoint.sh
     networks:
       habitbread:

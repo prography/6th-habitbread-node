@@ -1,16 +1,16 @@
 version: '3.7'
-services: 
+services:
   mysql-database:
     container_name: mysql-database
     image: mysql:5.7
     ports:
       - 3306:3306
     env_file:
-      - ./.env.dev
-    expose: 
+      - ./app/.env.dev
+    expose:
       - 3306
     restart: always
-    volumes: 
+    volumes:
       - ./db/data:/var/lib/mysql
     networks:
       backend:
@@ -29,26 +29,26 @@ services:
 
   node-server:
     container_name: node-server
-    build: .
-    ports: 
+    build: ./app
+    ports:
       - 3000:3000
     environment:
       - NODE_ENV=dev
-    env_file: 
-      - ./.env
-      - ./.env.dev
+    env_file:
+      - ./app/.env
+      - ./app/.env.dev
     volumes:
-      - .:/usr/src/app
-    depends_on: 
+      - ./app:/usr/src/app
+    depends_on:
       - mysql-database
       - redis-database
     command:
       - /bin/bash
       - -c
-      - "dockerize -wait tcp://mysql-database:3306 -timeout 10s
+      - 'dockerize -wait tcp://mysql-database:3306 -timeout 10s
         && ENV=dev npm run prisma:generate
         && ENV=dev npm run prisma:up
-        && npm run dev"
+        && npm run dev'
     networks:
       backend:
         ipv4_address: 172.16.5.3

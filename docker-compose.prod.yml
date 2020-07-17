@@ -1,16 +1,16 @@
 version: '3.7'
-services: 
+services:
   mysql-database:
     container_name: mysql-database
     image: mysql:5.7
     ports:
       - 3306:3306
     env_file:
-      - ./.env.prod
-    expose: 
+      - ./app/.env.prod
+    expose:
       - 3306
     restart: always
-    volumes: 
+    volumes:
       - ./db/data:/var/lib/mysql
     networks:
       backend:
@@ -26,7 +26,7 @@ services:
     networks:
       backend:
         ipv4_address: 172.16.5.3
-        
+
   nginx:
     container_name: node-nginx-lb
     build: ./nginx
