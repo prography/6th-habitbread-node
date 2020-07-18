@@ -9,7 +9,7 @@ services:
       - ./app/.env.dev
     expose:
       - 3306
-    restart: always
+    restart: on-failure
     volumes:
       - ./db/data:/var/lib/mysql
     networks:
@@ -23,6 +23,7 @@ services:
       - 6379:6379
     expose:
       - 6379
+    restart: on-failure
     networks:
       backend:
         ipv4_address: 172.16.5.4

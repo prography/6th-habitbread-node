@@ -9,7 +9,7 @@ services:
       - ./app/.env.prod
     expose:
       - 3306
-    restart: always
+    restart: on-failure
     volumes:
       - ./db/data:/var/lib/mysql
     networks:
@@ -23,6 +23,7 @@ services:
       - 6379:6379
     expose:
       - 6379
+    restart: on-failure
     networks:
       backend:
         ipv4_address: 172.16.5.3
@@ -38,7 +39,7 @@ services:
       - /var/www:/var/www
       - ./nginx/log:/var/log/nginx
       - ./nginx/conf.d:/etc/nginx/conf.d
-    restart: always
+    restart: on-failure
     networks:
       backend:
         ipv4_address: 172.16.5.4
