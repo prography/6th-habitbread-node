@@ -51,8 +51,8 @@ export class UserController extends BaseController {
       const userInfo: any = {};
       userInfo.name = body.name || currentUser.name;
       userInfo.exp = currentUser.exp;
-      userInfo.isAlarmOn = body.fcmToken ? 1 : 0;
-      userInfo.FCMToken = body.fcmToken || null;
+      userInfo.isAlarmOn = body.fcmToken ? '1' : '0';
+      userInfo.FCMToken = body.fcmToken || 'null';
       await this.redis.hmset(`user:${currentUser.userId}`, userInfo);
 
       const payload: any = {};
