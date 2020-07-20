@@ -48,16 +48,18 @@ export class UserController extends BaseController {
       const bodyErrors = await validate(body, { skipMissingProperties: true });
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
+      const name = body.name || currentUser.name;
+
       const userInfo: any = {};
-      userInfo.name = body.name || currentUser.name;
+      userInfo.name = name;
       userInfo.exp = currentUser.exp;
       userInfo.isAlarmOn = body.fcmToken ? '1' : '0';
       userInfo.FCMToken = body.fcmToken || 'null';
       await this.redis.hmset(`user:${currentUser.userId}`, userInfo);
 
       const payload: any = {};
-      payload.name = userInfo.name;
-      payload.fcmToken = userInfo.FCMToken;
+      payload.name = name;
+      payload.fcmToken = body.fcmToken;
 
       const user = await this.prisma.user.update({
         where: { userId: currentUser.userId },
