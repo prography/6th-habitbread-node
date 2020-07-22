@@ -26,7 +26,7 @@ services:
     restart: on-failure
     networks:
       backend:
-        ipv4_address: 172.16.5.4
+        ipv4_address: 172.16.5.3
 
   node-server:
     container_name: node-server
@@ -46,17 +46,16 @@ services:
     command:
       - /bin/bash
       - -c
-      - 'dockerize -wait tcp://mysql-database:3306 -timeout 10s
-        && ENV=dev npm run prisma:generate
-        && ENV=dev npm run prisma:up
+      - './docker-entrypoint.dev.sh
         && npm run dev'
     networks:
       backend:
-        ipv4_address: 172.16.5.3
+        ipv4_address: 172.16.5.4
 
 networks:
   backend:
     driver: bridge
+    name: habitbread
     ipam:
       config:
         - subnet: 172.16.5.0/16
