@@ -3,7 +3,7 @@ import AppleAuth, { AppleAuthAccessToken } from 'apple-auth';
 import { Response, urlencoded } from 'express';
 import fs from 'fs';
 import { google } from 'googleapis';
-import * as jwt from 'jsonwebtoken';
+import jsonwebtoken from 'jsonwebtoken';
 import { Body, Get, HttpError, JsonController, Post, QueryParam, Res, UseBefore } from 'routing-controllers';
 import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
@@ -11,7 +11,6 @@ import { AuthHelper } from '../middleware/AuthHelper';
 import { errorService } from '../services/LogService';
 import { BaseController } from './BaseController';
 
-@UseBefore(urlencoded({ extended: true }))
 @JsonController('/oauth')
 export class OAuthControllers extends BaseController {
   private prisma: PrismaClient;
@@ -123,20 +122,21 @@ export class OAuthControllers extends BaseController {
 
   // Apple IOS 인증
   @Post('/apple/verify')
-  public async appleOAuth(@Body() body: Record<string, string>) {
+  public async appleOAuth(@Body() body: Record<string, any>) {
     try {
       if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
 
       const response: AppleAuthAccessToken = await this.authIos.accessToken(body.code);
-
-      const idToken = jwt.decode(response.id_token);
+      const idToken = jsonwebtoken.decode(response.id_token);
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
       const oauthKey = idToken.sub;
+      const { name } = body.user;
+      const { lastName, firstName } = name;
+
       let userName = '습관이';
-      if (body.user) {
-        const { name } = JSON.parse(body.user);
-        userName = `${name.lastName} ${name.firstName}`;
+      if (lastName) {
+        userName = lastName + firstName;
       }
 
       let isNewUser = false;
@@ -149,6 +149,7 @@ export class OAuthControllers extends BaseController {
         });
         isNewUser = true;
       }
+
       const token = AuthHelper.makeAccessToken(user.userId);
       return { accessToken: token, isNewUser };
     } catch (err) {
@@ -165,13 +166,14 @@ export class OAuthControllers extends BaseController {
 
   // Apple 서버로부터 callback 받는 라우터
   @Post('/apple/callback')
+  @UseBefore(urlencoded({ extended: true }))
   public async appleOAuthCallback(@Body() body: Record<string, string>) {
     try {
       if (body.code === null) throw new InternalServerError('알 수 없는 Error 발생');
 
       const response: AppleAuthAccessToken = await this.authWeb.accessToken(body.code);
 
-      const idToken = jwt.decode(response.id_token);
+      const idToken = jsonwebtoken.decode(response.id_token);
       if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
 
       const oauthKey = idToken.sub;

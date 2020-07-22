@@ -1,5 +1,5 @@
 {
-  // "editor.formatOnSave": true,
+  "editor.formatOnSave": true,
   "eslint.format.enable": true,
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.alwaysShowStatus": true,

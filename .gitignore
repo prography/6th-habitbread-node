@@ -1,18 +1,6 @@
-# Ignore Files
-node_modules
-dist
+# MySQL DB Data
 db/data
-
-# ENV Files
-.env
-.env.*
-!.env.example
-
-# Apple Private Key
-src/configs/apple-auth
 
 # NGINX conf
 nginx/log/*
-
-#log File
-logs/**/*.log
+nginx/conf.d/upstream.conf

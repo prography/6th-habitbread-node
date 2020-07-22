@@ -24,7 +24,6 @@ else if (env.NODE_ENV === 'dev') listenDev();
 
 process.on('SIGINT', async () => {
   await RedisUtil.getInstance().quit();
-  console.log('Exit Redis !!');
 });
 
 console.log(env);

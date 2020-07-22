@@ -53,6 +53,11 @@ export const rankingJob = async () => {
   console.log('랭킹 업데이트 종료 :)');
 };
 
+export const disconnect = async () => {
+  await redis.quit();
+  await prisma.disconnect();
+};
+
 const scheduler = {
   // 1시간 마다 모든 사용자의 경험치를 조회한 후 Ranking 테이블 갱신
   RankingUpdateJob: () => {

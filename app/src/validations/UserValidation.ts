@@ -5,7 +5,6 @@ export class GetUserBody {
   @IsString()
   name!: string;
 
-  @IsNotEmpty()
   @IsString()
   fcmToken!: string;
 }
