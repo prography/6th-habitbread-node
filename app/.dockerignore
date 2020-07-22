@@ -1,0 +1,15 @@
+# Ignore Files
+node_modules
+dist
+
+# ENV Files
+.env
+.env.*
+!.env.example
+
+# Apple Private Key
+src/configs/apple-auth
+
+#log File
+logs/**/*.log
+

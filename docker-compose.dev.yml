@@ -32,8 +32,9 @@ services:
     container_name: node-server
     build: ./app
     ports:
-      - 3000:3000
+      - 80:80
     environment:
+      - PORT=80
       - NODE_ENV=dev
     env_file:
       - ./app/.env
@@ -43,13 +44,8 @@ services:
     depends_on:
       - mysql-database
       - redis-database
-    command:
-      - /bin/bash
-      - -c
-      - 'dockerize -wait tcp://mysql-database:3306 -timeout 10s
-        && ENV=dev npm run prisma:generate
-        && ENV=dev npm run prisma:up
-        && npm run dev'
+    entrypoint:
+      - ./docker-entrypoint.sh
     networks:
       backend:
         ipv4_address: 172.16.5.3

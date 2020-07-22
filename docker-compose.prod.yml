@@ -6,7 +6,7 @@ services:
     ports:
       - 3306:3306
     env_file:
-      - ./app/.env.dev
+      - ./app/.env.prod
     expose:
       - 3306
     restart: on-failure
@@ -26,37 +26,28 @@ services:
     restart: on-failure
     networks:
       backend:
-        ipv4_address: 172.16.5.4
+        ipv4_address: 172.16.5.3
 
-  node-server:
-    container_name: node-server
-    build: ./app
+  nginx:
+    container_name: node-nginx-lb
+    build: ./nginx
     ports:
-      - 3000:3000
-    environment:
-      - NODE_ENV=dev
-    env_file:
-      - ./app/.env
-      - ./app/.env.dev
+      - 80:80
+      - 443:443
     volumes:
-      - ./app:/usr/src/app
-    depends_on:
-      - mysql-database
-      - redis-database
-    command:
-      - /bin/bash
-      - -c
-      - 'dockerize -wait tcp://mysql-database:3306 -timeout 10s
-        && ENV=dev npm run prisma:generate
-        && ENV=dev npm run prisma:up
-        && npm run dev'
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www:/var/www
+      - ./nginx/log:/var/log/nginx
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    restart: on-failure
     networks:
       backend:
-        ipv4_address: 172.16.5.3
+        ipv4_address: 172.16.5.4
 
 networks:
   backend:
     driver: bridge
+    name: habitbread
     ipam:
       config:
         - subnet: 172.16.5.0/16

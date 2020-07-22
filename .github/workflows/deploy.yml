@@ -1,0 +1,48 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CD - Continuous Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idcontainer
+    container: node:12
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      # https://stackoverflow.com/questions/47025758/docker-run-it-over-ssh-the-input-device-is-not-a-tty
+      - name: Deploy Node Server
+        run: |
+          eval $(ssh-agent -s)
+          echo "${{ secrets.DEPLOY_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.DEPLOY_SERVER }} << EOF
+            echo "Start Blue-Green Deploy !"
+            cd /home/ubuntu/6th-team4-node
+            git checkout master
+            git pull origin master
+            /bin/bash ./deploy.sh
+          EOF
+
+      - name: Slack Notifying Message
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          author_name: HabitBread
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()

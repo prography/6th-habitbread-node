@@ -1,7 +1,6 @@
-node_modules
-dist
+# MySQL DB Data
 db/data
-prisma/.env
-*.prod.yml
-.env.*
-!.env.example
+
+# NGINX conf
+nginx/log/*
+nginx/conf.d/upstream.conf

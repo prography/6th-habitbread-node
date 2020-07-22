@@ -1,6 +1,5 @@
 {
-  // json 파일도 자동 줄 맞춤
-  // "editor.formatOnSave": true,
+  "editor.formatOnSave": true,
   "eslint.format.enable": true,
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.alwaysShowStatus": true,
