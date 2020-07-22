@@ -12,7 +12,7 @@ main() {
   if [ -z "$BLUE" ]
   then
     echo "Changing Green -> Blue Server"
-    sudo cp -f ./nginx/conf.d/upstream.blue.conf ./nginx/conf.d/upstream.conf
+    sudo cp -f -v ./nginx/conf.d/upstream.blue.conf ./nginx/conf.d/upstream.conf
 
     docker-compose -f docker-compose.blue.yml up -d
 
@@ -32,7 +32,7 @@ main() {
     fi
   else
     echo "Changing Blue -> Green Server"
-    sudo cp -f ./nginx/conf.d/upstream.green.conf ./nginx/conf.d/upstream.conf
+    sudo cp -f -v ./nginx/conf.d/upstream.green.conf ./nginx/conf.d/upstream.conf
 
     docker-compose -f docker-compose.green.yml up -d
 
