@@ -80,6 +80,7 @@ export class UserController extends BaseController {
   public async deleteUser(@CurrentUser() currentUser: User) {
     try {
       await this.redis.del(`user:${currentUser.userId}`);
+      await this.redis.zrem('user:score', `user:${currentUser.userId}`);
       await this.prisma.raw`delete from users where user_id = ${currentUser.userId};`;
 
       return { message: 'Delete User Success' };

@@ -26,7 +26,7 @@ export class RankingController extends BaseController {
       const userKeys = Object.keys(users);
       for (const key of userKeys) {
         const user = await this.rankBuilder(users, key);
-        rankings.push(user);
+        if (user) rankings.push(user);
       }
       const user = rankings.filter(ranking => ranking.userId === currentUser.userId)[0];
       const userTotalCount = userKeys.length;
@@ -42,6 +42,7 @@ export class RankingController extends BaseController {
   // Dense Ranking 기능
   public async rankBuilder(users: Record<string, string>, key: string) {
     const userHash = await this.redis.hgetall(key);
+    if (userHash === null) return null;
 
     const score = users[key];
     const denseRank = await this.redis.zrevrangebyscore('user:score', score, score, 'limit', 0, 1);

@@ -47,6 +47,7 @@ export default class RedisUtil {
   public readonly zrevrange = this.promisify(this.client.zrevrange);
   public readonly zrevrangebyscore = this.promisify(this.client.zrevrangebyscore);
   public readonly zrevrank = this.promisify(this.client.zrevrank);
+  public readonly zrem = this.promisify(this.client.zrem);
 
   // exists
   public readonly exists = this.promisify(this.client.exists);
