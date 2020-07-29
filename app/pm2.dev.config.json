@@ -3,7 +3,7 @@
     {
       "name": "node-server",
       "script": "./src/index.ts",
-      "instances": 1,
+      "instances": "max",
       "watch": false,
       "exec_mode": "cluster"
     },
