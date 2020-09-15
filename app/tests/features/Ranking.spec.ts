@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import app from '../../src/app';
 import { redisUpsert } from '../../src/jobs/RankScheduler';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
-import RedisUtil from '../../src/utils/RedisUtil';
+import RedisRepository from '../../src/repository/RedisRepository';
 import { AddUser } from '../../src/validations/UserValidation';
 import { Payload } from '../payloads/Payload';
 import { assertRanking } from '../utils/RankingUtil';
@@ -17,7 +17,7 @@ let token: string;
 describe('Test Ranking', () => {
   const client = supertest(app);
   const prisma = new PrismaClient();
-  const redis = RedisUtil.getInstance();
+  const redis = RedisRepository.getInstance();
 
   beforeEach(async done => {
     await prisma.habit.deleteMany({});
