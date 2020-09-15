@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { JsonResponse } from '../../src/@types/types-custom';
+import { JsonResponse } from '../../src/@types/Types';
 import { AddUser } from '../../src/validations/UserValidation';
 
 // Key 값 검사

@@ -1,4 +1,4 @@
-import { JsonResponse } from '../../src/@types/types-custom';
+import { JsonResponse } from '../../src/@types/Types';
 
 // Key 값 검사
 export const assertRanking = (item: JsonResponse) => {

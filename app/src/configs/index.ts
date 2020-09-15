@@ -1,6 +1,6 @@
 import { AppleAuthConfig } from 'apple-auth';
 import dotenv from 'dotenv';
-import { RedisConfig, ServiceAccount } from '../@types/types-custom';
+import { RedisConfig, ServiceAccount } from '../@types/Types';
 
 // '.env' File Loading
 dotenv.config();

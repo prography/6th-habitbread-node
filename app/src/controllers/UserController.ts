@@ -2,7 +2,7 @@ import { PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
-import { UserInfo } from '../@types/types-custom';
+import { UserInfo } from '../@types/Types';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { errorService } from '../services/LogService';
 import { LevelUtil } from '../utils/LevelUtil';

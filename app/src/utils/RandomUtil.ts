@@ -1,5 +1,5 @@
 import { Item } from '@prisma/client';
-import { RandomItem } from '../@types/types-custom';
+import { RandomItem } from '../@types/Types';
 import { Util } from './BaseUtil';
 
 export class RandomUtil extends Util {

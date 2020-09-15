@@ -48,7 +48,7 @@ services:
       - /bin/bash
       - -c
       - './docker-entrypoint.dev.sh
-        && pm2-runtime start pm2.dev.config.json'
+        && pm2-runtime start pm2.config.json'
     networks:
       backend:
         ipv4_address: 172.16.5.4

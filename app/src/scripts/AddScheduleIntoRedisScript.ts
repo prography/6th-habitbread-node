@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import moment from 'moment-timezone';
-import { HabitIncludeUser } from '../@types/types-custom';
+import { HabitIncludeUser } from '../@types/Types';
 import { InternalServerError } from '../exceptions/Exception';
 import RedisUtil from '../utils/RedisUtil';
 moment.tz.setDefault('Asia/Seoul');
