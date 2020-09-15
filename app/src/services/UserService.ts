@@ -3,7 +3,7 @@ import { UserInfo } from '../@types/Types';
 import { UserRepository } from '../repository/UserRepository';
 import { LevelUtil } from '../utils/LevelUtil';
 import RedisUtil from '../utils/RedisUtil';
-import { GetUserBodyDto } from '../validations/UserDto';
+import { GetUserRequestDto } from '../validations/UserValidation';
 import { BaseServices } from './BaseServices';
 
 export class UserService extends BaseServices {
@@ -27,7 +27,7 @@ export class UserService extends BaseServices {
     return currentUser;
   }
 
-  async updateUser(currentUser: User, dto: GetUserBodyDto) {
+  async updateUser(currentUser: User, dto: GetUserRequestDto) {
     const name = dto.name || currentUser.name;
 
     const userInfo: any = {};

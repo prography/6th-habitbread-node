@@ -5,7 +5,7 @@ import app from '../../src/app';
 import { redisUpsert } from '../../src/jobs/RankScheduler';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
 import RedisUtil from '../../src/utils/RedisUtil';
-import { AddUserDto } from '../../src/validations/UserDto';
+import { AddUser } from '../../src/validations/UserValidation';
 import { Payload } from '../payloads/Payload';
 import { assertRanking } from '../utils/RankingUtil';
 import { createUser } from '../utils/UserUtil';
@@ -31,7 +31,7 @@ describe('Test Ranking', () => {
       oauthKey: process.env.TEST_USER_OAUTH_KEY!,
       exp: 5000,
     };
-    user = await createUser(prisma, new AddUserDto(payload));
+    user = await createUser(prisma, new AddUser(payload));
     token = AuthHelper.makeAccessToken(user.userId);
     await redisUpsert(user, 100);
 

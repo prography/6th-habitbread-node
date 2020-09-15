@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class GetUserBodyDto {
+export class GetUserRequestDto {
   @IsNotEmpty()
   @IsString()
   name!: string;
@@ -10,7 +10,7 @@ export class GetUserBodyDto {
 }
 
 // Spec Test Util
-export class AddUserDto {
+export class AddUser {
   @IsNotEmpty()
   @IsString()
   name!: string;

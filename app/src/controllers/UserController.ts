@@ -6,7 +6,7 @@ import { UserInfo } from '../@types/Types';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { errorService } from '../services/LogService';
 import { UserService } from '../services/UserService';
-import { GetUserBodyDto } from '../validations/UserDto';
+import { GetUserRequestDto } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
 
@@ -32,7 +32,7 @@ export class UserController extends BaseController {
 
   // 닉네임 , 경험치 계산, FCM Token 업데이트
   @Patch('/users')
-  public async patchUser(@CurrentUser() currentUser: User, @Body() body: GetUserBodyDto) {
+  public async patchUser(@CurrentUser() currentUser: User, @Body() body: GetUserRequestDto) {
     try {
       const bodyErrors = await validate(body, { skipMissingProperties: true });
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
