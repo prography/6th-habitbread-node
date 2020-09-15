@@ -6,6 +6,7 @@ import app from '../../src/app';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
 import { AddUser } from '../../src/validations/UserValidation';
 import { Payload } from '../payloads/Payload';
+import { createHabit } from '../utils/HabitUtil';
 import { createUserWithFCM } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
@@ -23,16 +24,10 @@ describe('testHabit', () => {
     await prisma.userItem.deleteMany({});
     await prisma.item.deleteMany({});
     await prisma.user.deleteMany({});
+    await prisma.scheduler.deleteMany({});
     const user = await createUserWithFCM(prisma, new AddUser({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
     token = AuthHelper.makeAccessToken(user.userId);
-    for (let i = 0; i < 3; i += 1) {
-      const payload = Payload.habitOriginalPayloads[i];
-
-      const res = await testClient.post('/habits').set('Authorization', `Bearer ${token}`).send(payload);
-      if (i === 0) {
-        habitId = res.body.habitId;
-      }
-    }
+    habitId = await createHabit(prisma, user);
     done();
   });
 
