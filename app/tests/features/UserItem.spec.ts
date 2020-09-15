@@ -5,8 +5,8 @@ import app from '../../src/app';
 import { NotFoundError } from '../../src/exceptions/Exception';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
 import { AddItem } from '../../src/validations/ItemValidation';
+import { AddUserDto } from '../../src/validations/UserDto';
 import { AddUserItem } from '../../src/validations/UserItemValidation';
-import { AddUser } from '../../src/validations/UserValidation';
 import { Payload } from '../payloads/Payload';
 import { createItem } from '../utils/ItemUtil';
 import { assertUserItem, createUserItem } from '../utils/UserItemUtil';
@@ -33,7 +33,7 @@ describe('Test User Item', () => {
       name: '이우원',
       oauthKey: process.env.TEST_USER_OAUTH_KEY!,
     };
-    user = await createUser(prisma, new AddUser(payload));
+    user = await createUser(prisma, new AddUserDto(payload));
     token = AuthHelper.makeAccessToken(user.userId);
 
     // 아이템 생성

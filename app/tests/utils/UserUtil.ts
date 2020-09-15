@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { JsonResponse } from '../../src/@types/Types';
-import { AddUser } from '../../src/validations/UserValidation';
+import { AddUserDto } from '../../src/validations/UserDto';
 
 // Key 값 검사
 export const assertUser = (item: JsonResponse) => {
@@ -14,7 +14,7 @@ export const assertUser = (item: JsonResponse) => {
 };
 
 // 사용자 생성 모듈
-export const createUser = async (prisma: PrismaClient, user: AddUser) => {
+export const createUser = async (prisma: PrismaClient, user: AddUserDto) => {
   const newUser = await prisma.user.create({
     data: {
       name: user.name,
@@ -25,7 +25,7 @@ export const createUser = async (prisma: PrismaClient, user: AddUser) => {
 };
 
 // 사용자 생성 모듈(FCM 추가)
-export const createUserWithFCM = async (prisma: PrismaClient, user: AddUser) => {
+export const createUserWithFCM = async (prisma: PrismaClient, user: AddUserDto) => {
   const newUser = await prisma.user.create({
     data: {
       name: user.name,

@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import supertest from 'supertest';
 import app from '../../src/app';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
-import { AddUser } from '../../src/validations/UserValidation';
+import { AddUserDto } from '../../src/validations/UserDto';
 import { Payload } from '../payloads/Payload';
 import { createUserWithFCM } from '../utils/UserUtil';
 
@@ -23,7 +23,7 @@ describe('testHabit', () => {
     await prisma.userItem.deleteMany({});
     await prisma.item.deleteMany({});
     await prisma.user.deleteMany({});
-    const user = await createUserWithFCM(prisma, new AddUser({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
+    const user = await createUserWithFCM(prisma, new AddUserDto({ name: '김건훈', oauthKey: 'dnatuna123@gmail.com' }));
     token = AuthHelper.makeAccessToken(user.userId);
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.habitOriginalPayloads[i];

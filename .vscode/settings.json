@@ -8,5 +8,6 @@
     "source.organizeImports": true
   },
   "javascript.format.enable": true,
-  "typescript.format.enable": true
+  "typescript.format.enable": true,
+  "typescript.tsdk": "/Users/kimgeonhun/Study/Prography/6th-team4-node/app/node_modules/typescript/lib"
 }

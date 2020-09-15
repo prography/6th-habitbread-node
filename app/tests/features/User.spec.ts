@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import app from '../../src/app';
 import { NotFoundError } from '../../src/exceptions/Exception';
 import { AuthHelper } from '../../src/middleware/AuthHelper';
-import { AddUser } from '../../src/validations/UserValidation';
+import { AddUserDto } from '../../src/validations/UserDto';
 import { assertUser, createUser } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
@@ -26,7 +26,7 @@ describe('Test User', () => {
       name: '이우원',
       oauthKey: process.env.TEST_USER_OAUTH_KEY!,
     };
-    user = await createUser(prisma, new AddUser(payload));
+    user = await createUser(prisma, new AddUserDto(payload));
     token = AuthHelper.makeAccessToken(user.userId);
     done();
   });
