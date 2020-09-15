@@ -12,7 +12,7 @@ const id: string = uuid();
 
 @JsonController()
 export class UserController extends BaseController {
-  private userService;
+  private userService: UserService;
   constructor() {
     super();
     this.userService = new UserService();
@@ -27,7 +27,7 @@ export class UserController extends BaseController {
   // 사용자 정보 검색 API
   @Get('/users')
   public async getUser(@CurrentUser() currentUser: UserInfo) {
-    return await this.userService.getItemTotalCount(currentUser);
+    return await this.userService.findUser(currentUser);
   }
 
   // 닉네임 , 경험치 계산, FCM Token 업데이트
@@ -36,7 +36,7 @@ export class UserController extends BaseController {
     try {
       const bodyErrors = await validate(body, { skipMissingProperties: true });
       if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
-      return await this.userService.patchUserInfoInRedisAndMysql(currentUser, body);
+      return await this.userService.updateUser(currentUser, body);
     } catch (err) {
       errorService(err);
       if (err instanceof HttpError) throw err;
@@ -48,7 +48,7 @@ export class UserController extends BaseController {
   @Delete('/users')
   public async deleteUser(@CurrentUser() currentUser: User) {
     try {
-      return await this.userService.deleteUserInRedisAndMysql(currentUser);
+      return await this.userService.deleteUser(currentUser);
     } catch (err) {
       errorService(err);
       if (err instanceof HttpError) throw err;
