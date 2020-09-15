@@ -15,7 +15,7 @@ export class ItemService extends BaseService {
   }
 
   // 특정 사용자 ID로 모든 Item 가져오기
-  public async findAll(user: User) {
+  public async findAllItem(user: User) {
     try {
       const items = await this.itemRepository.findAllByUserIdJoinItem(user.userId);
       if (items.length === 0) throw new NoContent('');
@@ -29,7 +29,7 @@ export class ItemService extends BaseService {
   }
 
   // 아이템 ID로 특정 아이템 조회
-  public async findById(dto: GetUserItemRequestDto) {
+  public async findItem(dto: GetUserItemRequestDto) {
     try {
       const item = await this.itemRepository.findByIdJoinItem(dto.userItemId);
       if (item === null) throw new NotFoundError('빵 아이템을 찾을 수 없습니다.');
@@ -43,7 +43,7 @@ export class ItemService extends BaseService {
   }
 
   // 특정 사용자의 아이템 삭제
-  public async deleteById(dto: GetUserItemRequestDto) {
+  public async deleteItem(dto: GetUserItemRequestDto) {
     try {
       const item = this.itemRepository.findById(dto.userItemId);
       if (item === null) throw new NotFoundError('빵 아이템을 찾을 수 없습니다.');

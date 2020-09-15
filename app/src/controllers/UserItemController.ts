@@ -18,7 +18,7 @@ export class UserItemController extends BaseController {
   // 특정 사용자의 모든 아이템 조회 API
   @Get()
   public async index(@CurrentUser() currentUser: User) {
-    return await this.itemService.findAll(currentUser);
+    return await this.itemService.findAllItem(currentUser);
   }
 
   // 특정 사용자의 특정 아이템 조회 API
@@ -27,7 +27,7 @@ export class UserItemController extends BaseController {
     const paramErrors = await validate(id);
     if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-    const item = this.itemService.findById(id);
+    const item = this.itemService.findItem(id);
     return item;
   }
 
@@ -37,7 +37,7 @@ export class UserItemController extends BaseController {
     const paramErrors = await validate(id);
     if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-    await this.itemService.deleteById(id);
+    await this.itemService.deleteItem(id);
 
     return { message: "Delete User's Item Success" };
   }
