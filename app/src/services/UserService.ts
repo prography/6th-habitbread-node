@@ -18,16 +18,16 @@ export class UserService extends BaseServices {
     this.userRepository = new UserRepository();
   }
 
-  async findUser(currentUser: UserInfo) {
+  public async findUser(currentUser: UserInfo) {
     const { percent } = this.levelUtil.getLevelsAndPercents(currentUser.exp);
     currentUser.percent = percent;
-    currentUser.itemTotalCount = await this.userRepository.countUserItem(currentUser.userId);
+    currentUser.itemTotalCount = await this.userRepository.countItem(currentUser.userId);
     delete currentUser.oauthKey;
     delete currentUser.fcmToken;
     return currentUser;
   }
 
-  async updateUser(currentUser: User, dto: GetUserRequestDto) {
+  public async updateUser(currentUser: User, dto: GetUserRequestDto) {
     const name = dto.name || currentUser.name;
 
     const userInfo: any = {};
@@ -47,10 +47,10 @@ export class UserService extends BaseServices {
     return user;
   }
 
-  async deleteUser(currentUser: User) {
+  public async deleteUser(currentUser: User) {
     await this.redis.del(`user:${currentUser.userId}`);
     await this.redis.zrem('user:score', `user:${currentUser.userId}`);
-    await this.userRepository.deleteUserById(currentUser.userId);
+    await this.userRepository.deleteById(currentUser.userId);
 
     return { message: 'Delete User Success' };
   }

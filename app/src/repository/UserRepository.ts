@@ -9,18 +9,18 @@ export class UserRepository extends BaseRepository {
     this.prisma = new PrismaClient();
   }
 
-  public countUserItem(userId: number) {
+  public async countItem(userId: number) {
     return this.prisma.userItem.count({ where: { userId } });
   }
 
-  public updateUserDataById(userId: number, payload: any) {
+  public async updateUserDataById(userId: number, payload: any) {
     return this.prisma.user.update({
       where: { userId },
       data: payload,
     });
   }
 
-  public deleteUserById(userId: number) {
+  public async deleteById(userId: number) {
     return this.prisma.raw`delete from users where user_id = ${userId};`;
   }
 }
