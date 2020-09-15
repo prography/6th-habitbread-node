@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class UserItemID {
+export class GetUserItemRequestDto {
   @IsNumber()
   @IsNotEmpty()
   userItemId!: number;

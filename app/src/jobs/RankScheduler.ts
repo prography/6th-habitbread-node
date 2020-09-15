@@ -1,11 +1,11 @@
 import { PrismaClient, User } from '@prisma/client';
 import schedule from 'node-schedule';
 import logger from '../configs/LogConfig';
+import RedisRepository from '../repository/RedisRepository';
 import { AchievementUtil } from '../utils/AchievementUtil';
-import RedisUtil from '../utils/RedisUtil';
 
 const prisma = new PrismaClient();
-const redis = RedisUtil.getInstance();
+const redis = RedisRepository.getInstance();
 const expire = 31 * 60; // 31분
 
 // Redis에 랭킹 데이터 저장

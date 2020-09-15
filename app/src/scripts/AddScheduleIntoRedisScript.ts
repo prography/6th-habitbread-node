@@ -2,12 +2,12 @@ import { PrismaClient } from '@prisma/client';
 import moment from 'moment-timezone';
 import { HabitIncludeUser } from '../@types/Types';
 import { InternalServerError } from '../exceptions/Exception';
-import RedisUtil from '../utils/RedisUtil';
+import RedisRepository from '../repository/RedisRepository';
 moment.tz.setDefault('Asia/Seoul');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const prisma = new PrismaClient();
-const redis = RedisUtil.getInstance();
+const redis = RedisRepository.getInstance();
 
 const habitCheckWithUser = (habit: HabitIncludeUser | null) => {
   if (habit === null) return true;

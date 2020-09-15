@@ -2,8 +2,8 @@ import redis from 'redis';
 import { promisify } from 'util';
 import env from '../configs/index';
 
-export default class RedisUtil {
-  private static _instance: null | RedisUtil = null;
+export default class RedisRepository {
+  private static _instance: null | RedisRepository = null;
   private client = redis.createClient(env.REDIS);
 
   // 메서드를 Promise화로 만들어 반환하는 함수
@@ -17,11 +17,11 @@ export default class RedisUtil {
 
   // 싱글톤
   public static getInstance() {
-    if (!RedisUtil._instance) {
-      RedisUtil._instance = new RedisUtil();
-      RedisUtil._instance.client.on('error', this.onError);
+    if (!RedisRepository._instance) {
+      RedisRepository._instance = new RedisRepository();
+      RedisRepository._instance.client.on('error', this.onError);
     }
-    return RedisUtil._instance;
+    return RedisRepository._instance;
   }
 
   // keys

@@ -4,11 +4,11 @@ import moment from 'moment-timezone';
 import schedule from 'node-schedule';
 import env from '../configs/index';
 import { InternalServerError } from '../exceptions/Exception';
-import RedisUtil from '../utils/RedisUtil';
+import RedisRepository from '../repository/RedisRepository';
 
 moment.tz.setDefault('Asia/Seoul');
 
-const redis = RedisUtil.getInstance();
+const redis = RedisRepository.getInstance();
 
 admin.initializeApp({
   credential: admin.credential.cert(env.FCM),

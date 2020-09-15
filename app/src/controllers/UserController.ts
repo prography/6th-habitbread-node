@@ -4,9 +4,9 @@ import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from
 import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/Types';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
+import RedisRepository from '../repository/RedisRepository';
 import { errorService } from '../services/LogService';
 import { LevelUtil } from '../utils/LevelUtil';
-import RedisUtil from '../utils/RedisUtil';
 import { GetUserBody } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
 const id: string = uuid();
@@ -15,13 +15,13 @@ const id: string = uuid();
 export class UserController extends BaseController {
   private prisma: PrismaClient;
   private levelUtil: any;
-  private redis: RedisUtil;
+  private redis: RedisRepository;
 
   constructor() {
     super();
     this.levelUtil = LevelUtil.getInstance();
     this.prisma = new PrismaClient();
-    this.redis = RedisUtil.getInstance();
+    this.redis = RedisRepository.getInstance();
   }
 
   // 임시: prod 환경 Nginx 테스팅

@@ -2,17 +2,17 @@ import { User } from '@prisma/client';
 import _ from 'lodash';
 import { CurrentUser, Get, JsonController } from 'routing-controllers';
 import { InternalServerError } from '../exceptions/Exception';
+import RedisRepository from '../repository/RedisRepository';
 import { errorService } from '../services/LogService';
-import RedisUtil from '../utils/RedisUtil';
 import { BaseController } from './BaseController';
 
 @JsonController('/ranking')
 export class RankingController extends BaseController {
-  private redis: RedisUtil;
+  private redis: RedisRepository;
 
   constructor() {
     super();
-    this.redis = RedisUtil.getInstance();
+    this.redis = RedisRepository.getInstance();
   }
 
   // 나의 랭킹 + 전체 랭킹 리스트 조회
