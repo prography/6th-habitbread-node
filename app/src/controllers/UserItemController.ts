@@ -1,19 +1,17 @@
-import { PrismaClient, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { CurrentUser, Delete, Get, JsonController, Params } from 'routing-controllers';
 import { BadRequestError } from '../exceptions/Exception';
 import { ItemService } from '../services/ItemService';
-import { UserItemID } from '../validations/UserItemValidation';
+import { GetUserItemRequestDto } from '../validations/UserItemValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/items')
 export class UserItemController extends BaseController {
-  private prisma: PrismaClient;
   private itemService: ItemService;
 
   constructor() {
     super();
-    this.prisma = new PrismaClient();
     this.itemService = new ItemService();
   }
 
@@ -25,7 +23,7 @@ export class UserItemController extends BaseController {
 
   // 특정 사용자의 특정 아이템 조회 API
   @Get('/:userItemId')
-  public async findUserItem(@CurrentUser() currentUser: User, @Params() id: UserItemID) {
+  public async findUserItem(@CurrentUser() currentUser: User, @Params() id: GetUserItemRequestDto) {
     const paramErrors = await validate(id);
     if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
@@ -35,7 +33,7 @@ export class UserItemController extends BaseController {
 
   // 특정 사용자의 아이템 삭제 API
   @Delete('/:userItemId')
-  public async deleteUserItem(@CurrentUser() currentUser: User, @Params() id: UserItemID) {
+  public async deleteUserItem(@CurrentUser() currentUser: User, @Params() id: GetUserItemRequestDto) {
     const paramErrors = await validate(id);
     if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 

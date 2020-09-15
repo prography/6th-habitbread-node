@@ -1,7 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
 import { HttpError } from 'routing-controllers';
 import { InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
-import { UserItemID } from '../validations/UserItemValidation';
+import { GetUserItemRequestDto } from '../validations/UserItemValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
 
@@ -35,7 +35,7 @@ export class ItemService extends BaseService {
   }
 
   // 특정 사용자 ID와 아이템 ID로 특정 아이템 조회
-  public async findItemById(id: UserItemID) {
+  public async findItemById(id: GetUserItemRequestDto) {
     try {
       const item = await this.prisma.userItem.findOne({
         where: { userItemId: id.userItemId },
@@ -56,7 +56,7 @@ export class ItemService extends BaseService {
   }
 
   // 특정 사용자의 아이템 삭제
-  public async deleteById(id: UserItemID) {
+  public async deleteById(id: GetUserItemRequestDto) {
     try {
       const item = await this.prisma.userItem.findOne({
         where: { userItemId: id.userItemId },
