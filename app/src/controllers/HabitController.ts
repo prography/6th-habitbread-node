@@ -47,45 +47,10 @@ export class HabitController extends BaseController {
   // 전체 습관 조회하기
   @Get('/')
   public async findHabits(@CurrentUser() currentUser: User) {
-    try {
-      const habits = await this.prisma.habit.findMany({
-        where: { userId: currentUser.userId },
-        select: {
-          habitId: true,
-          title: true,
-          description: true,
-          dayOfWeek: true,
-          commitHistory: {
-            where: {
-              createdAt: {
-                gte: moment().startOf('weeks').toDate(),
-                lte: moment().endOf('weeks').toDate(),
-              },
-            },
-            select: { createdAt: true },
-          },
-        },
-      });
-      // 응원 문구
-      let todayDoneHabit = 0;
-      let todayHabit = 0;
-      habits.forEach(habit => {
-        if (habit.dayOfWeek[moment().day()] === '1') {
-          if (habit.commitHistory.length) {
-            if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
-              todayDoneHabit++;
-          }
-          todayHabit++;
-        }
-      });
-      const comment = this.comment.selectComment(todayHabit, todayDoneHabit);
-      if (habits.length === 0) return { comment, habits: [] };
-      return { comment, habits };
-    } catch (err) {
-      errorService(err);
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
+    const { habits, comment } = await this.habitService.findAllHabitWithComment(currentUser);
+
+    if (habits.length === 0) return { comment, habits: [] };
+    return { comment, habits };
   }
 
   // habitId로 습관 조회하기

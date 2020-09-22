@@ -5,6 +5,7 @@ import { InternalServerError } from '../exceptions/Exception';
 import { HabitRepository } from '../repository/HabitRepository';
 import RedisRepository from '../repository/RedisRepository';
 import { SchedulerRepository } from '../repository/SchedulerRepository';
+import { Comments } from '../utils/CommentUtil';
 import { CreateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
@@ -13,12 +14,14 @@ export class HabitService extends BaseService {
   private habitRepository: HabitRepository;
   private schedulerRepository: SchedulerRepository;
   private redis: RedisRepository;
+  private comment: any;
 
   constructor() {
     super();
     this.habitRepository = new HabitRepository();
     this.schedulerRepository = new SchedulerRepository();
     this.redis = RedisRepository.getInstance();
+    this.comment = new Comments();
   }
 
   // 습관 생성
@@ -43,6 +46,32 @@ export class HabitService extends BaseService {
       }
 
       return newHabit;
+    } catch (err) {
+      errorService(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
+  // 일주일 이내 커밋했던 모든 습관 가져오기
+  public async findAllHabitWithComment(user: User) {
+    try {
+      const habits = await this.habitRepository.findAllHabitWithinAWeekByUserId(user);
+      let todayDoneHabit = 0;
+      let todayHabit = 0;
+      habits.forEach(habit => {
+        if (habit.dayOfWeek[moment().day()] === '1') {
+          if (habit.commitHistory.length) {
+            if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
+              todayDoneHabit++;
+          }
+          todayHabit++;
+        }
+      });
+
+      const comment = this.comment.selectComment(todayHabit, todayDoneHabit);
+
+      return { habits, comment };
     } catch (err) {
       errorService(err);
       if (err instanceof HttpError) throw err;
