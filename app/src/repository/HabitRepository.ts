@@ -85,4 +85,8 @@ export class HabitRepository extends BaseRepository {
       },
     });
   }
+
+  public async deleteHabitById(habitId: number) {
+    return this.prisma.habit.delete({ where: { habitId } });
+  }
 }

@@ -148,6 +148,28 @@ export class HabitService extends BaseService {
     }
   }
 
+  // 습관 삭제 (연관 엔티티 모두 삭제)
+  public async deleteHabit(user: User, id: HabitID) {
+    try {
+      const findHabit = await this.habitRepository.findHabitById(id.habitId);
+      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
+
+      if (findHabit.userId === user.userId) {
+        await this.commitRepository.deleteManyByHabitId(id.habitId);
+        await this.schedulerRepository.deleteManyByHabitId(id.habitId);
+        await this.habitRepository.deleteHabitById(id.habitId);
+        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(findHabit.habitId));
+        // Success
+        return;
+      }
+      throw new ForbiddenError('잘못된 접근입니다.');
+    } catch (err) {
+      errorService(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
   // Redis 추가 or 업데이트 작업
   private async addOrUpdateRedis(user: User, habit: Habit) {
     await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));

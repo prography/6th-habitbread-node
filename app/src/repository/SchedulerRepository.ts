@@ -28,4 +28,8 @@ export class SchedulerRepository extends BaseRepository {
       update: {},
     });
   }
+
+  public async deleteManyByHabitId(habitId: number) {
+    return this.prisma.scheduler.deleteMany({ where: { habitId } });
+  }
 }

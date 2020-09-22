@@ -36,4 +36,8 @@ export class CommitRepository extends BaseRepository {
       },
     });
   }
+
+  public async deleteManyByHabitId(habitId: number) {
+    return this.prisma.commitHistory.deleteMany({ where: { habitId } });
+  }
 }

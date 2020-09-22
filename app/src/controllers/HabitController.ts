@@ -82,28 +82,11 @@ export class HabitController extends BaseController {
   // habitId로 습관 삭제하기
   @Delete('/:habitId')
   public async deleteHabit(@CurrentUser() currentUser: User, @Params() id: HabitID) {
-    try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+    const paramErrors = await validate(id);
+    if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-      const findHabit = await this.prisma.habit.findOne({
-        where: { habitId: id.habitId },
-      });
-      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
-      if (findHabit.userId === currentUser.userId) {
-        await this.prisma.commitHistory.deleteMany({ where: { habitId: id.habitId } });
-        await this.prisma.scheduler.deleteMany({ where: { habitId: id.habitId } });
-        await this.prisma.habit.delete({ where: { habitId: id.habitId } });
-        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(findHabit.habitId));
-
-        return { message: 'success' };
-      }
-      throw new ForbiddenError('잘못된 접근입니다.');
-    } catch (err) {
-      errorService(err);
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
+    await this.habitService.deleteHabit(currentUser, id);
+    return { message: 'success' };
   }
 
   // habit commit하기
