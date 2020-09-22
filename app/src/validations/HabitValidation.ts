@@ -1,6 +1,8 @@
+import { HabitCreateInput, User } from '@prisma/client';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
+import moment from 'moment';
 
-export class Habit {
+export class CreateHabitRequestDto {
   @IsString()
   @IsNotEmpty()
   title!: string;
@@ -16,9 +18,23 @@ export class Habit {
   dayOfWeek!: string;
 
   alarmTime!: string | null;
+
+  public toEntity(user: User, habitDto: CreateHabitRequestDto): HabitCreateInput {
+    const habitPayload: HabitCreateInput = {
+      title: habitDto.title,
+      description: habitDto.description,
+      category: habitDto.category,
+      dayOfWeek: habitDto.dayOfWeek,
+      alarmTime: habitDto.alarmTime ? moment(habitDto.alarmTime, 'HH:mm').format('HH:mm') : null,
+      user: {
+        connect: { userId: user.userId },
+      },
+    };
+    return habitPayload;
+  }
 }
 
-export class UpdateHabit {
+export class UpdateHabitRequestDto {
   @IsString()
   @IsNotEmpty()
   title!: string;

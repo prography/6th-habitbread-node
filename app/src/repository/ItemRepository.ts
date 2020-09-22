@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { BaseRepository } from './BaseRepositoy';
+import { BaseRepository } from './BaseRepository';
 
 export class ItemRepository extends BaseRepository {
   private prisma: PrismaClient;

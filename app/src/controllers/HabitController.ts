@@ -1,75 +1,47 @@
-import { Habit as prismaHabit, PrismaClient, User } from '@prisma/client';
+import { Habit, PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
 import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import RedisRepository from '../repository/RedisRepository';
+import { HabitService } from '../services/HabitService';
 import { errorService } from '../services/LogService';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
-import { GetHabit, Habit, ID, UpdateHabit } from '../validations/HabitValidation';
+import { CreateHabitRequestDto, GetHabit, ID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
+  private redis: RedisRepository;
+  private habitService: HabitService;
   private comment: any;
   private levelUtil: any;
   private userItemUtil: any;
-  private redis: RedisRepository;
 
   constructor() {
     super();
+    moment.tz.setDefault('Asia/Seoul');
+    this.prisma = new PrismaClient();
+    this.redis = RedisRepository.getInstance();
+    this.habitService = new HabitService();
     this.comment = new Comments();
     this.levelUtil = LevelUtil.getInstance();
     this.userItemUtil = new UserItemUtil();
-    this.prisma = new PrismaClient();
-    moment.tz.setDefault('Asia/Seoul');
-    this.redis = RedisRepository.getInstance();
   }
 
   // 습관 등록하기
   @Post('/')
   @HttpCode(201)
-  public async createHabit(@CurrentUser() currentUser: User, @Body() habit: Habit) {
-    try {
-      const bodyErrors = await validate(habit);
-      if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
-      if (habit.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
-      const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm').format('HH:mm') : null;
-      const newHabit = await this.prisma.habit.create({
-        data: {
-          title: habit.title,
-          description: habit.description,
-          category: habit.category,
-          dayOfWeek: habit.dayOfWeek,
-          alarmTime,
-          user: {
-            connect: { userId: currentUser.userId },
-          },
-        },
-      });
+  public async createHabit(@CurrentUser() currentUser: User, @Body() habitDto: CreateHabitRequestDto) {
+    const bodyErrors = await validate(habitDto);
+    if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+    if (habitDto.dayOfWeek.length !== 7) throw new BadRequestError('요일이 올바르지 않습니다.');
 
-      // 스케줄러 등록 부분(추가 수정 필요)
-      if (alarmTime === null) {
-        return newHabit;
-      }
-      await this.prisma.scheduler.create({
-        data: { userId: currentUser.userId, habitId: newHabit.habitId },
-      });
-      if (newHabit.dayOfWeek[moment().day()] === '1') {
-        const time = moment().startOf('minutes');
-        const alarmTime = moment(newHabit.alarmTime, 'HH:mm');
-        if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(newHabit, currentUser);
-      }
-      return newHabit;
-    } catch (err) {
-      errorService(err);
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
+    return await this.habitService.createHabit(currentUser, habitDto);
   }
 
   // 전체 습관 조회하기
@@ -200,7 +172,7 @@ export class HabitController extends BaseController {
   // habitId로 습관 수정하기
   @Put('/:habitId')
   @HttpCode(201)
-  public async updateHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Body() habit: UpdateHabit) {
+  public async updateHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Body() habit: UpdateHabitRequestDto) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
@@ -354,7 +326,7 @@ export class HabitController extends BaseController {
     });
   }
 
-  async addOrUpdateRedis(habit: prismaHabit, user: User) {
+  async addOrUpdateRedis(habit: Habit, user: User) {
     await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
     await this.redis.hmset(`habitId:${habit.habitId}`, ['userId', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
     await this.redis.expire(`habitId:${habit.habitId}`, 604860);
