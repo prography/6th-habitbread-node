@@ -1,4 +1,4 @@
-import { HabitCreateInput, PrismaClient, User } from '@prisma/client';
+import { HabitCreateInput, PrismaClient } from '@prisma/client';
 import moment from 'moment';
 import { BaseRepository } from './BaseRepository';
 
@@ -7,6 +7,7 @@ export class HabitRepository extends BaseRepository {
 
   constructor() {
     super();
+    moment.tz.setDefault('Aisa/Seoul');
     this.prisma = new PrismaClient();
   }
 
@@ -16,9 +17,9 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
-  public async findAllHabitWithinAWeekByUserId(user: User) {
+  public async findAllHabitByUserIdWithinAWeek(userId: number) {
     return this.prisma.habit.findMany({
-      where: { userId: user.userId },
+      where: { userId },
       select: {
         habitId: true,
         title: true,
@@ -29,6 +30,41 @@ export class HabitRepository extends BaseRepository {
             createdAt: {
               gte: moment().startOf('weeks').toDate(),
               lte: moment().endOf('weeks').toDate(),
+            },
+          },
+          select: { createdAt: true },
+        },
+      },
+    });
+  }
+
+  public async findHabitByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
+    return this.prisma.habit.findOne({
+      where: { habitId },
+      include: {
+        commitHistory: {
+          where: {
+            createdAt: {
+              gte: moment().subtract(month, 'months').subtract(year, 'years').startOf('months').toDate(),
+              lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
+            },
+          },
+          select: { createdAt: true },
+        },
+      },
+    });
+  }
+
+  public async updateHabitByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
+    return this.prisma.habit.update({
+      where: { habitId },
+      data: { continuousCount: 0 },
+      include: {
+        commitHistory: {
+          where: {
+            createdAt: {
+              gte: moment().subtract(month, 'months').subtract(year, 'years').startOf('months').toDate(),
+              lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
             },
           },
           select: { createdAt: true },

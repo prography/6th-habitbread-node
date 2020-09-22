@@ -21,9 +21,6 @@ useExpressServer(app, {
   currentUserChecker: AuthHelper.currentUserChecker,
 });
 
-// ?? 여기서 한번 선언하면 적용되는지?
-moment.tz.setDefault('Asia/Seoul');
-
 morgan.token('date', () => {
   return moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
 });

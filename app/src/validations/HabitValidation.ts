@@ -2,6 +2,8 @@ import { HabitCreateInput, User } from '@prisma/client';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import moment from 'moment';
 
+moment.tz.setDefault('Aisa/Seoul');
+
 export class CreateHabitRequestDto {
   @IsString()
   @IsNotEmpty()
@@ -48,7 +50,7 @@ export class UpdateHabitRequestDto {
   alarmTime!: string | null;
 }
 
-export class GetHabit {
+export class GetHabitRequestDto {
   @IsNumber()
   @IsNotEmpty()
   habitId!: number;

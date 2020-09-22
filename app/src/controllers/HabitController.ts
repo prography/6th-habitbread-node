@@ -10,7 +10,7 @@ import { errorService } from '../services/LogService';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
-import { CreateHabitRequestDto, GetHabit, ID, UpdateHabitRequestDto } from '../validations/HabitValidation';
+import { CreateHabitRequestDto, GetHabitRequestDto, ID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
@@ -55,83 +55,16 @@ export class HabitController extends BaseController {
 
   // habitId로 습관 조회하기
   @Get('/:habitId/calendar/:year/:month')
-  public async findHabit(@CurrentUser() currentUser: User, @Params() id: GetHabit) {
-    try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
-      const month = parseInt(moment().format('MM')) - id.month;
-      const year = parseInt(moment().format('YYYY')) - id.year;
-      let findHabit = await this.prisma.habit.findOne({
-        where: { habitId: id.habitId },
-        include: {
-          commitHistory: {
-            where: {
-              createdAt: {
-                gte: moment().subtract(month, 'months').subtract(year, 'years').startOf('months').toDate(),
-                lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
-              },
-            },
-            select: { createdAt: true },
-          },
-        },
-      });
-      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
-      if (findHabit.userId === currentUser.userId) {
-        if (findHabit.commitHistory.length) {
-          if (
-            moment(findHabit.commitHistory[findHabit.commitHistory.length - 1].createdAt, 'yyyy-MM-DDTHH-mm-ss.SSSZ').startOf('days') <
-            moment().subtract(1, 'days').startOf('days')
-          ) {
-            findHabit = await this.prisma.habit.update({
-              where: { habitId: id.habitId },
-              data: { continuousCount: 0 },
-              include: {
-                commitHistory: {
-                  where: {
-                    createdAt: {
-                      gte: moment().subtract(month, 'months').subtract(year, 'years').startOf('months').toDate(),
-                      lte: moment().subtract(month, 'months').subtract(year, 'years').endOf('months').toDate(),
-                    },
-                  },
-                  select: { createdAt: true },
-                },
-              },
-            });
-          }
-        }
-        const commitFullCount = await this.prisma.commitHistory.count({
-          where: { habitId: id.habitId },
-        });
+  public async findHabit(@CurrentUser() currentUser: User, @Params() habitDto: GetHabitRequestDto) {
+    const paramErrors = await validate(habitDto);
+    if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-        const lastMonth = await this.prisma.commitHistory.count({
-          where: {
-            habitId: id.habitId,
-            createdAt: {
-              gte: moment()
-                .subtract(month + 1, 'months')
-                .subtract(year, 'years')
-                .startOf('months')
-                .toDate(),
-              lte: moment()
-                .subtract(month + 1, 'months')
-                .subtract(year, 'years')
-                .endOf('months')
-                .toDate(),
-            },
-          },
-        });
-        return {
-          habit: findHabit,
-          commitFullCount,
-          comparedToLastMonth: findHabit.commitHistory.length - lastMonth,
-        };
-      }
-      throw new ForbiddenError('잘못된 접근입니다.');
-    } catch (err) {
-      errorService(err);
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
+    const { habit, commitFullCount, lastMonth } = await this.habitService.findHabitWithCommitCount(currentUser, habitDto);
+    return {
+      habit,
+      commitFullCount,
+      comparedToLastMonth: habit.commitHistory.length - lastMonth,
+    };
   }
 
   // habitId로 습관 수정하기
