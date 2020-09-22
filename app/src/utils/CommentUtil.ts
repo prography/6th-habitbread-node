@@ -1,6 +1,6 @@
 import { Util } from './BaseUtil';
 
-export class Comments extends Util {
+export class CommentUtil extends Util {
   private static comments = {
     allDone: [
       '모든 습관을 다 구우셨어요! 새로운 습관을 하나 더 만드시는 건 어떤가요?',
@@ -39,16 +39,16 @@ export class Comments extends Util {
     ],
   };
 
-  private getComment = (key: string, index: number) => Comments.comments.allDone[index];
+  private getComment = (key: string, index: number) => CommentUtil.comments.allDone[index];
   public selectComment = (todayHabit: number, todayDoneHabit: number) => {
     const min = Math.ceil(0);
     const max = Math.floor(5);
     const randomNumber = Math.floor(Math.random() * (max - min));
-    if (todayHabit === 0) return Comments.comments.noHabitToDo[randomNumber];
-    else if (todayHabit === 1 && todayDoneHabit === 0) return Comments.comments.allHabitsLeft[randomNumber];
-    else if (todayHabit - todayDoneHabit === 0) return Comments.comments.allDone[randomNumber];
-    else if (todayHabit - todayDoneHabit === 1) return Comments.comments.oneHabitLeft[randomNumber];
-    else if (todayDoneHabit) return Comments.comments.someHabitsLeft[randomNumber];
-    else return Comments.comments.allHabitsLeft[randomNumber];
+    if (todayHabit === 0) return CommentUtil.comments.noHabitToDo[randomNumber];
+    else if (todayHabit === 1 && todayDoneHabit === 0) return CommentUtil.comments.allHabitsLeft[randomNumber];
+    else if (todayHabit - todayDoneHabit === 0) return CommentUtil.comments.allDone[randomNumber];
+    else if (todayHabit - todayDoneHabit === 1) return CommentUtil.comments.oneHabitLeft[randomNumber];
+    else if (todayDoneHabit) return CommentUtil.comments.someHabitsLeft[randomNumber];
+    else return CommentUtil.comments.allHabitsLeft[randomNumber];
   };
 }

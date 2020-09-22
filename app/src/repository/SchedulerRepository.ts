@@ -9,19 +9,19 @@ export class SchedulerRepository extends BaseRepository {
     this.prisma = new PrismaClient();
   }
 
-  public async createScheduler(payload: SchedulerCreateInput) {
+  public async create(payload: SchedulerCreateInput) {
     return await this.prisma.scheduler.create({
       data: payload,
     });
   }
 
-  public async deleteSchedulerByHabitId(habitId: number) {
+  public async deleteByHabitId(habitId: number) {
     return this.prisma.scheduler.delete({
       where: { habitId },
     });
   }
 
-  public async upsertScheduler(userId: number, updateId: number, createId: number) {
+  public async upsert(userId: number, updateId: number, createId: number) {
     return this.prisma.scheduler.upsert({
       where: { habitId: updateId },
       create: { userId, habitId: createId },
@@ -29,7 +29,7 @@ export class SchedulerRepository extends BaseRepository {
     });
   }
 
-  public async deleteManyByHabitId(habitId: number) {
+  public async deleteAllByHabitId(habitId: number) {
     return this.prisma.scheduler.deleteMany({ where: { habitId } });
   }
 }

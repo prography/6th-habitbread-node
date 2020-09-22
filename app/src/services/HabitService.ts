@@ -1,4 +1,5 @@
 import { Habit, HabitCreateInput, HabitUpdateInput, SchedulerCreateInput, User } from '@prisma/client';
+import { Response } from 'express';
 import moment from 'moment';
 import { HttpError } from 'routing-controllers';
 import { ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
@@ -6,7 +7,9 @@ import { CommitRepository } from '../repository/CommitRepository';
 import { HabitRepository } from '../repository/HabitRepository';
 import RedisRepository from '../repository/RedisRepository';
 import { SchedulerRepository } from '../repository/SchedulerRepository';
-import { Comments } from '../utils/CommentUtil';
+import { CommentUtil } from '../utils/CommentUtil';
+import { ItemUtil } from '../utils/ItemUtil';
+import { LevelUtil } from '../utils/LevelUtil';
 import { CreateHabitRequestDto, GetHabitRequestDto, HabitID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
@@ -16,7 +19,9 @@ export class HabitService extends BaseService {
   private schedulerRepository: SchedulerRepository;
   private commitRepository: CommitRepository;
   private redis: RedisRepository;
-  private comment: any;
+  private commentUtil: any;
+  private levelUtil: any;
+  private itemUtil: any;
 
   constructor() {
     super();
@@ -25,14 +30,16 @@ export class HabitService extends BaseService {
     this.schedulerRepository = new SchedulerRepository();
     this.commitRepository = new CommitRepository();
     this.redis = RedisRepository.getInstance();
-    this.comment = new Comments();
+    this.commentUtil = new CommentUtil();
+    this.levelUtil = LevelUtil.getInstance();
+    this.itemUtil = new ItemUtil();
   }
 
   // 습관 생성
   public async createHabit(user: User, habitDto: CreateHabitRequestDto) {
     try {
       const habitPayload: HabitCreateInput = habitDto.toEntity(user);
-      const newHabit = await this.habitRepository.createHabitJoinUser(habitPayload);
+      const newHabit = await this.habitRepository.create(habitPayload);
 
       // 스케줄러 등록 부분(추가 수정 필요)
       if (habitPayload.alarmTime === null) return newHabit;
@@ -41,7 +48,7 @@ export class HabitService extends BaseService {
         userId: user.userId,
         habitId: newHabit.habitId,
       };
-      await this.schedulerRepository.createScheduler(schedulerPayload);
+      await this.schedulerRepository.create(schedulerPayload);
 
       if (newHabit.dayOfWeek[moment().day()] === '1') {
         const time = moment().startOf('minutes');
@@ -60,7 +67,7 @@ export class HabitService extends BaseService {
   // 일주일 이내 커밋했던 모든 습관 가져오기
   public async findAllHabitWithComment(user: User) {
     try {
-      const habits = await this.habitRepository.findAllHabitByUserIdWithinAWeek(user.userId);
+      const habits = await this.habitRepository.findAllByUserIdWithinAWeek(user.userId);
       let todayDoneHabit = 0;
       let todayHabit = 0;
       habits.forEach(habit => {
@@ -73,7 +80,7 @@ export class HabitService extends BaseService {
         }
       });
 
-      const comment = this.comment.selectComment(todayHabit, todayDoneHabit);
+      const comment = this.commentUtil.selectComment(todayHabit, todayDoneHabit);
 
       return { habits, comment };
     } catch (err) {
@@ -89,7 +96,7 @@ export class HabitService extends BaseService {
       const year = parseInt(moment().format('YYYY')) - habitDto.year;
       const month = parseInt(moment().format('MM')) - habitDto.month;
 
-      let habit = await this.habitRepository.findHabitByIdWithinYearAndMonth(habitDto.habitId, year, month);
+      let habit = await this.habitRepository.findByIdWithinYearAndMonth(habitDto.habitId, year, month);
       if (habit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
 
       if (habit.userId === user.userId) {
@@ -98,7 +105,7 @@ export class HabitService extends BaseService {
             moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt, 'yyyy-MM-DDTHH-mm-ss.SSSZ').startOf('days') <
             moment().subtract(1, 'days').startOf('days')
           ) {
-            habit = await this.habitRepository.updateHabitByIdWithinYearAndMonth(habitDto.habitId, year, month);
+            habit = await this.habitRepository.updateByIdWithinYearAndMonth(habitDto.habitId, year, month);
           }
         }
         const commitFullCount = await this.commitRepository.count(habit.habitId);
@@ -122,21 +129,21 @@ export class HabitService extends BaseService {
   // 습관 업데이트
   public async updateHabit(user: User, id: HabitID, habitDto: UpdateHabitRequestDto) {
     try {
-      const findHabit = await this.habitRepository.findHabitById(id.habitId);
+      const findHabit = await this.habitRepository.findById(id.habitId);
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
 
       if (findHabit.userId === user.userId) {
         const habitPayload: HabitUpdateInput = habitDto.toEntity(user);
-        const updateHabit = await this.habitRepository.updateHabit(id.habitId, habitPayload);
+        const updateHabit = await this.habitRepository.updateById(id.habitId, habitPayload);
 
         // 스케줄러 편집
         await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(updateHabit.habitId));
 
         if (habitPayload.alarmTime === null) {
-          if (findHabit.alarmTime) await this.schedulerRepository.deleteSchedulerByHabitId(updateHabit.habitId);
+          if (findHabit.alarmTime) await this.schedulerRepository.deleteByHabitId(updateHabit.habitId);
           return updateHabit;
         }
-        await this.schedulerRepository.upsertScheduler(user.userId, updateHabit.habitId, findHabit.habitId);
+        await this.schedulerRepository.upsert(user.userId, updateHabit.habitId, findHabit.habitId);
         await this.addOrUpdateRedis(user, updateHabit);
         return updateHabit;
       }
@@ -151,16 +158,54 @@ export class HabitService extends BaseService {
   // 습관 삭제 (연관 엔티티 모두 삭제)
   public async deleteHabit(user: User, id: HabitID) {
     try {
-      const findHabit = await this.habitRepository.findHabitById(id.habitId);
+      const findHabit = await this.habitRepository.findById(id.habitId);
       if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
 
       if (findHabit.userId === user.userId) {
-        await this.commitRepository.deleteManyByHabitId(id.habitId);
-        await this.schedulerRepository.deleteManyByHabitId(id.habitId);
-        await this.habitRepository.deleteHabitById(id.habitId);
+        await this.commitRepository.deleteAllByHabitId(id.habitId);
+        await this.schedulerRepository.deleteAllByHabitId(id.habitId);
+        await this.habitRepository.deleteById(id.habitId);
         await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(findHabit.habitId));
         // Success
         return;
+      }
+      throw new ForbiddenError('잘못된 접근입니다.');
+    } catch (err) {
+      errorService(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
+  public async commitHabit(user: User, id: HabitID, res: Response) {
+    try {
+      const findHabitForDay = await this.habitRepository.findById(id.habitId);
+      if (findHabitForDay === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
+
+      let check = 0;
+      const todayOfTheWeek = moment().day();
+      for (let i = todayOfTheWeek + 6; i !== todayOfTheWeek; --i) {
+        check++;
+        if (i > 6) {
+          if (findHabitForDay.dayOfWeek[i - 7] === '1') break;
+        } else {
+          if (findHabitForDay.dayOfWeek[i] === '1') break;
+        }
+      }
+      const findHabit = await this.habitRepository.findForTemp(id.habitId, check);
+      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
+
+      let updateHabit;
+      if (findHabit.userId === user.userId) {
+        if (findHabit.commitHistory.length) {
+          if (moment(findHabit.commitHistory[findHabit.commitHistory.length - 1].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
+            return res.status(303).send({});
+          updateHabit = await this.habitRepository.updateCountAndUserExp(id.habitId, findHabit.continuousCount + 1, user.exp);
+        } else updateHabit = await this.habitRepository.updateCountAndUserExp(id.habitId, 1, user.exp);
+
+        const isEqual = this.levelUtil.compareLevels(user.exp, updateHabit.user.exp);
+        if (!isEqual) return this.itemUtil.createItem(user);
+        return {};
       }
       throw new ForbiddenError('잘못된 접근입니다.');
     } catch (err) {

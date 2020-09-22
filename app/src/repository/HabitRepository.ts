@@ -2,6 +2,8 @@ import { HabitCreateInput, HabitUpdateInput, PrismaClient } from '@prisma/client
 import moment from 'moment';
 import { BaseRepository } from './BaseRepository';
 
+// Repository에도 메서드 별 설명 주석 달기 !
+
 export class HabitRepository extends BaseRepository {
   private prisma: PrismaClient;
 
@@ -11,19 +13,21 @@ export class HabitRepository extends BaseRepository {
     this.prisma = new PrismaClient();
   }
 
-  public async createHabitJoinUser(payload: HabitCreateInput) {
+  // 습관 추가하기 (with 사용자)
+  public async create(payload: HabitCreateInput) {
     return this.prisma.habit.create({
       data: payload,
     });
   }
 
-  public async findHabitById(habitId: number) {
+  // habitId로 습관 찾기
+  public async findById(habitId: number) {
     return await this.prisma.habit.findOne({
       where: { habitId },
     });
   }
 
-  public async findAllHabitByUserIdWithinAWeek(userId: number) {
+  public async findAllByUserIdWithinAWeek(userId: number) {
     return this.prisma.habit.findMany({
       where: { userId },
       select: {
@@ -44,7 +48,7 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
-  public async findHabitByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
+  public async findByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
     return this.prisma.habit.findOne({
       where: { habitId },
       include: {
@@ -61,14 +65,49 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
-  public async updateHabit(habitId: number, payload: HabitUpdateInput) {
+  // 임시 메서드 네이밍 논의 (어떤 역할을 하는지?)
+  public async findForTemp(habitId: number, checkDays: number) {
+    return this.prisma.habit.findOne({
+      where: { habitId },
+      include: {
+        commitHistory: {
+          where: {
+            createdAt: {
+              gte: moment().subtract(checkDays, 'days').startOf('days').toDate(),
+              lte: moment().endOf('days').toDate(),
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // 기본 습관 업데이트 메서드
+  public async updateById(habitId: number, payload: HabitUpdateInput) {
     return this.prisma.habit.update({
       where: { habitId },
       data: payload,
     });
   }
 
-  public async updateHabitByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
+  // 습관 연속 커밋 횟수 + 사용자 경험치 업데이트
+  public async updateCountAndUserExp(habitId: number, continuousCount: number, userExp: number) {
+    return this.prisma.habit.update({
+      where: { habitId },
+      data: {
+        commitHistory: { create: {} },
+        continuousCount,
+        user: {
+          update: { exp: userExp + 5 },
+        },
+      },
+      select: {
+        user: true,
+      },
+    });
+  }
+
+  public async updateByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
     return this.prisma.habit.update({
       where: { habitId },
       data: { continuousCount: 0 },
@@ -86,7 +125,8 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
-  public async deleteHabitById(habitId: number) {
+  // habitId로 습관 삭제
+  public async deleteById(habitId: number) {
     return this.prisma.habit.delete({ where: { habitId } });
   }
 }

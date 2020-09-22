@@ -2,14 +2,10 @@ import { Habit, PrismaClient, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
-import { Body, CurrentUser, Delete, Get, HttpCode, HttpError, JsonController, Params, Post, Put, Res } from 'routing-controllers';
-import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
+import { Body, CurrentUser, Delete, Get, HttpCode, JsonController, Params, Post, Put, Res } from 'routing-controllers';
+import { BadRequestError } from '../exceptions/Exception';
 import RedisRepository from '../repository/RedisRepository';
 import { HabitService } from '../services/HabitService';
-import { errorService } from '../services/LogService';
-import { Comments } from '../utils/CommentUtil';
-import { LevelUtil } from '../utils/LevelUtil';
-import { UserItemUtil } from '../utils/UserItemUtil';
 import { CreateHabitRequestDto, GetHabitRequestDto, HabitID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
@@ -18,9 +14,6 @@ export class HabitController extends BaseController {
   private prisma: PrismaClient;
   private redis: RedisRepository;
   private habitService: HabitService;
-  private comment: any;
-  private levelUtil: any;
-  private userItemUtil: any;
 
   constructor() {
     super();
@@ -28,9 +21,6 @@ export class HabitController extends BaseController {
     this.prisma = new PrismaClient();
     this.redis = RedisRepository.getInstance();
     this.habitService = new HabitService();
-    this.comment = new Comments();
-    this.levelUtil = LevelUtil.getInstance();
-    this.userItemUtil = new UserItemUtil();
   }
 
   // 습관 등록하기
@@ -93,75 +83,10 @@ export class HabitController extends BaseController {
   @Post('/:habitId/commit')
   @HttpCode(201)
   public async commitHabit(@CurrentUser() currentUser: User, @Params() id: HabitID, @Res() res: Response) {
-    try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+    const paramErrors = await validate(id);
+    if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-      const findHabitForDay = await this.prisma.habit.findOne({
-        where: { habitId: id.habitId },
-      });
-
-      if (findHabitForDay === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
-
-      let check = 0;
-      const todayOfTheWeek = moment().day();
-      for (let i = todayOfTheWeek + 6; i !== todayOfTheWeek; --i) {
-        check++;
-        if (i > 6) {
-          if (findHabitForDay.dayOfWeek[i - 7] === '1') break;
-        } else {
-          if (findHabitForDay.dayOfWeek[i] === '1') break;
-        }
-      }
-      const findHabit = await this.prisma.habit.findOne({
-        where: { habitId: id.habitId },
-        include: {
-          commitHistory: {
-            where: {
-              createdAt: {
-                gte: moment().subtract(check, 'days').startOf('days').toDate(),
-                lte: moment().endOf('days').toDate(),
-              },
-            },
-          },
-        },
-      });
-
-      let updateHabit;
-      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
-      if (findHabit.userId === currentUser.userId) {
-        if (findHabit.commitHistory.length) {
-          if (moment(findHabit.commitHistory[findHabit.commitHistory.length - 1].createdAt).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'))
-            return res.status(303).send({});
-          updateHabit = await this.updateHabitFunc(currentUser, id, findHabit.continuousCount + 1);
-        } else updateHabit = await this.updateHabitFunc(currentUser, id, 1);
-
-        const isEqual = this.levelUtil.compareLevels(currentUser.exp, updateHabit.user.exp);
-        if (!isEqual) return this.userItemUtil.createItem(this.prisma, currentUser);
-        return {};
-      }
-      throw new ForbiddenError('잘못된 접근입니다.');
-    } catch (err) {
-      errorService(err);
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
-  }
-
-  async updateHabitFunc(currentUser: User, id: HabitID, continuousCount: number) {
-    return await this.prisma.habit.update({
-      where: { habitId: id.habitId },
-      data: {
-        commitHistory: { create: {} },
-        continuousCount,
-        user: {
-          update: { exp: currentUser.exp + 5 },
-        },
-      },
-      select: {
-        user: true,
-      },
-    });
+    return this.habitService.commitHabit(currentUser, id, res);
   }
 
   async addOrUpdateRedis(habit: Habit, user: User) {
