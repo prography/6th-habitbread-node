@@ -10,7 +10,7 @@ import { errorService } from '../services/LogService';
 import { Comments } from '../utils/CommentUtil';
 import { LevelUtil } from '../utils/LevelUtil';
 import { UserItemUtil } from '../utils/UserItemUtil';
-import { CreateHabitRequestDto, GetHabitRequestDto, ID, UpdateHabitRequestDto } from '../validations/HabitValidation';
+import { CreateHabitRequestDto, GetHabitRequestDto, HabitID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/habits')
@@ -70,61 +70,18 @@ export class HabitController extends BaseController {
   // habitId로 습관 수정하기
   @Put('/:habitId')
   @HttpCode(201)
-  public async updateHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Body() habit: UpdateHabitRequestDto) {
-    try {
-      const paramErrors = await validate(id);
-      if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
-      const bodyErrors = await validate(habit);
-      if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
+  public async updateHabit(@CurrentUser() currentUser: User, @Params() id: HabitID, @Body() habitDto: UpdateHabitRequestDto) {
+    const paramErrors = await validate(id);
+    if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
+    const bodyErrors = await validate(habitDto);
+    if (bodyErrors.length > 0) throw new BadRequestError(bodyErrors);
 
-      const findHabit = await this.prisma.habit.findOne({
-        where: { habitId: id.habitId },
-      });
-      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
-      if (findHabit.userId === currentUser.userId) {
-        const alarmTime = habit.alarmTime ? moment(habit.alarmTime, 'HH:mm').format('HH:mm') : null;
-        const fixHabit = await this.prisma.habit.update({
-          where: { habitId: id.habitId },
-          data: {
-            title: habit.title,
-            description: habit.description,
-            category: habit.category,
-            alarmTime,
-            user: {
-              connect: { userId: currentUser.userId },
-            },
-          },
-        });
-
-        // 스케줄러 편집
-        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(fixHabit.habitId));
-        if (alarmTime === null) {
-          if (findHabit.alarmTime) {
-            await this.prisma.scheduler.delete({
-              where: { habitId: fixHabit.habitId },
-            });
-          }
-          return fixHabit;
-        }
-        await this.prisma.scheduler.upsert({
-          where: { habitId: fixHabit.habitId },
-          create: { userId: currentUser.userId, habitId: findHabit.habitId },
-          update: {},
-        });
-        await this.addOrUpdateRedis(fixHabit, currentUser);
-        return fixHabit;
-      }
-      throw new ForbiddenError('잘못된 접근입니다.');
-    } catch (err) {
-      errorService(err);
-      if (err instanceof HttpError) throw err;
-      throw new InternalServerError(err.message);
-    }
+    return this.habitService.updateHabit(currentUser, id, habitDto);
   }
 
   // habitId로 습관 삭제하기
   @Delete('/:habitId')
-  public async deleteHabit(@CurrentUser() currentUser: User, @Params() id: ID) {
+  public async deleteHabit(@CurrentUser() currentUser: User, @Params() id: HabitID) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
@@ -152,7 +109,7 @@ export class HabitController extends BaseController {
   // habit commit하기
   @Post('/:habitId/commit')
   @HttpCode(201)
-  public async commitHabit(@CurrentUser() currentUser: User, @Params() id: ID, @Res() res: Response) {
+  public async commitHabit(@CurrentUser() currentUser: User, @Params() id: HabitID, @Res() res: Response) {
     try {
       const paramErrors = await validate(id);
       if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
@@ -208,7 +165,7 @@ export class HabitController extends BaseController {
     }
   }
 
-  async updateHabitFunc(currentUser: User, id: ID, continuousCount: number) {
+  async updateHabitFunc(currentUser: User, id: HabitID, continuousCount: number) {
     return await this.prisma.habit.update({
       where: { habitId: id.habitId },
       data: {

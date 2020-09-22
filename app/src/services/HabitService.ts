@@ -1,4 +1,4 @@
-import { Habit, HabitCreateInput, SchedulerCreateInput, User } from '@prisma/client';
+import { Habit, HabitCreateInput, HabitUpdateInput, SchedulerCreateInput, User } from '@prisma/client';
 import moment from 'moment';
 import { HttpError } from 'routing-controllers';
 import { ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
@@ -7,7 +7,7 @@ import { HabitRepository } from '../repository/HabitRepository';
 import RedisRepository from '../repository/RedisRepository';
 import { SchedulerRepository } from '../repository/SchedulerRepository';
 import { Comments } from '../utils/CommentUtil';
-import { CreateHabitRequestDto, GetHabitRequestDto } from '../validations/HabitValidation';
+import { CreateHabitRequestDto, GetHabitRequestDto, HabitID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
 
@@ -31,7 +31,7 @@ export class HabitService extends BaseService {
   // 습관 생성
   public async createHabit(user: User, habitDto: CreateHabitRequestDto) {
     try {
-      const habitPayload: HabitCreateInput = habitDto.toEntity(user, habitDto);
+      const habitPayload: HabitCreateInput = habitDto.toEntity(user);
       const newHabit = await this.habitRepository.createHabitJoinUser(habitPayload);
 
       // 스케줄러 등록 부분(추가 수정 필요)
@@ -46,7 +46,7 @@ export class HabitService extends BaseService {
       if (newHabit.dayOfWeek[moment().day()] === '1') {
         const time = moment().startOf('minutes');
         const alarmTime = moment(newHabit.alarmTime, 'HH:mm');
-        if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(newHabit, user);
+        if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(user, newHabit);
       }
 
       return newHabit;
@@ -119,8 +119,37 @@ export class HabitService extends BaseService {
     }
   }
 
+  // 습관 업데이트
+  public async updateHabit(user: User, id: HabitID, habitDto: UpdateHabitRequestDto) {
+    try {
+      const findHabit = await this.habitRepository.findHabitById(id.habitId);
+      if (findHabit === null) throw new NotFoundError('습관을 찾을 수 없습니다.');
+
+      if (findHabit.userId === user.userId) {
+        const habitPayload: HabitUpdateInput = habitDto.toEntity(user);
+        const updateHabit = await this.habitRepository.updateHabit(id.habitId, habitPayload);
+
+        // 스케줄러 편집
+        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(updateHabit.habitId));
+
+        if (habitPayload.alarmTime === null) {
+          if (findHabit.alarmTime) await this.schedulerRepository.deleteSchedulerByHabitId(updateHabit.habitId);
+          return updateHabit;
+        }
+        await this.schedulerRepository.upsertScheduler(user.userId, updateHabit.habitId, findHabit.habitId);
+        await this.addOrUpdateRedis(user, updateHabit);
+        return updateHabit;
+      }
+      throw new ForbiddenError('잘못된 접근입니다.');
+    } catch (err) {
+      errorService(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
   // Redis 추가 or 업데이트 작업
-  private async addOrUpdateRedis(habit: Habit, user: User) {
+  private async addOrUpdateRedis(user: User, habit: Habit) {
     await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
     await this.redis.hmset(`habitId:${habit.habitId}`, ['userId', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
     await this.redis.expire(`habitId:${habit.habitId}`, 604860);

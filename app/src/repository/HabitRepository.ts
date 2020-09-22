@@ -1,4 +1,4 @@
-import { HabitCreateInput, PrismaClient } from '@prisma/client';
+import { HabitCreateInput, HabitUpdateInput, PrismaClient } from '@prisma/client';
 import moment from 'moment';
 import { BaseRepository } from './BaseRepository';
 
@@ -14,6 +14,12 @@ export class HabitRepository extends BaseRepository {
   public async createHabitJoinUser(payload: HabitCreateInput) {
     return this.prisma.habit.create({
       data: payload,
+    });
+  }
+
+  public async findHabitById(habitId: number) {
+    return await this.prisma.habit.findOne({
+      where: { habitId },
     });
   }
 
@@ -52,6 +58,13 @@ export class HabitRepository extends BaseRepository {
           select: { createdAt: true },
         },
       },
+    });
+  }
+
+  public async updateHabit(habitId: number, payload: HabitUpdateInput) {
+    return this.prisma.habit.update({
+      where: { habitId },
+      data: payload,
     });
   }
 

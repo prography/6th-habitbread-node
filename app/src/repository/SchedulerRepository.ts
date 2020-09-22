@@ -14,4 +14,18 @@ export class SchedulerRepository extends BaseRepository {
       data: payload,
     });
   }
+
+  public async deleteSchedulerByHabitId(habitId: number) {
+    return this.prisma.scheduler.delete({
+      where: { habitId },
+    });
+  }
+
+  public async upsertScheduler(userId: number, updateId: number, createId: number) {
+    return this.prisma.scheduler.upsert({
+      where: { habitId: updateId },
+      create: { userId, habitId: createId },
+      update: {},
+    });
+  }
 }
