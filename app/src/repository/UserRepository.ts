@@ -23,4 +23,19 @@ export class UserRepository extends BaseRepository {
   public async deleteById(userId: number) {
     return this.prisma.raw`delete from users where user_id = ${userId};`;
   }
+
+  public async findByOAuthKey(oauthKey: string) {
+    return this.prisma.user.findOne({
+      where: { oauthKey },
+    });
+  }
+
+  public async create(name: string, oauthKey: string) {
+    return this.prisma.user.create({
+      data: {
+        name,
+        oauthKey,
+      },
+    });
+  }
 }

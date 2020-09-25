@@ -8,21 +8,21 @@ import { TokenPayload } from '../@types/Types';
 import env from '../configs/index';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
-import { OAuthRepository } from '../repository/OAuthRepository';
+import { UserRepository } from '../repository/UserRepository';
 import { errorService } from '../services/LogService';
 import { BaseServices } from './BaseServices';
 
 @JsonController('/oauth')
 export class OAuthService extends BaseServices {
-  private oAuthRepository: OAuthRepository;
+  private userRepository: UserRepository;
   private oauth2Client = new google.auth.OAuth2(env.GOOGLE.CLIENT_ID, env.GOOGLE.CLIENT_SECRET, env.GOOGLE.REDIRECT_URL);
-  private parseResponse = (data: any) => {
+  private googleResponseForWeb = (data: any) => {
     return {
       userName: data.names.length ? data.names[0].displayName : '습관이',
       oauthKey: data.emailAddresses[0].value,
     };
   };
-  private googleResponse = (data: any) => {
+  private googleResponseForMobile = (data: any) => {
     return {
       userName: data.name ? data.name : '습관이',
       oauthKey: data.email,
@@ -34,20 +34,7 @@ export class OAuthService extends BaseServices {
 
   constructor() {
     super();
-    this.oAuthRepository = new OAuthRepository();
-  }
-
-  private async checkUserInfoWithGoogle(payload: TokenPayload | people_v1.Schema$Person | undefined, type: string) {
-    let googleData;
-    if (type == 'Web') {
-      googleData = this.googleResponse(payload);
-    } else {
-      googleData = this.parseResponse(payload);
-    }
-    if (googleData.oauthKey === null) throw new InternalServerError('알 수 없는 Error 발생');
-
-    const { user, isNewUser } = await this.oAuthRepository.findOrUpdateUser(googleData);
-    return { accessToken: AuthHelper.makeAccessToken(user.userId), isNewUser };
+    this.userRepository = new UserRepository();
   }
 
   public async googleSignInForMobile(@Body() idToken: any) {
@@ -105,33 +92,9 @@ export class OAuthService extends BaseServices {
     }
   }
 
-  private async makeAccessTokenWithApple(body: Record<string, any>, type: string) {
-    let response: AppleAuthAccessToken;
-    if (type == 'ios') {
-      response = await this.authIos.accessToken(body.code);
-    } else {
-      response = await this.authWeb.accessToken(body.code);
-    }
-    const idToken = jsonwebtoken.decode(response.id_token);
-    if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
-
-    const oauthKey = idToken.sub;
-    const { name } = body.user;
-    const { lastName, firstName } = name;
-
-    let userName = '습관이';
-    if (lastName) {
-      userName = lastName + firstName;
-    }
-
-    const { user, isNewUser } = await this.oAuthRepository.findOrUpdateUser({ userName, oauthKey });
-
-    const accessToken = AuthHelper.makeAccessToken(user.userId);
-    return { accessToken, isNewUser };
-  }
-
   public apple(res: Response) {
-    return res.send(`<a href="${this.authWeb.loginURL()}">Sign in with Apple</a>`);
+    res.redirect(this.authWeb.loginURL());
+    return res.end();
   }
 
   public async appleOAuth(body: Record<string, any>) {
@@ -155,5 +118,53 @@ export class OAuthService extends BaseServices {
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message || err);
     }
+  }
+
+  private async findOrUpdateUser(data: { userName: string; oauthKey: string }) {
+    let isNewUser = false;
+    let user = await this.userRepository.findByOAuthKey(data.oauthKey);
+    if (user === null) {
+      user = await this.userRepository.create(data.userName, data.oauthKey);
+      isNewUser = true;
+    }
+    return { user, isNewUser };
+  }
+
+  private async checkUserInfoWithGoogle(payload: TokenPayload | people_v1.Schema$Person | undefined, type: string) {
+    let googleData;
+    if (type == 'Web') {
+      googleData = this.googleResponseForWeb(payload);
+    } else {
+      googleData = this.googleResponseForMobile(payload);
+    }
+    if (googleData.oauthKey === null) throw new InternalServerError('알 수 없는 Error 발생');
+
+    const { user, isNewUser } = await this.findOrUpdateUser(googleData);
+    return { accessToken: AuthHelper.makeAccessToken(user.userId), isNewUser };
+  }
+
+  private async makeAccessTokenWithApple(body: Record<string, any>, type: string) {
+    let response: AppleAuthAccessToken;
+    if (type == 'ios') {
+      response = await this.authIos.accessToken(body.code);
+    } else {
+      response = await this.authWeb.accessToken(body.code);
+    }
+    const idToken = jsonwebtoken.decode(response.id_token);
+    if (idToken === null || typeof idToken === 'string') throw new BadRequestError('토큰의 정보를 가져올 수 없습니다.');
+
+    const oauthKey = idToken.sub;
+    const { name } = body.user;
+    const { lastName, firstName } = name;
+
+    let userName = '습관이';
+    if (lastName) {
+      userName = lastName + firstName;
+    }
+
+    const { user, isNewUser } = await this.findOrUpdateUser({ userName, oauthKey });
+
+    const accessToken = AuthHelper.makeAccessToken(user.userId);
+    return { accessToken, isNewUser };
   }
 }
