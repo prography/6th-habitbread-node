@@ -4,7 +4,6 @@ import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from
 import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/Types';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
-import RedisRepository from '../repository/RedisRepository';
 import { errorService } from '../services/LogService';
 import { UserService } from '../services/UserService';
 import { GetUserRequestDto } from '../validations/UserValidation';
