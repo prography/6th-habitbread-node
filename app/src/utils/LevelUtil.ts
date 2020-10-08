@@ -9,7 +9,7 @@ export class LevelUtil extends Util {
   private static util: null | LevelUtil = null;
 
   // 등차수열 초기화 (10레벨 이후 부터는 필요 경험치 +500으로 고정)
-  private constructor() {
+  constructor() {
     super();
     let sum = 0;
     for (let i = 0; i < this.maxLevel; i++) {
@@ -17,14 +17,6 @@ export class LevelUtil extends Util {
       else sum += 500;
       this.levels.push(sum);
     }
-  }
-
-  // 싱글톤
-  public static getInstance() {
-    if (!this.util) {
-      this.util = new LevelUtil();
-    }
-    return this.util;
   }
 
   private getPercent(exp: number, preRequiredExp: number, nextRequiredExp: number) {
@@ -36,8 +28,8 @@ export class LevelUtil extends Util {
 
   // 현재 경험치의 레벨, 퍼센트를 반환하는 메소드
   public getLevelsAndPercents(exp: number) {
-    let level;
-    let percent;
+    let level = 0;
+    let percent = 0;
 
     // 최대 레벨일 경우
     if (exp >= this.levels[this.maxLevel - 1]) return { level: this.maxLevel, percent: 100 };

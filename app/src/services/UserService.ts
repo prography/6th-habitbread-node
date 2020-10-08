@@ -4,17 +4,17 @@ import RedisRepository from '../repository/RedisRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { LevelUtil } from '../utils/LevelUtil';
 import { GetUserRequestDto } from '../validations/UserValidation';
-import { BaseServices } from './BaseServices';
+import { BaseService } from './BaseService';
 
-export class UserService extends BaseServices {
-  private levelUtil: any;
+export class UserService extends BaseService {
+  private levelUtil: LevelUtil;
   private redis: RedisRepository;
   private userRepository: UserRepository;
 
   constructor() {
     super();
-    this.levelUtil = LevelUtil.getInstance();
-    this.redis = RedisRepository.getInstance();
+    this.levelUtil = new LevelUtil();
+    this.redis = new RedisRepository();
     this.userRepository = new UserRepository();
   }
 

@@ -15,19 +15,19 @@ import { BaseController } from './BaseController';
 @JsonController('/habits')
 export class HabitController extends BaseController {
   private prisma: PrismaClient;
-  private comment: any;
-  private levelUtil: any;
-  private userItemUtil: any;
+  private comment: Comments;
+  private levelUtil: LevelUtil;
+  private userItemUtil: UserItemUtil;
   private redis: RedisRepository;
 
   constructor() {
     super();
     this.comment = new Comments();
-    this.levelUtil = LevelUtil.getInstance();
+    this.levelUtil = new LevelUtil();
     this.userItemUtil = new UserItemUtil();
     this.prisma = new PrismaClient();
     moment.tz.setDefault('Asia/Seoul');
-    this.redis = RedisRepository.getInstance();
+    this.redis = new RedisRepository();
   }
 
   // 습관 등록하기

@@ -10,10 +10,10 @@ import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { AuthHelper } from '../middleware/AuthHelper';
 import { UserRepository } from '../repository/UserRepository';
 import { errorService } from '../services/LogService';
-import { BaseServices } from './BaseServices';
+import { BaseService } from './BaseService';
 
 @JsonController('/oauth')
-export class OAuthService extends BaseServices {
+export class OAuthService extends BaseService {
   private userRepository: UserRepository;
   private oauth2Client = new google.auth.OAuth2(env.GOOGLE.CLIENT_ID, env.GOOGLE.CLIENT_SECRET, env.GOOGLE.REDIRECT_URL);
   private googleResponseForWeb = (data: any) => {
