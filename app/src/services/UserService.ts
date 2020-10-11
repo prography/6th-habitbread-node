@@ -4,9 +4,9 @@ import RedisRepository from '../repository/RedisRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { LevelUtil } from '../utils/LevelUtil';
 import { GetUserRequestDto } from '../validations/UserValidation';
-import { BaseServices } from './BaseServices';
+import { BaseService } from './BaseService';
 
-export class UserService extends BaseServices {
+export class UserService extends BaseService {
   private levelUtil: any;
   private redis: RedisRepository;
   private userRepository: UserRepository;
@@ -40,7 +40,7 @@ export class UserService extends BaseServices {
     payload.name = name;
     payload.fcmToken = dto.fcmToken;
 
-    const user = await this.userRepository.updateUserDataById(currentUser.userId, payload);
+    const user = await this.userRepository.updateById(currentUser.userId, payload);
     delete user.oauthKey;
     delete user.fcmToken;
 

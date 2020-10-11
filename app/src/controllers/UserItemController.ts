@@ -3,7 +3,7 @@ import { validate } from 'class-validator';
 import { CurrentUser, Delete, Get, JsonController, Params } from 'routing-controllers';
 import { BadRequestError } from '../exceptions/Exception';
 import { ItemService } from '../services/ItemService';
-import { GetUserItemRequestDto } from '../validations/UserItemValidation';
+import { UserItemRequestDto } from '../validations/UserItemValidation';
 import { BaseController } from './BaseController';
 
 @JsonController('/items')
@@ -23,21 +23,21 @@ export class UserItemController extends BaseController {
 
   // 특정 사용자의 특정 아이템 조회 API
   @Get('/:userItemId')
-  public async findUserItem(@CurrentUser() currentUser: User, @Params() id: GetUserItemRequestDto) {
-    const paramErrors = await validate(id);
+  public async findUserItem(@CurrentUser() currentUser: User, @Params() itemDto: UserItemRequestDto) {
+    const paramErrors = await validate(itemDto);
     if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-    const item = this.itemService.findItem(id);
+    const item = this.itemService.findItem(itemDto);
     return item;
   }
 
   // 특정 사용자의 아이템 삭제 API
   @Delete('/:userItemId')
-  public async deleteUserItem(@CurrentUser() currentUser: User, @Params() id: GetUserItemRequestDto) {
-    const paramErrors = await validate(id);
+  public async deleteUserItem(@CurrentUser() currentUser: User, @Params() itemDto: UserItemRequestDto) {
+    const paramErrors = await validate(itemDto);
     if (paramErrors.length > 0) throw new BadRequestError(paramErrors);
 
-    await this.itemService.deleteItem(id);
+    await this.itemService.deleteItem(itemDto);
 
     return { message: "Delete User's Item Success" };
   }

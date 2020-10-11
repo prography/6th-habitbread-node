@@ -9,6 +9,22 @@ export class ItemRepository extends BaseRepository {
     this.prisma = new PrismaClient();
   }
 
+  public async create(userId: number, itemId: number) {
+    return this.prisma.userItem.create({
+      data: {
+        user: {
+          connect: { userId },
+        },
+        item: {
+          connect: { itemId },
+        },
+      },
+      select: {
+        item: true,
+      },
+    });
+  }
+
   public async findById(userItemId: number) {
     return this.prisma.userItem.findOne({
       where: { userItemId },
@@ -21,6 +37,17 @@ export class ItemRepository extends BaseRepository {
       select: {
         userItemId: true,
         createdAt: true,
+        item: true,
+      },
+    });
+  }
+
+  public async findAllByUserIdIncludeItem(userId: number) {
+    return this.prisma.userItem.findMany({
+      where: {
+        userId,
+      },
+      include: {
         item: true,
       },
     });

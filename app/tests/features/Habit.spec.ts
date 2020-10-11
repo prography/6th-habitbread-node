@@ -67,9 +67,11 @@ describe('testHabit', () => {
   test('getHabit', async () => {
     for (let i = 0; i < 3; i += 1) {
       const payload = Payload.habitOriginalPayloads[i];
-      const res = await testClient
-        .get(`/habits/${habitId + i}/calendar/${parseInt(moment().format('YYYY'))}/${parseInt(moment().format('M'))}`)
-        .set('Authorization', `Bearer ${token}`);
+
+      const year = parseInt(moment().format('YYYY'));
+      const month = parseInt(moment().format('MM'));
+      const res = await testClient.get(`/habits/${habitId + i}/calendar/${year}/${month}`).set('Authorization', `Bearer ${token}`);
+
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
         habit: {

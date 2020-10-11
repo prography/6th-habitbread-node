@@ -2,7 +2,7 @@ import { User } from '@prisma/client';
 import { HttpError } from 'routing-controllers';
 import { InternalServerError, NoContent, NotFoundError } from '../exceptions/Exception';
 import { ItemRepository } from '../repository/ItemRepository';
-import { GetUserItemRequestDto } from '../validations/UserItemValidation';
+import { UserItemRequestDto } from '../validations/UserItemValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
 
@@ -29,7 +29,7 @@ export class ItemService extends BaseService {
   }
 
   // 아이템 ID로 특정 아이템 조회
-  public async findItem(dto: GetUserItemRequestDto) {
+  public async findItem(dto: UserItemRequestDto) {
     try {
       const item = await this.itemRepository.findByIdJoinItem(dto.userItemId);
       if (item === null) throw new NotFoundError('빵 아이템을 찾을 수 없습니다.');
@@ -43,7 +43,7 @@ export class ItemService extends BaseService {
   }
 
   // 특정 사용자의 아이템 삭제
-  public async deleteItem(dto: GetUserItemRequestDto) {
+  public async deleteItem(dto: UserItemRequestDto) {
     try {
       const item = this.itemRepository.findById(dto.userItemId);
       if (item === null) throw new NotFoundError('빵 아이템을 찾을 수 없습니다.');
