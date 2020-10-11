@@ -2,8 +2,6 @@ import { HabitCreateInput, HabitUpdateInput, PrismaClient } from '@prisma/client
 import moment from 'moment';
 import { BaseRepository } from './BaseRepository';
 
-// Repository에도 메서드 별 설명 주석 달기 !
-
 export class HabitRepository extends BaseRepository {
   private prisma: PrismaClient;
 
@@ -107,6 +105,7 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
+  // 특정 year, month 값으로 습관 조회하기
   public async updateByIdWithinYearAndMonth(habitId: number, year: number, month: number) {
     return this.prisma.habit.update({
       where: { habitId },

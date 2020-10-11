@@ -177,6 +177,7 @@ export class HabitService extends BaseService {
     }
   }
 
+  // 습관 커밋하기 (오늘 해야할 습관을 체크)
   public async commitHabit(user: User, id: HabitID, res: Response) {
     try {
       const findHabitForDay = await this.habitRepository.findById(id.habitId);
