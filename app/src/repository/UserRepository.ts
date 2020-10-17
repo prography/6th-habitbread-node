@@ -13,7 +13,7 @@ export class UserRepository extends BaseRepository {
     return this.prisma.userItem.count({ where: { userId } });
   }
 
-  public async updateUserDataById(userId: number, payload: any) {
+  public async updateById(userId: number, payload: any) {
     return this.prisma.user.update({
       where: { userId },
       data: payload,

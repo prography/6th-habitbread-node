@@ -6,6 +6,7 @@ export class ItemID {
   itemId!: number;
 }
 
+// for spec test
 export class AddItem {
   name!: string;
   description!: string;

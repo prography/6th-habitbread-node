@@ -40,7 +40,7 @@ export class UserService extends BaseService {
     payload.name = name;
     payload.fcmToken = dto.fcmToken;
 
-    const user = await this.userRepository.updateUserDataById(currentUser.userId, payload);
+    const user = await this.userRepository.updateById(currentUser.userId, payload);
     delete user.oauthKey;
     delete user.fcmToken;
 

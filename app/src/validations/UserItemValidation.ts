@@ -1,11 +1,12 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class GetUserItemRequestDto {
+export class UserItemRequestDto {
   @IsNumber()
   @IsNotEmpty()
   userItemId!: number;
 }
 
+// for spec test
 export class AddUserItem {
   userId!: number;
   itemId!: number;
