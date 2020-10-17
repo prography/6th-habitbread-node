@@ -28,7 +28,7 @@
 
 - `Dense Ranking` 구현을 위한 구조
 
-1. Sorted Sets
+1. 경험치를 기준으로 정렬된 사용자 ID 리스트 (Sorted Sets)
 
    ```
    [Key]
@@ -44,7 +44,7 @@
    ]
    ```
 
-2. Hash
+2. 사용자 정보 (Hash)
 
    ```
    [Key]
@@ -52,21 +52,18 @@
    Ex) "user:1", "user:2"
 
    [Value]
-   [
-       {
-           "name" : "사용자 이름",
-           "achievement" : "50",
-           "exp" : "10"
-       },
-           ...
-   ]
+   {
+       "name" : "사용자 이름",
+       "achievement" : "50", // 달성도
+       "exp" : "10"          // 경험치
+   }
    ```
 
 ### Scheduler
 
 - FCM 메시징 기능 구현을 위한 구조
 
-1. Set
+1. 특정 시간에 알림을 보내야하는 습관 ID 리스트 (Set)
 
    ```
    [Key]
@@ -75,13 +72,13 @@
 
    [Value]
    [
-       {"10"}, // 습관의 ID
-       {"80"}
+       "10", // 습관의 ID
+       "80"
        ...
    ]
    ```
 
-2. Hash - 1
+2. Habit 정보 (Hash)
 
    ```
    [Key]
@@ -89,17 +86,14 @@
    Ex) "habit:1", "habit:2"
 
    [Value]
-   [
-      {
-          "userId" : "1",
-          "title" : "매일 하루 1번 물 마시기",
-          "dayOfWeek" : "0100010" // 습관을 해야할 요일
-      },
-          ...
-   ]
+   {
+       "userId" : "1",
+       "title" : "매일 하루 1번 물 마시기",
+       "dayOfWeek" : "0100010" // 습관을 해야할 요일
+   }
    ```
 
-3. Hash - 2
+3. User 정보 (Hash)
 
    ```
    [Key]
@@ -107,13 +101,10 @@
    Ex) "user:1", "user:2"
 
    [Value]
-   [
-       {
-           "isAlarmOn" : "0", // 0 or 1 (알람 킨 여부)
-           "FCMToken" : "token", // FCM에서 발급받은 토큰
-       },
-           ...
-   ]
+   {
+       "isAlarmOn" : "0", // 0 or 1 (알람 킨 여부)
+       "FCMToken" : "token", // FCM에서 발급받은 토큰
+   }
    ```
 
 ## 기술 스택
