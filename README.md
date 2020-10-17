@@ -30,7 +30,7 @@
 
 1. Sorted Sets
 
-   ```json
+   ```
    [Key]
    "user:score"
 
@@ -46,9 +46,10 @@
 
 2. Hash
 
-   ```json
+   ```
    [Key]
-   "user:{id}" // Ex) "user:1", "user:2"
+   "user:{id}" 
+   Ex) "user:1", "user:2"
 
    [Value]
    [
@@ -67,9 +68,10 @@
 
 1. Set
 
-   ```json
+   ```
    [Key]
-   "MMDDHHmm" Date 형태의 String // Ex) "10281020"
+   "MMDDHHmm" Date 형태의 String 
+   Ex) "10281020"
 
    [Value]
    [
@@ -81,9 +83,10 @@
 
 2. Hash - 1
 
-   ```json
+   ```
    [Key]
-   "habit:{id}" // Ex) "habit:1", "habit:2"
+   "habit:{id}"
+   Ex) "habit:1", "habit:2"
 
    [Value]
    [
@@ -98,9 +101,10 @@
 
 3. Hash - 2
 
-   ```json
+   ```
    [Key]
-   "user:{id}" // Ex) "user:1", "user:2"
+   "user:{id}"
+   Ex) "user:1", "user:2"
 
    [Value]
    [
