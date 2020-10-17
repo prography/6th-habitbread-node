@@ -12,7 +12,9 @@
 
 ## 서비스 결과물
 
-<center><img src="https://user-images.githubusercontent.com/28949165/96334300-a85bb800-10aa-11eb-9650-f0a7bffc020e.png" width="80%" height="80%"></center>
+<p align="center">
+   <img src="https://user-images.githubusercontent.com/28949165/96334300-a85bb800-10aa-11eb-9650-f0a7bffc020e.png" width="90%" height="90%">
+</p>
 
 ## 프로젝트 구조
 
@@ -20,7 +22,9 @@
 
 ## DB 스키마 구조도
 
-<center><img src="https://user-images.githubusercontent.com/28949165/96334295-a42f9a80-10aa-11eb-8d9a-5aec16e48331.png" width="80%" height="80%"></center>
+<p align="center">
+   <img src="https://user-images.githubusercontent.com/28949165/96334295-a42f9a80-10aa-11eb-8d9a-5aec16e48331.png" width="90%" height="90%">
+</p>
 
 ## Redis 구성
 
