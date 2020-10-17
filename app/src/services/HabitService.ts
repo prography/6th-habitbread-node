@@ -29,9 +29,9 @@ export class HabitService extends BaseService {
     this.habitRepository = new HabitRepository();
     this.schedulerRepository = new SchedulerRepository();
     this.commitRepository = new CommitRepository();
-    this.redis = RedisRepository.getInstance();
+    this.redis = new RedisRepository();
     this.commentUtil = new CommentUtil();
-    this.levelUtil = LevelUtil.getInstance();
+    this.levelUtil = new LevelUtil();
     this.itemUtil = new ItemUtil();
   }
 
