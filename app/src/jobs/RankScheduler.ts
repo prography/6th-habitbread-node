@@ -5,7 +5,7 @@ import RedisRepository from '../repository/RedisRepository';
 import { AchievementUtil } from '../utils/AchievementUtil';
 
 const prisma = new PrismaClient();
-const redis = RedisRepository.getInstance();
+const redis = new RedisRepository();
 const expire = 31 * 60; // 31분
 
 // Redis에 랭킹 데이터 저장

@@ -12,7 +12,7 @@ export class RankingController extends BaseController {
 
   constructor() {
     super();
-    this.redis = RedisRepository.getInstance();
+    this.redis = new RedisRepository();
   }
 
   // 나의 랭킹 + 전체 랭킹 리스트 조회

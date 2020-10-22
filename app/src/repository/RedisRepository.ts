@@ -3,25 +3,19 @@ import { promisify } from 'util';
 import env from '../configs/index';
 
 export default class RedisRepository {
-  private static _instance: null | RedisRepository = null;
   private client = redis.createClient(env.REDIS);
+
+  constructor() {
+    this.client.on('error', this.onError);
+  }
 
   // 메서드를 Promise화로 만들어 반환하는 함수
   private promisify(method: Function) {
     return promisify(method).bind(this.client);
   }
 
-  private static onError(err: any): void {
+  private onError(err: any): void {
     console.error('Redis Error : ' + err);
-  }
-
-  // 싱글톤
-  public static getInstance() {
-    if (!RedisRepository._instance) {
-      RedisRepository._instance = new RedisRepository();
-      RedisRepository._instance.client.on('error', this.onError);
-    }
-    return RedisRepository._instance;
   }
 
   // keys

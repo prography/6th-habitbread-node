@@ -3,18 +3,18 @@ import { UserInfo } from '../@types/Types';
 import RedisRepository from '../repository/RedisRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { LevelUtil } from '../utils/LevelUtil';
-import { GetUserRequestDto } from '../validations/UserValidation';
+import { UserRequestDto } from '../validations/UserValidation';
 import { BaseService } from './BaseService';
 
 export class UserService extends BaseService {
-  private levelUtil: any;
+  private levelUtil: LevelUtil;
   private redis: RedisRepository;
   private userRepository: UserRepository;
 
   constructor() {
     super();
-    this.levelUtil = LevelUtil.getInstance();
-    this.redis = RedisRepository.getInstance();
+    this.levelUtil = new LevelUtil();
+    this.redis = new RedisRepository();
     this.userRepository = new UserRepository();
   }
 
@@ -27,7 +27,7 @@ export class UserService extends BaseService {
     return currentUser;
   }
 
-  public async updateUser(currentUser: User, dto: GetUserRequestDto) {
+  public async updateUser(currentUser: User, dto: UserRequestDto) {
     const name = dto.name || currentUser.name;
 
     const userInfo: any = {};

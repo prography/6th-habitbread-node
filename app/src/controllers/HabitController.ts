@@ -11,15 +11,13 @@ import { BaseController } from './BaseController';
 
 @JsonController('/habits')
 export class HabitController extends BaseController {
-  private prisma: PrismaClient;
   private redis: RedisRepository;
   private habitService: HabitService;
 
   constructor() {
     super();
     moment.tz.setDefault('Asia/Seoul');
-    this.prisma = new PrismaClient();
-    this.redis = RedisRepository.getInstance();
+    this.redis = new RedisRepository();
     this.habitService = new HabitService();
   }
 

@@ -17,7 +17,7 @@ let token: string;
 describe('Test Ranking', () => {
   const client = supertest(app);
   const prisma = new PrismaClient();
-  const redis = RedisRepository.getInstance();
+  const redis = new RedisRepository();
 
   beforeEach(async done => {
     await prisma.habit.deleteMany({});
