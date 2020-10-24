@@ -8,7 +8,7 @@ import RedisRepository from '../repository/RedisRepository';
 
 moment.tz.setDefault('Asia/Seoul');
 
-const redis = RedisRepository.getInstance();
+const redis = new RedisRepository();
 
 admin.initializeApp({
   credential: admin.credential.cert(env.FCM),

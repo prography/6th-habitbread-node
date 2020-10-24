@@ -7,7 +7,7 @@ moment.tz.setDefault('Asia/Seoul');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const prisma = new PrismaClient();
-const redis = RedisRepository.getInstance();
+const redis = new RedisRepository();
 
 const habitCheckWithUser = (habit: HabitIncludeUser | null) => {
   if (habit === null) return true;
