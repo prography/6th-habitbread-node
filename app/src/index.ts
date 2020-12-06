@@ -9,16 +9,16 @@ const listenServer = () => {
   });
 };
 
-// Production 환경
-const listenProd = async () => {
+// Production & Dev 환경
+const listenProdAndDev = async () => {
   alarmScheduler.SendAlarmJob();
   listenServer();
 };
 
-// Develop 환경
-const listenDev = async () => listenServer();
+// local 환경
+const listenLocal = async () => listenServer();
 
-if (env.NODE_ENV === 'prod') listenProd();
-else if (env.NODE_ENV === 'dev') listenDev();
+if (env.NODE_ENV === 'local') listenLocal();
+else listenProdAndDev();
 
 console.log(env);
