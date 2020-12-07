@@ -5,6 +5,7 @@ import schedule from 'node-schedule';
 import env from '../configs/index';
 import { InternalServerError } from '../exceptions/Exception';
 import RedisRepository from '../repository/RedisRepository';
+import { errorService } from '../services/LogService';
 
 moment.tz.setDefault('Asia/Seoul');
 
@@ -37,7 +38,6 @@ const scheduler = {
         // eslint-disable-next-line no-constant-condition
         while (1) {
           const habitId = await redis.spop(moment().format('MMDDHHmm'));
-          console.log(moment().format('MMDDHHmm'), '보내야 되는 습관들 : ', habitId);
           if (habitId === null) break;
           const [user, title, dayOfWeek] = await redis.hmget(`habitId:${habitId}`, ['user', 'title', 'dayOfWeek']);
           const [isAlarmOn, FCMToekn] = await redis.hmget(`user:${user}`, ['isAlarmOn', 'FCMToken']);
@@ -54,16 +54,20 @@ const scheduler = {
             },
             token: FCMToekn,
           };
-
-          await admin.messaging().send(FCM);
-
-          const indexOfNextDay = checkIndexOfNextDay(moment().day(), dayOfWeek);
-          let dateToAdd;
-          if (indexOfNextDay <= moment().day()) dateToAdd = 7 - moment().day() + indexOfNextDay;
-          else dateToAdd = indexOfNextDay - moment().day();
-          await redis.sadd(moment().add(dateToAdd, 'days').format('MMDDHHmm'), habitId);
-          await redis.hmset(`habitId:${habitId}`, ['user', user, 'title', title, 'dayOfWeek', dayOfWeek]);
-          await redis.expire(`habitId:${habitId}`, 604860);
+        
+          try {await admin.messaging().send(FCM);}
+          catch (err) {
+            errorService(err);
+            console.error(err);
+          } finally {
+            const indexOfNextDay = checkIndexOfNextDay(moment().day(), dayOfWeek);
+            let dateToAdd;
+            if (indexOfNextDay <= moment().day()) dateToAdd = 7 - moment().day() + indexOfNextDay;
+            else dateToAdd = indexOfNextDay - moment().day();
+            await redis.sadd(moment().add(dateToAdd, 'days').format('MMDDHHmm'), habitId);
+            await redis.hmset(`habitId:${habitId}`, ['user', user, 'title', title, 'dayOfWeek', dayOfWeek]);
+            await redis.expire(`habitId:${habitId}`, 604860);    
+          }
         }
       } catch (err) {
         throw new InternalServerError(err.message);
