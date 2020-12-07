@@ -1,6 +1,6 @@
 import { Habit, HabitCreateInput, HabitUpdateInput, SchedulerCreateInput, User } from '@prisma/client';
 import { Response } from 'express';
-import moment from 'moment-timezone';
+import moment from 'moment';
 import { HttpError } from 'routing-controllers';
 import { ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import { CommitRepository } from '../repository/CommitRepository';
@@ -13,6 +13,7 @@ import { LevelUtil } from '../utils/LevelUtil';
 import { CreateHabitRequestDto, GetHabitRequestDto, HabitID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
+require('moment-timezone');
 
 export class HabitService extends BaseService {
   private habitRepository: HabitRepository;
@@ -255,7 +256,6 @@ export class HabitService extends BaseService {
 
   // redis에 습관 추가
   private async addHabitInRedis(habit: Habit, user: User) {
-    console.log(habit.alarmTime);
     if (habit.dayOfWeek[moment().day()] === '1') {
       const time = moment().startOf('minutes');
       const alarmTime = moment(habit.alarmTime, 'HH:mm');
