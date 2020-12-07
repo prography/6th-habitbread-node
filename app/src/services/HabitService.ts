@@ -1,6 +1,6 @@
 import { Habit, HabitCreateInput, HabitUpdateInput, SchedulerCreateInput, User } from '@prisma/client';
 import { Response } from 'express';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { HttpError } from 'routing-controllers';
 import { ForbiddenError, InternalServerError, NotFoundError } from '../exceptions/Exception';
 import { CommitRepository } from '../repository/CommitRepository';
@@ -54,6 +54,7 @@ export class HabitService extends BaseService {
         const time = moment().startOf('minutes');
         const alarmTime = moment(newHabit.alarmTime, 'HH:mm');
         if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(user, newHabit);
+        console.log(time, alarmTime, time.isBefore(alarmTime));
       }
 
       return newHabit;

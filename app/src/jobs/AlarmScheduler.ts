@@ -31,6 +31,7 @@ const scheduler = {
   SendAlarmJob: async () => {
     console.log('SendAlarm 스케줄러 정상 작동');
     schedule.scheduleJob('*/1 * * * *', async () => {
+      moment.tz.setDefault('Asia/Seoul');
       console.log('FCM 전송 스케줄러 작동');
       try {
         // eslint-disable-next-line no-constant-condition

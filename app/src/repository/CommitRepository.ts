@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { BaseRepository } from './BaseRepository';
 
 export class CommitRepository extends BaseRepository {

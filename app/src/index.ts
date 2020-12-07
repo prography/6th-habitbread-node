@@ -1,6 +1,9 @@
+import moment from 'moment-timezone';
 import app from './app';
 import env from './configs/index';
 import alarmScheduler from './jobs/AlarmScheduler';
+moment.tz.setDefault('Asia/Seoul');
+
 
 // Server listen
 const listenServer = () => {

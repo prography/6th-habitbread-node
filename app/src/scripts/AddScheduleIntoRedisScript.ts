@@ -22,13 +22,12 @@ const AddSchedule = async (schedule: any) => {
       select: { user: true, habitId: true, alarmTime: true, title: true, dayOfWeek: true },
     });
     if (habitCheckWithUser(habit)) return;
-    if (moment(habit!.alarmTime, 'HH:mm').isBefore(moment())) return;
-
-    console.log(schedule);
-
-    await redis.sadd(moment(habit!.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit!.habitId));
     await redis.hmset(`habitId:${habit!.habitId}`, ['user', habit!.user.userId, 'title', habit!.title, 'dayOfWeek', habit!.dayOfWeek]);
     await redis.expire(`habitId:${habit!.habitId}`, 604860);
+
+    if (moment(habit!.alarmTime, 'HH:mm').isBefore(moment())) return;
+    await redis.sadd(moment(habit!.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit!.habitId));
+
   } catch (err) {
     console.log(err);
   }
