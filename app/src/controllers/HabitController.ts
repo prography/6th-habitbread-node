@@ -1,4 +1,4 @@
-import { Habit, PrismaClient, User } from '@prisma/client';
+import { Habit, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import moment from 'moment-timezone';
@@ -89,7 +89,7 @@ export class HabitController extends BaseController {
 
   async addOrUpdateRedis(habit: Habit, user: User) {
     await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
-    await this.redis.hmset(`habitId:${habit.habitId}`, ['userId', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
+    await this.redis.hmset(`habitId:${habit.habitId}`, ['user', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
     await this.redis.expire(`habitId:${habit.habitId}`, 604860);
   }
 }

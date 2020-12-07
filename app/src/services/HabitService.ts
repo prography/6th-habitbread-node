@@ -13,6 +13,7 @@ import { LevelUtil } from '../utils/LevelUtil';
 import { CreateHabitRequestDto, GetHabitRequestDto, HabitID, UpdateHabitRequestDto } from '../validations/HabitValidation';
 import { BaseService } from './BaseService';
 import { errorService } from './LogService';
+require('moment-timezone');
 
 export class HabitService extends BaseService {
   private habitRepository: HabitRepository;
@@ -25,7 +26,7 @@ export class HabitService extends BaseService {
 
   constructor() {
     super();
-    moment.tz.setDefault('Aisa/Seoul');
+    moment.tz.setDefault('Asia/Seoul');
     this.habitRepository = new HabitRepository();
     this.schedulerRepository = new SchedulerRepository();
     this.commitRepository = new CommitRepository();
@@ -49,12 +50,7 @@ export class HabitService extends BaseService {
         habitId: newHabit.habitId,
       };
       await this.schedulerRepository.create(schedulerPayload);
-
-      if (newHabit.dayOfWeek[moment().day()] === '1') {
-        const time = moment().startOf('minutes');
-        const alarmTime = moment(newHabit.alarmTime, 'HH:mm');
-        if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(user, newHabit);
-      }
+      await this.addHabitInRedis(newHabit, user);
 
       return newHabit;
     } catch (err) {
@@ -137,14 +133,14 @@ export class HabitService extends BaseService {
         const updateHabit = await this.habitRepository.updateById(id.habitId, habitPayload);
 
         // 스케줄러 편집
-        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(updateHabit.habitId));
+        await this.deleteHabitInRedis(findHabit);
 
         if (habitPayload.alarmTime === null) {
           if (findHabit.alarmTime) await this.schedulerRepository.deleteByHabitId(updateHabit.habitId);
           return updateHabit;
         }
         await this.schedulerRepository.upsert(user.userId, updateHabit.habitId, findHabit.habitId);
-        await this.addOrUpdateRedis(user, updateHabit);
+        await this.addHabitInRedis(updateHabit, user);
         return updateHabit;
       }
       throw new ForbiddenError('잘못된 접근입니다.');
@@ -165,7 +161,10 @@ export class HabitService extends BaseService {
         await this.commitRepository.deleteAllByHabitId(id.habitId);
         await this.schedulerRepository.deleteAllByHabitId(id.habitId);
         await this.habitRepository.deleteById(id.habitId);
-        await this.redis.srem(moment(findHabit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(findHabit.habitId));
+
+        // 레디스에서 삭제
+        // 레디스에는 앞으로의 습관 계획이 적혀있기 때문에 이를 고려해야합니다.
+        await this.deleteHabitInRedis(findHabit);
         // Success
         return;
       }
@@ -217,9 +216,59 @@ export class HabitService extends BaseService {
   }
 
   // Redis 추가 or 업데이트 작업
-  private async addOrUpdateRedis(user: User, habit: Habit) {
-    await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
-    await this.redis.hmset(`habitId:${habit.habitId}`, ['userId', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
+  private async addOrUpdateRedis(alarmTime: string, user: User, habit: Habit) {
+    console.log(alarmTime);
+    await this.redis.sadd(alarmTime, String(habit.habitId));
+    await this.redis.hmset(`habitId:${habit.habitId}`, ['user', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
     await this.redis.expire(`habitId:${habit.habitId}`, 604860);
+  }
+
+  // 다음에 습관을 해야 하는 날짜 계산
+  private calculateAlarmDay(habit: Habit) {
+    const checkIndexOfNextDay = (todayIndex: number, dayOfWeek: string) => {
+      let indexOfNextDay = todayIndex + 1;
+      if (indexOfNextDay === 7) indexOfNextDay = 0;
+      while (dayOfWeek[indexOfNextDay] !== '1') {
+        indexOfNextDay++;
+        if (indexOfNextDay === 7) indexOfNextDay = 0;
+      }
+      return indexOfNextDay;
+    };
+    const indexOfNextDay = checkIndexOfNextDay(moment().day(), habit.dayOfWeek);
+    let dateToAdd;
+    if (indexOfNextDay <= moment().day()) dateToAdd = 7 - moment().day() + indexOfNextDay;
+    else dateToAdd = indexOfNextDay - moment().day();
+
+    return dateToAdd;
+  }
+
+  // redis에서 습관 삭제
+  private async deleteHabitInRedis(habit: Habit) {
+    if(habit.dayOfWeek[moment().day()] === '1'){
+      if(moment(habit.alarmTime, 'HH:mm').isAfter(moment().minutes())){
+        await this.redis.srem(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
+      }
+    } else {
+      const dateToAdd = this.calculateAlarmDay(habit);
+      await this.redis.srem(moment().add(dateToAdd, 'days').format('MMDDHHmm'), String(habit.habitId));
+    }
+  }
+
+  // redis에 습관 추가
+  private async addHabitInRedis(habit: Habit, user: User) {
+    if (habit.dayOfWeek[moment().day()] === '1') {
+      const time = moment().startOf('minutes');
+      const alarmTime = moment(habit.alarmTime, 'HH:mm');
+      if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(alarmTime.format('MMDDHHmm'), user, habit);
+      else {
+        const dateToAdd = this.calculateAlarmDay(habit);
+        const alarmTime = moment(habit.alarmTime, 'HH:mm').add(dateToAdd, 'days');
+        await this.addOrUpdateRedis(alarmTime.format('MMDDHHmm'), user, habit);
+      }
+    } else {
+      const dateToAdd = this.calculateAlarmDay(habit);
+      const alarmTime = moment(habit.alarmTime, 'HH:mm').add(dateToAdd, 'days');
+      await this.addOrUpdateRedis(alarmTime.format('MMDDHHmm'), user, habit);
+    }
   }
 }

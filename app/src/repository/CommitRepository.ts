@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { BaseRepository } from './BaseRepository';
 
 export class CommitRepository extends BaseRepository {
@@ -7,7 +7,7 @@ export class CommitRepository extends BaseRepository {
 
   constructor() {
     super();
-    moment.tz.setDefault('Aisa/Seoul');
+    moment.tz.setDefault('Asia/Seoul');
     this.prisma = new PrismaClient();
   }
 
