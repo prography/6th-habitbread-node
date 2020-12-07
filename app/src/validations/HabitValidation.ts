@@ -2,7 +2,7 @@ import { HabitCreateInput, HabitUpdateInput, User } from '@prisma/client';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import moment from 'moment-timezone';
 
-moment.tz.setDefault('Aisa/Seoul');
+moment.tz.setDefault('Asia/Seoul');
 
 export class CreateHabitRequestDto {
   @IsString()

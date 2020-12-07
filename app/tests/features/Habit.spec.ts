@@ -10,7 +10,7 @@ import { createHabit } from '../utils/HabitUtil';
 import { createUserWithFCM } from '../utils/UserUtil';
 
 dotenv.config({ path: `${__dirname}/../../.env.test` });
-moment.tz.setDefault('Aisa/Seoul');
+moment.tz.setDefault('Asia/Seoul');
 
 describe('testHabit', () => {
   const testClient = supertest(app);

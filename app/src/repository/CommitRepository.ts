@@ -7,7 +7,7 @@ export class CommitRepository extends BaseRepository {
 
   constructor() {
     super();
-    moment.tz.setDefault('Aisa/Seoul');
+    moment.tz.setDefault('Asia/Seoul');
     this.prisma = new PrismaClient();
   }
 
