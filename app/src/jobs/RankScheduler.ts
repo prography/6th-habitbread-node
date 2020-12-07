@@ -1,7 +1,6 @@
 import { PrismaClient, User } from '@prisma/client';
 import schedule from 'node-schedule';
 import logger from '../configs/LogConfig';
-import { CommitRepository } from '../repository/CommitRepository';
 import { HabitRepository } from '../repository/HabitRepository';
 import RedisRepository from '../repository/RedisRepository';
 import { AchievementUtil } from '../utils/AchievementUtil';
@@ -9,7 +8,7 @@ import { AchievementUtil } from '../utils/AchievementUtil';
 const prisma = new PrismaClient();
 const redis = new RedisRepository();
 const habitRepository = new HabitRepository();
-const commitRepository = new CommitRepository();
+const achievementUtil = new AchievementUtil();
 const expire = 31 * 60; // 31분
 
 // Redis에 랭킹 데이터 저장
@@ -29,8 +28,9 @@ const upsertRanking = async (user: User) => {
   let achievement = 0;
   if (habits.length > 0) {
     habits.forEach(async habit => {
-      const historyCount = await commitRepository.countLastMonth(habit.habitId);
-      const newHabit: any = AchievementUtil.calulateAchievement(habit, historyCount);
+      const newHabit: any = achievementUtil.calulateAchievement(habit);
+      delete newHabit.commitHistory;
+      delete newHabit.dayOfWeek;
       achievement += newHabit.percent;
     });
 

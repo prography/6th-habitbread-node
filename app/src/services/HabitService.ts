@@ -7,6 +7,7 @@ import { CommitRepository } from '../repository/CommitRepository';
 import { HabitRepository } from '../repository/HabitRepository';
 import RedisRepository from '../repository/RedisRepository';
 import { SchedulerRepository } from '../repository/SchedulerRepository';
+import { AchievementUtil } from '../utils/AchievementUtil';
 import { CommentUtil } from '../utils/CommentUtil';
 import { ItemUtil } from '../utils/ItemUtil';
 import { LevelUtil } from '../utils/LevelUtil';
@@ -19,6 +20,7 @@ export class HabitService extends BaseService {
   private schedulerRepository: SchedulerRepository;
   private commitRepository: CommitRepository;
   private redis: RedisRepository;
+  private achievementUtil: AchievementUtil;
   private commentUtil: any;
   private levelUtil: any;
   private itemUtil: any;
@@ -30,6 +32,7 @@ export class HabitService extends BaseService {
     this.schedulerRepository = new SchedulerRepository();
     this.commitRepository = new CommitRepository();
     this.redis = new RedisRepository();
+    this.achievementUtil = new AchievementUtil();
     this.commentUtil = new CommentUtil();
     this.levelUtil = new LevelUtil();
     this.itemUtil = new ItemUtil();
@@ -67,10 +70,21 @@ export class HabitService extends BaseService {
   // 일주일 이내 커밋했던 모든 습관 가져오기
   public async findAllHabitWithComment(user: User) {
     try {
-      const habits = await this.habitRepository.findAllByUserIdWithinAWeek(user.userId);
       let todayDoneHabit = 0;
       let todayHabit = 0;
+
+      let habits = await this.habitRepository.findAllByUserId(user.userId);
+      habits = await Promise.all(
+        habits.map(habit => this.achievementUtil.calulateAchievement(habit))
+      )
       habits.forEach(habit => {
+        habit.commitHistory = habit.commitHistory.filter(history => {
+          const date = moment(history.createdAt)
+          const start = moment().startOf('weeks').toDate();
+          const end = moment().endOf('weeks').toDate();
+          return date.isBetween(start, end)
+        })
+
         if (habit.dayOfWeek[moment().day()] === '1') {
           if (habit.commitHistory.length) {
             if (moment(habit.commitHistory[habit.commitHistory.length - 1].createdAt).format('yyyy-MM-DD') === moment().format('yyyy-MM-DD'))
@@ -78,8 +92,8 @@ export class HabitService extends BaseService {
           }
           todayHabit++;
         }
-      });
-
+      })
+      
       const comment = this.commentUtil.selectComment(todayHabit, todayDoneHabit);
 
       return { habits, comment };

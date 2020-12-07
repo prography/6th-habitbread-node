@@ -32,7 +32,7 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
-  public async findAllByUserIdWithinAWeek(userId: number) {
+  public async findAllByUserId(userId: number) {
     return this.prisma.habit.findMany({
       where: { userId },
       select: {
@@ -41,12 +41,6 @@ export class HabitRepository extends BaseRepository {
         description: true,
         dayOfWeek: true,
         commitHistory: {
-          where: {
-            createdAt: {
-              gte: moment().startOf('weeks').toDate(),
-              lte: moment().endOf('weeks').toDate(),
-            },
-          },
           select: { createdAt: true },
         },
       },

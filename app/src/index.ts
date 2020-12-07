@@ -21,4 +21,4 @@ const listenLocal = async () => listenServer();
 if (env.NODE_ENV === 'local') listenLocal();
 else listenProdAndDev();
 
-console.log(env);
+console.log(`NODE_ENV : ${env.NODE_ENV}`);
