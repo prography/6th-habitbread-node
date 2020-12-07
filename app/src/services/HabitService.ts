@@ -255,18 +255,22 @@ export class HabitService extends BaseService {
 
   // redis에 습관 추가
   private async addHabitInRedis(habit: Habit, user: User) {
+    console.log(habit.alarmTime);
     if (habit.dayOfWeek[moment().day()] === '1') {
       const time = moment().startOf('minutes');
       const alarmTime = moment(habit.alarmTime, 'HH:mm');
+      console.log(alarmTime);
       if (time.isBefore(alarmTime)) await this.addOrUpdateRedis(alarmTime.format('MMDDHHmm'), user, habit);
       else {
         const dateToAdd = this.calculateAlarmDay(habit);
         const alarmTime = moment(habit.alarmTime, 'HH:mm').add(dateToAdd, 'days');
+        console.log(alarmTime);
         await this.addOrUpdateRedis(alarmTime.format('MMDDHHmm'), user, habit);
       }
     } else {
       const dateToAdd = this.calculateAlarmDay(habit);
       const alarmTime = moment(habit.alarmTime, 'HH:mm').add(dateToAdd, 'days');
+      console.log(alarmTime);
       await this.addOrUpdateRedis(alarmTime.format('MMDDHHmm'), user, habit);
     }
   }
