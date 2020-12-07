@@ -220,7 +220,7 @@ export class HabitService extends BaseService {
   // Redis 추가 or 업데이트 작업
   private async addOrUpdateRedis(user: User, habit: Habit) {
     await this.redis.sadd(moment(habit.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit.habitId));
-    await this.redis.hmset(`habitId:${habit.habitId}`, ['userId', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
+    await this.redis.hmset(`habitId:${habit.habitId}`, ['user', user.userId, 'title', habit.title, 'dayOfWeek', habit.dayOfWeek]);
     await this.redis.expire(`habitId:${habit.habitId}`, 604860);
   }
 }

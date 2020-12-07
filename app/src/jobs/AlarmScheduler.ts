@@ -39,7 +39,7 @@ const scheduler = {
           const habitId = await redis.spop(moment().format('MMDDHHmm'));
           console.log(moment().format('MMDDHHmm'), '보내야 되는 습관들 : ', habitId);
           if (habitId === null) break;
-          const [user, title, dayOfWeek] = await redis.hmget(`habitId:${habitId}`, ['userId', 'title', 'dayOfWeek']);
+          const [user, title, dayOfWeek] = await redis.hmget(`habitId:${habitId}`, ['user', 'title', 'dayOfWeek']);
           const [isAlarmOn, FCMToekn] = await redis.hmget(`user:${user}`, ['isAlarmOn', 'FCMToken']);
           if (isAlarmOn === '0') break;
           const AMPM = moment().hours() >= 12 ? 'PM' : 'AM';
