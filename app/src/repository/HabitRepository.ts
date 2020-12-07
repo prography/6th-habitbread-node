@@ -18,9 +18,16 @@ export class HabitRepository extends BaseRepository {
     });
   }
 
+  // userId로 모든 습관 찾기
+  public async findAll(userId: number){
+    return this.prisma.habit.findMany({
+      where: { userId }
+    });
+  }
+
   // habitId로 습관 찾기
   public async findById(habitId: number) {
-    return await this.prisma.habit.findOne({
+    return this.prisma.habit.findOne({
       where: { habitId },
     });
   }
