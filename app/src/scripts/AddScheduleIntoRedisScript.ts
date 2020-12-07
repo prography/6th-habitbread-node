@@ -38,9 +38,6 @@ const AddSchedule = async (schedule: any) => {
     await redis.hmset(`habitId:${habit!.habitId}`, ['user', habit!.userId, 'title', habit!.title, 'dayOfWeek', habit!.dayOfWeek]);
     await redis.expire(`habitId:${habit!.habitId}`, 604860);
 
-    if (moment(habit!.alarmTime, 'HH:mm').isBefore(moment())) return;
-    await redis.sadd(moment(habit!.alarmTime, 'HH:mm').format('MMDDHHmm'), String(habit!.habitId));
-
     if (habit!.dayOfWeek[moment().day()] === '1') {
       const time = moment().startOf('minutes');
       const alarmTime = moment(habit!.alarmTime, 'HH:mm');
