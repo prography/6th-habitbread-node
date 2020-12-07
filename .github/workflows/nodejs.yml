@@ -32,6 +32,19 @@ jobs:
           # Maps port 6379 on service container to the host
           - 6379:6379
 
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: test
+        options: >-
+          --health-cmd="mysqladmin ping" 
+          --health-interval=5s 
+          --health-timeout=2s 
+          --health-retries=3
+        ports:
+          - 3306:3306
+
     steps:
       - uses: actions/checkout@v2
 
@@ -52,7 +65,7 @@ jobs:
           ENV=test npm run prisma:generate
           ENV=test npm run prisma:up
         env:
-          DB_URL: ${{ secrets.DB_URL_TEST }}
+          DB_URL: mysql://root:password@mysql/test
 
       - name: Run Test
         run: |
@@ -60,7 +73,7 @@ jobs:
           npm test
         env:
           PORT: 3001
-          DB_URL: ${{ secrets.DB_URL_TEST }}
+          DB_URL: mysql://root:password@mysql/test
           PASSWORD_SECRET: ${{ secrets.PASSWORD_SECRET }}
           TEST_USER_OAUTH_KEY: ${{ secrets.TEST_USER_OAUTH_KEY }}
           # GOOGLE FCM
