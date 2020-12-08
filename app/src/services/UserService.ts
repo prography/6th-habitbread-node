@@ -1,21 +1,30 @@
 import { User } from '@prisma/client';
+import * as AWS from 'aws-sdk';
+import { S3 } from 'aws-sdk';
+import moment from 'moment';
 import { UserInfo } from '../@types/Types';
+import env from '../configs/index';
 import RedisRepository from '../repository/RedisRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { LevelUtil } from '../utils/LevelUtil';
+import { ImageDto } from '../validations/ImageValidation';
 import { UserRequestDto } from '../validations/UserValidation';
 import { BaseService } from './BaseService';
+require('moment-timezone');
 
 export class UserService extends BaseService {
   private levelUtil: LevelUtil;
   private redis: RedisRepository;
   private userRepository: UserRepository;
+  private s3: S3;
 
   constructor() {
     super();
+    moment.tz.setDefault('Asia/Seoul');
     this.levelUtil = new LevelUtil();
     this.redis = new RedisRepository();
     this.userRepository = new UserRepository();
+    this.s3 = new AWS.S3(env.AWS);
   }
 
   public async findUser(currentUser: UserInfo) {
@@ -53,5 +62,19 @@ export class UserService extends BaseService {
     await this.userRepository.deleteById(currentUser.userId);
 
     return { message: 'Delete User Success' };
+  }
+
+  public async uploadImage(currentUser: User, file: ImageDto) {
+    const key = `user/${moment().format('YYYYMMDDhhmmss')}_${file.originalname}`;
+    const params: AWS.S3.Types.PutObjectRequest = {
+      Bucket: 'habitbread',
+      Key: key,
+      ACL: 'public-read',
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+    const uploadImage = await this.s3.upload(params).promise();
+    console.log(uploadImage);
+    return 'uploadImage';
   }
 }

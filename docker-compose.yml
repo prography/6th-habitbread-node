@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   mysql-database:
     container_name: mysql-database
@@ -34,7 +34,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - NODE_ENV=dev
+      - NODE_ENV=local
     env_file:
       - ./app/.env
       - ./app/.env.dev
@@ -46,8 +46,8 @@ services:
     command:
       - /bin/bash
       - -c
-      - './docker-entrypoint.dev.sh
-        && npm run dev'
+      - "./docker-entrypoint.dev.sh
+        && npm run dev"
     networks:
       backend:
         ipv4_address: 172.16.5.4
