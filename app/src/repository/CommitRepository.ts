@@ -17,6 +17,19 @@ export class CommitRepository extends BaseRepository {
     });
   }
 
+  // 지난 1달간 커밋 횟수
+  public async countLastMonth(habitId: number){
+    return this.prisma.commitHistory.count({
+      where: {
+        habitId,
+        createdAt: {
+          gte: moment().subtract(1, 'months').startOf('days').toDate(),
+          lte: moment().endOf('days').toDate(),
+        },
+      },
+    })
+  }
+
   public async countWithinLastMonth(habitId: number, year: number, month: number) {
     return this.prisma.commitHistory.count({
       where: {

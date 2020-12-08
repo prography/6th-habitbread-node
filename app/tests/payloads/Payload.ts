@@ -56,18 +56,21 @@ export class Payload {
         title: '습관빵 코딩',
         dayOfWeek: '0111000',
         commitHistory: [],
+        percent: 0
       },
       {
         habitId: habitId + 1,
         title: '파출소 출근하기',
         dayOfWeek: '1111111',
         commitHistory: [],
+        percent: 0
       },
       {
         habitId: habitId + 2,
         title: '프로그라피 노드 스터디하기',
         dayOfWeek: '0100000',
         commitHistory: [],
+        percent: 0
       },
     ];
   }
