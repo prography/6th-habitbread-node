@@ -14,6 +14,17 @@ export class ItemService extends BaseService {
     this.itemRepository = new ItemRepository();
   }
 
+  // 모든 이미지 가져오기
+  public async findAll(){
+    try {
+      return this.itemRepository.findAll();
+    } catch (err){
+      errorService(err);
+      if (err instanceof HttpError) throw err;
+      throw new InternalServerError(err.message);
+    }
+  }
+
   // 특정 사용자 ID로 모든 Item 가져오기
   public async findAllItem(user: User) {
     try {

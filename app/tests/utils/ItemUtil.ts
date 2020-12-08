@@ -19,6 +19,7 @@ export const createItem = async (prisma: PrismaClient, item: AddItem) => {
       name: item.name,
       description: item.description,
       level: item.level,
+      link: item.link,
     },
   });
   return newItem;

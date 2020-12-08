@@ -11,12 +11,12 @@ export class AddItem {
   name!: string;
   description!: string;
   level!: number;
-  img!: string;
+  link!: string;
 
   constructor(payload: any) {
     this.name = payload.name;
     this.description = payload.description;
     this.level = payload.level;
-    this.img = payload.img;
+    this.link = payload.link;
   }
 }

@@ -8,6 +8,10 @@ export class ItemRepository extends BaseRepository {
     super();
     this.prisma = new PrismaClient();
   }
+  
+  public async findAll(){
+    return this.prisma.item.findMany();
+  }
 
   public async create(userId: number, itemId: number) {
     return this.prisma.userItem.create({

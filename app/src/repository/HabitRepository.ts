@@ -97,7 +97,7 @@ export class HabitRepository extends BaseRepository {
         commitHistory: { create: {} },
         continuousCount,
         user: {
-          update: { exp: userExp + 5 },
+          update: { exp: userExp + 10 },
         },
       },
       select: {
