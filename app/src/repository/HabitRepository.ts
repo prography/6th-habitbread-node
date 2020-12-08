@@ -11,6 +11,10 @@ export class HabitRepository extends BaseRepository {
     this.prisma = new PrismaClient();
   }
 
+  public async disconnect(){
+    await this.prisma.disconnect()
+  }
+
   // 습관 추가하기 (with 사용자)
   public async create(payload: HabitCreateInput) {
     return this.prisma.habit.create({

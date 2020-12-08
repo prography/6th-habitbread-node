@@ -11,6 +11,10 @@ export class CommitRepository extends BaseRepository {
     this.prisma = new PrismaClient();
   }
 
+  public async disconnect(){
+    await this.prisma.disconnect()
+  }
+
   public async count(habitId: number) {
     return this.prisma.commitHistory.count({
       where: { habitId },

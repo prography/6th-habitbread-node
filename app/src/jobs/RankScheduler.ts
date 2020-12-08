@@ -28,7 +28,7 @@ const upsertRanking = async (user: User) => {
   let achievement = 0;
   if (habits.length > 0) {
     habits.forEach(async habit => {
-      const newHabit: any = achievementUtil.calulateAchievement(habit);
+      const newHabit: any = await achievementUtil.calulateAchievement(habit);
       delete newHabit.commitHistory;
       delete newHabit.dayOfWeek;
       achievement += newHabit.percent;
@@ -58,6 +58,8 @@ export const rankingJob = async () => {
 export const disconnect = async () => {
   await redis.quit();
   await prisma.disconnect();
+  await habitRepository.disconnect()
+  await achievementUtil.disconnect()
 };
 
 const scheduler = {

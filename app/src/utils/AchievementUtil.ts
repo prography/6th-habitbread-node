@@ -10,6 +10,10 @@ export class AchievementUtil extends Util {
     this.commitRepository = new CommitRepository();
   }
 
+  public async disconnect(){
+    await this.commitRepository.disconnect();
+  }
+
   public async calulateAchievement(habit: any) {
     const historyCount = await this.commitRepository.countLastMonth(habit.habitId);
     
