@@ -34,6 +34,7 @@ describe('Test User', () => {
   test('Get - /users', async () => {
     const res = await client.get('/users').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
+    delete res.body.image;
     assertUser(res.body);
   });
 
@@ -44,6 +45,7 @@ describe('Test User', () => {
     };
     const res = await client.patch('/users').set('Authorization', `Bearer ${token}`).send(payload);
     expect(res.status).toBe(200);
+    delete res.body.image;
     assertUser(res.body);
 
     expect(user.name).not.toEqual(res.body.name);
@@ -53,6 +55,7 @@ describe('Test User', () => {
   test('Delete - /users', async () => {
     const res1 = await client.delete('/users').set('Authorization', `Bearer ${token}`);
     expect(res1.status).toBe(200);
+    delete res1.body.image;
     expect(res1.body).toEqual({ message: 'Delete User Success' });
 
     const res2 = await client.get('/users').set('Authorization', `Bearer ${token}`);

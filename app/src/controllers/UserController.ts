@@ -51,10 +51,10 @@ export class UserController extends BaseController {
 
   // 이미지 업로드
   @Post('/users/image')
-  public async uploadImage(@CurrentUser() currentUser: User, @UploadedFile('file') file: ImageDto) {
+  public async updateImage(@CurrentUser() currentUser: User, @UploadedFile('file') file: ImageDto) {
     try {
       if (!this.allowedMimeTypes.includes(file.mimetype)) throw new BadRequestError('지원하지 않는 이미지 형식입니다.');
-      return await this.userService.uploadImage(currentUser, file);
+      return await this.userService.updateImage(currentUser, file);
     } catch (err) {
       if (err instanceof MulterError) throw err;
       if (err instanceof HttpError) throw err;

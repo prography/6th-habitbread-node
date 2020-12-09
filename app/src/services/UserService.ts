@@ -64,17 +64,24 @@ export class UserService extends BaseService {
     return { message: 'Delete User Success' };
   }
 
-  public async uploadImage(currentUser: User, file: ImageDto) {
+  public async updateImage(currentUser: User, file: ImageDto) {
+    const user = await this.userRepository.findByOAuthKey(currentUser.oauthKey);
+    const originalImage = user?.image?.split('.com/')[1] as string;
+    if (originalImage) {
+      const paramsForDelete = {
+        Bucket: 'habitbread', // 사용자 버켓 이름
+        Key: originalImage, // 버켓 내 경로
+      };
+      await this.s3.deleteObject(paramsForDelete).promise();
+    }
     const key = `user/${moment().format('YYYYMMDDhhmmss')}_${file.originalname}`;
-    const params: AWS.S3.Types.PutObjectRequest = {
+    const paramsForUpload: AWS.S3.PutObjectRequest = {
       Bucket: 'habitbread',
       Key: key,
-      ACL: 'public-read',
       Body: file.buffer,
-      ContentType: file.mimetype,
     };
-    const uploadImage = await this.s3.upload(params).promise();
-    console.log(uploadImage);
-    return 'uploadImage';
+
+    const uploadImage = await this.s3.upload(paramsForUpload).promise();
+    return await this.userRepository.updateImage(uploadImage.Location, currentUser.userId);
   }
 }

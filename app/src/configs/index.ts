@@ -1,5 +1,5 @@
 import { AppleAuthConfig } from 'apple-auth';
-import { ConfigurationOptions } from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 import dotenv from 'dotenv';
 import { RedisConfig, ServiceAccount } from '../@types/Types';
 
@@ -53,7 +53,7 @@ const awsConfig = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECERT_ACCESS_KEY,
   region: 'ap-northeast-2',
-} as ConfigurationOptions;
+} as S3.ClientConfiguration;
 
 // ENV Module
 export default {
