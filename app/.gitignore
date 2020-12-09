@@ -14,4 +14,4 @@ src/configs/apple-auth
 logs/**/*.log
 
 DS_Store
-../.DS_Store
+**/*/.DS_Store
