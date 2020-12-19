@@ -5,7 +5,7 @@ generator client {
 
 datasource mysql {
   provider = "mysql"
-  url      = env("DB_URL")
+  url = "***"
 }
 
 model Scheduler {

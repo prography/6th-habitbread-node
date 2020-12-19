@@ -1,4 +1,5 @@
 import { AppleAuthConfig } from 'apple-auth';
+import { S3 } from 'aws-sdk';
 import dotenv from 'dotenv';
 import { RedisConfig, ServiceAccount } from '../@types/Types';
 
@@ -48,6 +49,12 @@ const redisConfig = {
   port: Number(process.env.REDIS_PORT),
 } as RedisConfig;
 
+const awsConfig = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECERT_ACCESS_KEY,
+  region: 'ap-northeast-2',
+} as S3.ClientConfiguration;
+
 // ENV Module
 export default {
   NODE_ENV: NODE_ENV,
@@ -66,4 +73,5 @@ export default {
   FCM: fcmConfig,
   REDIS: redisConfig,
   SENTRY_DNS: process.env.SENTRY_DNS,
+  AWS: awsConfig,
 };

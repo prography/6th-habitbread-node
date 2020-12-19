@@ -1,21 +1,26 @@
 import { User } from '@prisma/client';
 import { validate } from 'class-validator';
-import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch } from 'routing-controllers';
+import { MulterError } from 'multer';
+import { Body, CurrentUser, Delete, Get, HttpError, JsonController, Patch, Post, UploadedFile } from 'routing-controllers';
 import { v4 as uuid } from 'uuid';
 import { UserInfo } from '../@types/Types';
 import { BadRequestError, InternalServerError } from '../exceptions/Exception';
 import { errorService } from '../services/LogService';
 import { UserService } from '../services/UserService';
+import { ImageDto } from '../validations/ImageValidation';
 import { UserRequestDto } from '../validations/UserValidation';
 import { BaseController } from './BaseController';
+
 const id: string = uuid();
 
 @JsonController()
 export class UserController extends BaseController {
   private userService: UserService;
+  private allowedMimeTypes: string[];
   constructor() {
     super();
     this.userService = new UserService();
+    this.allowedMimeTypes = ['image/png', 'image/jpeg', 'image/bmp', 'image/jpg'];
   }
 
   // 임시: prod 환경 Nginx 테스팅
@@ -41,6 +46,19 @@ export class UserController extends BaseController {
       errorService(err);
       if (err instanceof HttpError) throw err;
       throw new InternalServerError(err.message);
+    }
+  }
+
+  // 이미지 업로드
+  @Post('/users/image')
+  public async updateImage(@CurrentUser() currentUser: User, @UploadedFile('file') file: ImageDto) {
+    try {
+      if (!this.allowedMimeTypes.includes(file.mimetype)) throw new BadRequestError('지원하지 않는 이미지 형식입니다.');
+      return await this.userService.updateImage(currentUser, file);
+    } catch (err) {
+      if (err instanceof MulterError) throw err;
+      if (err instanceof HttpError) throw err;
+      console.error(err);
     }
   }
 

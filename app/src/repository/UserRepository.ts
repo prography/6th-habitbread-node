@@ -38,4 +38,11 @@ export class UserRepository extends BaseRepository {
       },
     });
   }
+
+  public async updateImage(image: string, userId: number) {
+    return this.prisma.user.update({
+      where: { userId },
+      data: { image },
+    });
+  }
 }
