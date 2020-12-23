@@ -12,6 +12,7 @@ services:
     restart: on-failure
     volumes:
       - ./db/data:/var/lib/mysql
+      - ./db/conf.d:/etc/mysql/conf.d
     networks:
       backend:
         ipv4_address: 172.16.5.2
