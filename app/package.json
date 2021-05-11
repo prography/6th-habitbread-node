@@ -40,7 +40,7 @@
     "googleapis": "^51.0.0",
     "greenlock-express": "^4.0.3",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment-timezone": "^0.5.31",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
